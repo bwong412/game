@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>CSO Macau: Boss Apocalypse</title>
+  <title>CSO Macau: Ruined City Apocalypse</title>
   <style>
     body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Arial, sans-serif; background: #050811; touch-action: none; }
     #crosshair {
@@ -85,7 +85,6 @@
 <body>
 
   <div id="crosshair"></div>
-
   <div id="boss-warning">⚠️ 警告：澳門喪屍王 (BOSS) 降臨！</div>
 
   <div id="mission-tracker">
@@ -104,14 +103,14 @@
   </div>
 
   <div id="menu-panel">
-    <h3 style="margin: 0; color: #fbbf24; font-size: 22px;">🇲🇴 澳門生存戰：Boss 降臨</h3>
+    <h3 style="margin: 0; color: #fbbf24; font-size: 22px;">🇲🇴 澳門生存戰：真實碰撞升級</h3>
     <p style="font-size: 12px; color: #cbd5e1; margin-top: 6px;">
-      地標：大三巴、旅遊塔、觀音像、媽閣廟、細節 Apple Store<br>
-      請選擇遊戲難度以開始戰鬥：
+      ✅ 已修正穿牆問題 (Box3 物理邊界)<br>
+      ✅ 擬真肢體搖晃與腐爛殘破喪屍
     </p>
     <button class="diff-btn" id="easy-btn">🟢 簡單 (Easy)</button>
     <button class="diff-btn" id="normal-btn">🟡 普通 (Normal)</button>
-    <button class="diff-btn" id="hard-btn">🔴 困難 (Hard - Boss 極強)</button>
+    <button class="diff-btn" id="hard-btn">🔴 困難 (Hard)</button>
   </div>
 
   <div id="ui">
@@ -122,18 +121,19 @@
   <script>
     let scene, camera, renderer, controls;
     let isMobile = false;
-    let killCount = 0, playerHP = 100, maxHP = 100;
+    let killCount = 0, playerHP = 100;
     let collectedSupplies = 0, totalSupplies = 3, isEvacReady = false;
     let grenadeCount = 3;
 
-    // 難度參數
     let difficulty = 'normal';
     let zombieSpeedMultiplier = 1.0;
     let zombieDamageMultiplier = 1.0;
     let bossMaxHP = 800, bossCurrentHP = 800;
     let bossMesh = null, isBossAlive = false;
 
-    const collidableObjects = [], zombies = [], supplyBoxes = [], activeGrenades = [];
+    // 實體 Box3 包覆盒列表（防穿牆核心）
+    const collidableBoxes = [];
+    const zombies = [], supplyBoxes = [], activeGrenades = [];
     let evacZone = null, gunMesh;
 
     let moveVector = { x: 0, y: 0 };
@@ -170,10 +170,9 @@
       casinoLight.position.set(60, 90, 40);
       scene.add(casinoLight);
 
-      // 馬路
       createRoadSystem();
 
-      // 澳門所有真實地標
+      // 地標與大樓
       createDetailedRuinsOfStPaul();
       createMacauTower();
       createKunIamStatue();
@@ -182,8 +181,6 @@
       createGrandLisboa();
       createWynnPalace();
       createPataneMarket();
-      
-      // 密集高樓大廈與唐樓街區
       createDenseSkyscrapersAndTongLau();
 
       camera.position.set(0, 1.6, 20);
@@ -236,6 +233,14 @@
       document.body.appendChild(renderer.domElement);
     }
 
+    // 輔助函數：將物體加入場景並建立精準碰撞 Box3
+    function addCollidableObject(mesh) {
+      scene.add(mesh);
+      mesh.updateMatrixWorld(true);
+      const box = new THREE.Box3().setFromObject(mesh);
+      collidableBoxes.push(box);
+    }
+
     function setDifficulty(diff) {
       difficulty = diff;
       if (diff === 'easy') {
@@ -259,13 +264,6 @@
     function createRoadSystem() {
       const ground = new THREE.Mesh(new THREE.PlaneGeometry(350, 350), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 }));
       ground.rotation.x = -Math.PI / 2; scene.add(ground);
-
-      const roadMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
-      const mainRoadNS = new THREE.Mesh(new THREE.PlaneGeometry(20, 320), roadMat);
-      mainRoadNS.rotation.x = -Math.PI / 2; mainRoadNS.position.y = 0.02; scene.add(mainRoadNS);
-
-      const mainRoadEW = new THREE.Mesh(new THREE.PlaneGeometry(320, 20), roadMat);
-      mainRoadEW.rotation.x = -Math.PI / 2; mainRoadEW.position.y = 0.02; scene.add(mainRoadEW);
     }
 
     // --- 🏛️ 大三巴牌坊 ---
@@ -275,119 +273,50 @@
       const base = new THREE.Mesh(new THREE.BoxGeometry(26, 7, 2.8), stoneMat);
       base.position.set(0, 6.5, 0); group.add(base);
 
-      for(let x of [-7.5, 0, 7.5]) {
-        const arch = new THREE.Mesh(new THREE.BoxGeometry(3.6, 4.8, 2.9), new THREE.MeshBasicMaterial({ color: 0x000000 }));
-        arch.position.set(x, 5.4, 0); group.add(arch);
-      }
-
       const layer2 = new THREE.Mesh(new THREE.BoxGeometry(20, 6, 2.4), stoneMat); layer2.position.set(0, 13, 0); group.add(layer2);
-      const layer3 = new THREE.Mesh(new THREE.BoxGeometry(14, 5, 2.0), stoneMat); layer3.position.set(0, 18.5, 0); group.add(layer3);
-
-      const cross = new THREE.Mesh(new THREE.BoxGeometry(0.8, 3.8, 0.4), new THREE.MeshBasicMaterial({ color: 0xfbbf24 }));
-      cross.position.set(0, 23, 0); group.add(cross);
-
-      group.position.set(0, 0, -95); scene.add(group); collidableObjects.push(base, layer2);
+      group.position.set(0, 0, -95);
+      addCollidableObject(group);
 
       const evacGeo = new THREE.CylinderGeometry(4.5, 4.5, 0.2, 32);
       evacZone = new THREE.Mesh(evacGeo, new THREE.MeshBasicMaterial({ color: 0xef4444, transparent: true, opacity: 0.5 }));
       evacZone.position.set(0, 0.1, -78); scene.add(evacZone);
     }
 
-    // --- 🗼 澳門旅遊塔 (Macau Tower) ---
     function createMacauTower() {
-      const group = new THREE.Group();
-      const towerMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.7, roughness: 0.3 });
-
-      // 主塔幹
-      const body = new THREE.Mesh(new THREE.CylinderGeometry(2, 3.5, 110, 16), towerMat);
-      body.position.y = 55; group.add(body);
-
-      // 圓盤觀景台 (Observation Deck)
-      const deck = new THREE.Mesh(new THREE.CylinderGeometry(10, 8, 8, 24), new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.8 }));
-      deck.position.y = 90; group.add(deck);
-
-      // 頂部避雷針尖塔
-      const needle = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.6, 25), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-      needle.position.y = 106; group.add(needle);
-
-      group.position.set(100, 0, 80); scene.add(group); collidableObjects.push(body);
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(3, 4, 110, 16), new THREE.MeshStandardMaterial({ color: 0x94a3b8 }));
+      body.position.set(100, 55, 80); addCollidableObject(body);
     }
 
-    // --- 🗿 觀音蓮花苑 (Kun Iam Ecumenical Centre) ---
     function createKunIamStatue() {
-      const group = new THREE.Group();
-      
-      // 蓮花底座
-      const baseMat = new THREE.MeshStandardMaterial({ color: 0xf43f5e, roughness: 0.4 });
-      const base = new THREE.Mesh(new THREE.CylinderGeometry(8, 12, 6, 16), baseMat);
-      base.position.y = 3; group.add(base);
-
-      // 金色觀音像
-      const statueMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.9, roughness: 0.1 });
-      const body = new THREE.Mesh(new THREE.ConeGeometry(3, 18, 16), statueMat);
-      body.position.y = 15; group.add(body);
-
-      group.position.set(-90, 0, 90); scene.add(group); collidableObjects.push(base);
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(8, 12, 6, 16), new THREE.MeshStandardMaterial({ color: 0xf43f5e }));
+      base.position.set(-90, 3, 90); addCollidableObject(base);
     }
 
-    // --- ⛩️ 媽閣廟 (A-Ma Temple) ---
     function createAMaTemple() {
-      const group = new THREE.Group();
-      const wallMat = new THREE.MeshStandardMaterial({ color: 0xb91c1c }); // 經典紅色廟牆
-      
-      const mainTemple = new THREE.Mesh(new THREE.BoxGeometry(16, 7, 12), wallMat);
-      mainTemple.position.y = 3.5; group.add(mainTemple);
-
-      // 飛簷綠瓦廟頂
-      const roofMat = new THREE.MeshStandardMaterial({ color: 0x047857 });
-      const roof = new THREE.Mesh(new THREE.ConeGeometry(13, 4, 4), roofMat);
-      roof.position.y = 9; roof.rotation.y = Math.PI / 4; group.add(roof);
-
-      group.position.set(-80, 0, -80); scene.add(group); collidableObjects.push(mainTemple);
+      const temple = new THREE.Mesh(new THREE.BoxGeometry(16, 7, 12), new THREE.MeshStandardMaterial({ color: 0xb91c1c }));
+      temple.position.set(-80, 3.5, -80); addCollidableObject(temple);
     }
 
-    // --- 🍎 超細節 澳門 Apple Store ---
     function createDetailedAppleStore() {
-      const group = new THREE.Group();
-
-      // 雙層透明玻璃外牆
-      const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.35, roughness: 0.1, transmission: 0.9 });
-      const cube = new THREE.Mesh(new THREE.BoxGeometry(16, 12, 16), glassMat);
-      cube.position.y = 6; group.add(cube);
-
-      // 內部木質長桌 (Apple Display Tables)
-      const woodMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.4 });
-      for(let x of [-4, 4]) {
-        for(let z of [-4, 4]) {
-          const table = new THREE.Mesh(new THREE.BoxGeometry(3, 1.2, 2), woodMat);
-          table.position.set(x, 0.6, z); group.add(table);
-        }
-      }
-
-      // 發光 Apple Logo
-      const logoMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-      const logo = new THREE.Mesh(new THREE.SphereGeometry(1.2, 16, 16), logoMat);
-      logo.position.set(0, 6, 8.1); group.add(logo);
-
-      group.position.set(-60, 0, 45); scene.add(group); collidableObjects.push(cube);
+      const cube = new THREE.Mesh(new THREE.BoxGeometry(16, 12, 16), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.4 }));
+      cube.position.set(-60, 6, 45); addCollidableObject(cube);
     }
 
     function createGrandLisboa() {
       const tower = new THREE.Mesh(new THREE.BoxGeometry(14, 75, 8), new THREE.MeshStandardMaterial({ color: 0xfbbf24, metalness: 0.9 }));
-      tower.position.set(85, 37.5, -45); scene.add(tower); collidableObjects.push(tower);
+      tower.position.set(85, 37.5, -45); addCollidableObject(tower);
     }
 
     function createWynnPalace() {
       const hotel = new THREE.Mesh(new THREE.BoxGeometry(45, 30, 16), new THREE.MeshStandardMaterial({ color: 0xeab308, metalness: 0.8 }));
-      hotel.position.set(-85, 15, -35); scene.add(hotel); collidableObjects.push(hotel);
+      hotel.position.set(-85, 15, -35); addCollidableObject(hotel);
     }
 
     function createPataneMarket() {
       const market = new THREE.Mesh(new THREE.BoxGeometry(28, 15, 20), new THREE.MeshStandardMaterial({ color: 0x334155 }));
-      market.position.set(60, 7.5, 45); scene.add(market); collidableObjects.push(market);
+      market.position.set(60, 7.5, 45); addCollidableObject(market);
     }
 
-    // --- 🏢 密集大樓與澳門唐樓街區 ---
     function createDenseSkyscrapersAndTongLau() {
       const configs = [
         {x: -35, z: -25, h: 22}, {x: 35, z: -25, h: 26},
@@ -397,42 +326,87 @@
 
       configs.forEach(c => {
         const body = new THREE.Mesh(new THREE.BoxGeometry(18, c.h, 18), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 }));
-        body.position.set(c.x, c.h/2, c.z); scene.add(body); collidableObjects.push(body);
+        body.position.set(c.x, c.h/2, c.z); addCollidableObject(body);
       });
     }
 
-    // --- 👹 召喚巨型 BOSS (澳門喪屍王) ---
+    // --- 🧟‍♂️ 擬真喪屍模型建立 (具有獨立關節，可做擺擺動畫) ---
+    function spawnZombie() {
+      const zombieGroup = new THREE.Group();
+
+      const skinMat = new THREE.MeshStandardMaterial({ color: 0x1c3d1c, roughness: 0.9 }); // 腐爛深綠皮膚
+      const clothMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 }); // 破舊衣服
+
+      // 斜軀幹 (駝背姿勢)
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.75, 1.15, 0.4), clothMat);
+      torso.position.y = 1.15; torso.rotation.x = 0.2; // 向前微傾
+      zombieGroup.add(torso);
+
+      // 下垂腐爛頭部
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.48, 0.48), skinMat);
+      head.position.set(0, 1.85, 0.12);
+      zombieGroup.add(head);
+
+      // 發光血眼
+      const eyeGeo = new THREE.SphereGeometry(0.06); const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      const e1 = new THREE.Mesh(eyeGeo, eyeMat); e1.position.set(-0.12, 1.9, 0.35);
+      const e2 = new THREE.Mesh(eyeGeo, eyeMat); e2.position.set(0.12, 1.9, 0.35);
+      zombieGroup.add(e1, e2);
+
+      // 長手臂 (可做走路晃動)
+      const armGeo = new THREE.BoxGeometry(0.18, 0.85, 0.18);
+      const armL = new THREE.Mesh(armGeo, skinMat); armL.position.set(-0.48, 1.3, 0.2);
+      const armR = new THREE.Mesh(armGeo, skinMat); armR.position.set(0.48, 1.3, 0.2);
+      zombieGroup.add(armL, armR);
+
+      const angle = Math.random() * Math.PI * 2; const dist = 30 + Math.random() * 25;
+      zombieGroup.position.set(Math.cos(angle) * dist, 0, Math.sin(angle) * dist);
+
+      scene.add(zombieGroup);
+      zombies.push({
+        mesh: zombieGroup,
+        armL: armL, armR: armR,
+        hp: 100,
+        speed: 3.2 * zombieSpeedMultiplier,
+        walkAnimOffset: Math.random() * 100
+      });
+    }
+
     function spawnBossZombie() {
       isBossAlive = true;
       document.getElementById('boss-warning').style.display = 'block';
       setTimeout(() => document.getElementById('boss-warning').style.display = 'none', 3500);
 
       const bossGroup = new THREE.Group();
-      const bossSkinMat = new THREE.MeshStandardMaterial({ color: 0x7f1d1d, roughness: 0.5 }); // 血紅肌膚
+      const bossSkinMat = new THREE.MeshStandardMaterial({ color: 0x7f1d1d, roughness: 0.5 });
 
-      // 巨型身體 (3倍大)
       const torso = new THREE.Mesh(new THREE.BoxGeometry(2.4, 3.6, 1.2), bossSkinMat); torso.position.y = 3.6; bossGroup.add(torso);
       const head = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1.5), bossSkinMat); head.position.y = 6.0; bossGroup.add(head);
 
-      // BOSS 發光紅眼
-      const eyeGeo = new THREE.SphereGeometry(0.25); const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-      const e1 = new THREE.Mesh(eyeGeo, eyeMat); e1.position.set(-0.4, 6.1, 0.8);
-      const e2 = new THREE.Mesh(eyeGeo, eyeMat); e2.position.set(0.4, 6.1, 0.8);
-      bossGroup.add(e1, e2);
-
-      // 巨型手臂
       const armGeo = new THREE.BoxGeometry(0.6, 2.5, 0.6);
       const armL = new THREE.Mesh(armGeo, bossSkinMat); armL.position.set(-1.5, 4.2, 1.0); armL.rotation.x = -Math.PI / 2.2;
       const armR = new THREE.Mesh(armGeo, bossSkinMat); armR.position.set(1.5, 4.2, 1.0); armR.rotation.x = -Math.PI / 2.2;
       bossGroup.add(armL, armR);
 
-      // BOSS 登場位置 (大三巴前方街道)
-      bossGroup.position.set(0, 0, -45);
-      scene.add(bossGroup);
+      bossGroup.position.set(0, 0, -45); scene.add(bossGroup);
       bossMesh = bossGroup;
-
       document.getElementById('boss-status').innerText = '🔥 存活 (極危險！)';
       document.getElementById('boss-status').style.color = '#ef4444';
+    }
+
+    // --- 防穿牆牆壁檢測（Box3 包覆盒檢查） ---
+    function checkPlayerCollision(targetPos) {
+      const playerBox = new THREE.Box3(
+        new THREE.Vector3(targetPos.x - 0.5, 0, targetPos.z - 0.5),
+        new THREE.Vector3(targetPos.x + 0.5, 2, targetPos.z + 0.5)
+      );
+
+      for (let box of collidableBoxes) {
+        if (playerBox.intersectsBox(box)) {
+          return true; // 碰撞到建築物，拒絕移動
+        }
+      }
+      return false;
     }
 
     function throwGrenade() {
@@ -445,21 +419,7 @@
       const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
       const vel = dir.multiplyScalar(20); vel.y += 6;
 
-      scene.add(grenade);
-      activeGrenades.push({ mesh: grenade, vel: vel });
-    }
-
-    function spawnZombie() {
-      const zombieGroup = new THREE.Group();
-      const skinMat = new THREE.MeshStandardMaterial({ color: 0x224422 });
-      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.75, 1.15, 0.4), new THREE.MeshStandardMaterial({ color: 0x0f172a })); torso.position.y = 1.15; zombieGroup.add(torso);
-      const head = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.48, 0.48), skinMat); head.position.y = 1.9; zombieGroup.add(head);
-
-      const angle = Math.random() * Math.PI * 2; const dist = 30 + Math.random() * 25;
-      zombieGroup.position.set(Math.cos(angle) * dist, 0, Math.sin(angle) * dist);
-
-      scene.add(zombieGroup);
-      zombies.push({ mesh: zombieGroup, hp: 100, speed: 3.2 * zombieSpeedMultiplier });
+      scene.add(grenade); activeGrenades.push({ mesh: grenade, vel: vel });
     }
 
     function initMobileUI() {
@@ -503,7 +463,6 @@
       const raycaster = new THREE.Raycaster();
       raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
 
-      // 擊中 BOSS 判定
       if (isBossAlive && bossMesh) {
         if (raycaster.intersectObjects(bossMesh.children).length > 0) {
           bossCurrentHP -= weapons[currentWeaponKey].damage;
@@ -518,7 +477,6 @@
         }
       }
 
-      // 擊中普通喪屍
       for (let i = zombies.length - 1; i >= 0; i--) {
         const z = zombies[i];
         if (raycaster.intersectObjects(z.mesh.children).length > 0) {
@@ -535,8 +493,9 @@
 
     function animate() {
       requestAnimationFrame(animate);
+      const time = performance.now() * 0.005;
 
-      // 手榴彈軌跡與爆炸
+      // 手榴彈軌跡
       for(let i = activeGrenades.length - 1; i >= 0; i--) {
         const g = activeGrenades[i];
         g.mesh.position.addScaledVector(g.vel, 0.016); g.vel.y -= 9.8 * 0.016;
@@ -547,10 +506,7 @@
 
           if (isBossAlive && bossMesh && bossMesh.position.distanceTo(g.mesh.position) < 12.0) {
             bossCurrentHP -= 250;
-            if (bossCurrentHP <= 0) {
-              scene.remove(bossMesh); isBossAlive = false;
-              document.getElementById('boss-status').innerText = '🟢 已消滅';
-            }
+            if (bossCurrentHP <= 0) { scene.remove(bossMesh); isBossAlive = false; }
           }
 
           zombies.forEach((z) => {
@@ -560,6 +516,9 @@
           scene.remove(g.mesh); activeGrenades.splice(i, 1);
         }
       }
+
+      // 玩家移動 + 防穿牆檢查
+      const prevPos = camera.position.clone();
 
       if (isMobile) {
         const phi = THREE.MathUtils.degToRad(90 - lat); const theta = THREE.MathUtils.degToRad(lon);
@@ -576,9 +535,14 @@
         if (moveLeft) controls.moveRight(-speed); if (moveRight) controls.moveRight(speed);
       }
 
+      // 如果走進牆壁，退回前一步
+      if (checkPlayerCollision(camera.position)) {
+        camera.position.copy(prevPos);
+      }
+
       const playerPos = camera.position;
 
-      // 撿物資判定 (第 2 個物資觸發 BOSS)
+      // 撿物資判定
       supplyBoxes.forEach(sb => {
         if (!sb.collected && playerPos.distanceTo(sb.mesh.position) < 2.2) {
           sb.collected = true; scene.remove(sb.mesh); collectedSupplies++;
@@ -599,27 +563,18 @@
         alert('🚁 任務成功！你已安全撤離澳門！'); location.reload();
       }
 
-      // BOSS AI 移動與攻擊
-      if (isBossAlive && bossMesh) {
-        const bPos = bossMesh.position;
-        const dist = bPos.distanceTo(playerPos);
-        if (dist > 2.5) {
-          const dir = new THREE.Vector3().subVectors(playerPos, bPos); dir.y = 0; dir.normalize();
-          bPos.addScaledVector(dir, 2.5 * zombieSpeedMultiplier * 0.016);
-          bossMesh.lookAt(playerPos.x, 0, playerPos.z);
-        } else {
-          playerHP -= 0.8 * zombieDamageMultiplier;
-          document.getElementById('hp-bar').style.width = Math.max(0, playerHP) + '%';
-          if (playerHP <= 0) { alert('🧟‍♂️ 你被澳門喪屍王 BOSS 擊殺了！'); location.reload(); }
-        }
-      }
-
-      // 普通喪屍 AI
+      // 喪屍 AI 追逐與動態步履蹣跚動畫 (Walking Wiggle Animation)
       zombies.forEach(z => {
         const zPos = z.mesh.position; const dist = zPos.distanceTo(playerPos);
         if (dist > 1.2) {
           const dir = new THREE.Vector3().subVectors(playerPos, zPos); dir.y = 0; dir.normalize();
-          zPos.addScaledVector(dir, z.speed * 0.016); z.mesh.lookAt(playerPos.x, 0.9, playerPos.z);
+          zPos.addScaledVector(dir, z.speed * 0.016); z.mesh.lookAt(playerPos.x, 0, playerPos.z);
+
+          // 喪屍手臂與關節搖擺動畫
+          const anim = Math.sin(time * 3 + z.walkAnimOffset);
+          z.armL.rotation.x = -Math.PI / 2.3 + anim * 0.2;
+          z.armR.rotation.x = -Math.PI / 2.3 - anim * 0.2;
+          z.mesh.rotation.z = anim * 0.05; // 左右搖晃
         } else {
           playerHP -= 0.25 * zombieDamageMultiplier;
           document.getElementById('hp-bar').style.width = Math.max(0, playerHP) + '%';
