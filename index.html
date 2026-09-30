@@ -2,86 +2,330 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>PeerJS P2P 連線測試</title>
+  <title>Macau Showdown - 3D FPS Game</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; background: #1a1a1a; color: #fff; }
-    .box { border: 1px solid #444; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
-    input, button { padding: 8px 12px; font-size: 16px; margin: 5px 0; }
+    body { margin: 0; overflow: hidden; font-family: sans-serif; background: #000; }
+    #crosshair {
+      position: absolute; top: 50%; left: 50%;
+      width: 8px; height: 8px; background: #00ffcc;
+      border-radius: 50%; transform: translate(-50%, -50%);
+      pointer-events: none; z-index: 10;
+    }
+    #ui {
+      position: absolute; bottom: 20px; left: 20px;
+      color: #fff; font-size: 18px; text-shadow: 2px 2px 4px #000; z-index: 10;
+    }
+    #menu-panel {
+      position: absolute; top: 20px; left: 20px;
+      background: rgba(15, 23, 42, 0.9); color: white;
+      padding: 15px; border-radius: 10px; z-index: 20; max-width: 320px;
+      border: 1px solid #e2e8f033;
+    }
+    #menu-panel button {
+      padding: 8px 12px; font-size: 14px; margin-top: 5px; cursor: pointer;
+      background: #059669; color: white; border: none; border-radius: 6px; font-weight: bold;
+    }
+    #menu-panel button:hover { background: #047857; }
+    #instructions {
+      position: absolute; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7); color: white;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      cursor: pointer; z-index: 15;
+    }
+    .mode-btn { width: 100%; margin-bottom: 8px; }
   </style>
-  <!-- 1. 引入 PeerJS SDK (使用免費公用 Signaling Server) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 </head>
 <body>
 
-  <h1>FPS P2P 連線設定 (Step 1)</h1>
+  <div id="crosshair"></div>
 
-  <!-- 顯示自己的 Peer ID -->
-  <div class="box">
-    <h3>你的 房間 ID (Peer ID)：</h3>
-    <p id="my-id" style="font-size: 24px; color: #00ffcc;">連線中...</p>
-    <p>把這個 ID 發給你的朋友！</p>
+  <!-- 選單面板 -->
+  <div id="menu-panel">
+    <h3 style="margin-top: 0; color: #fbbf24;">🇲🇴 澳門槍戰 Macau FPS</h3>
+    <button class="mode-btn" id="single-btn">單人練習 (Bot 模式)</button>
+    <hr style="border-color: #334155;">
+    <div><strong>雙人連線 ID:</strong> <span id="my-id" style="color: #38bdf8;">建立中...</span></div>
+    <div style="margin-top: 5px;">
+      <input type="text" id="target-id" placeholder="貼上房間 ID" style="width: 140px; padding: 5px; border-radius: 4px; border: none;">
+      <button id="connect-btn" style="background: #0284c7;">連線對戰</button>
+    </div>
+    <div style="margin-top: 5px; font-size: 12px; color: #94a3b8;" id="status">目前模式: 未選擇</div>
   </div>
 
-  <!-- 輸入對方的 Peer ID 進行連線 -->
-  <div class="box">
-    <h3>加入朋友的房間：</h3>
-    <input type="text" id="other-id-input" placeholder="貼上對方的 Peer ID">
-    <button id="connect-btn">連線對戰</button>
+  <div id="ui">
+    地點: <span style="color:#fbbf24;">澳門不夜城</span> | 
+    模式: <span id="game-mode-text">選單中</span> | 
+    擊殺: <span id="kills">0</span> | 
+    武器: <span id="weapon-name">Rifle (AK-47)</span> (按 1 / 2 切換)
   </div>
 
-  <!-- 連線狀態 display -->
-  <div class="box">
-    <h3>連線狀態：<span id="status" style="color: #ffcc00;">等待中...</span></h3>
+  <div id="instructions">
+    <h1>🇲🇴 點擊畫面進入澳門戰場</h1>
+    <p>W, A, S, D 移動 | 滑鼠瞄準 | 左鍵開槍 | 1, 2 切換武器</p>
   </div>
 
   <script>
-    let peer = null;
-    let conn = null;
+    let scene, camera, renderer, controls;
+    let peer, conn;
+    let isSinglePlayer = false;
+    let killCount = 0;
+    let enemyMesh, botHP = 100;
 
-    // 2. 初始化 Peer 物件 (自動向 PeerJS 免費雲端伺服器註冊並取得隨機 ID)
-    peer = new Peer();
+    let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+    let prevTime = performance.now();
+    const velocity = new THREE.Vector3();
+    const direction = new THREE.Vector3();
 
-    // 當成功取得自己的 Peer ID 時觸發
-    peer.on('open', (id) => {
-      document.getElementById('my-id').innerText = id;
-    });
+    const weapons = {
+      rifle: { name: 'Rifle (AK-47)', color: 0x8B4513, length: 0.8, damage: 35 },
+      pistol: { name: 'Pistol (Glock)', color: 0x111111, length: 0.3, damage: 20 }
+    };
+    let currentWeaponKey = 'rifle';
+    let gunMesh;
 
-    // 3A. 情況 A：被動等待【玩家 B】連進來 (作為 Host)
-    peer.on('connection', (incomingConn) => {
-      conn = incomingConn;
-      setupConnectionEvents();
-      document.getElementById('status').innerText = '玩家已連入！可以直接傳輸遊戲數據了！';
-    });
+    init3D();
+    initPeer();
+    animate();
 
-    // 3B. 情況 B：主動連線到【玩家 A】(作為 Client)
-    document.getElementById('connect-btn').addEventListener('click', () => {
-      const targetId = document.getElementById('other-id-input').value.trim();
-      if (!targetId) return alert('請輸入對方的 Peer ID');
+    function init3D() {
+      scene = new THREE.Scene();
+      
+      // 1. 澳門夜晚霓虹天空背景 (Midnight Macau Atmosphere)
+      scene.background = new THREE.Color(0x0b0f19); 
+      scene.fog = new THREE.FogExp2(0x0b0f19, 0.015); // 加入夜間霧氣效果
 
-      document.getElementById('status').innerText = '正在連線中...';
-      conn = peer.connect(targetId);
-      setupConnectionEvents();
-    });
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-    // 4. 設定資料傳送與接收監聽 (DataChannel Events)
-    function setupConnectionEvents() {
-      // 當 P2P 通道建立成功
-      conn.on('open', () => {
-        document.getElementById('status').innerText = '連線成功！(P2P 直連已建立)';
-        
-        // 測試發送資料
-        conn.send({ type: 'hello', message: '哈囉！我連進來了！' });
+      // 2. 澳門賭城風格環境光 (金色與璀璨霓虹光)
+      const ambientLight = new THREE.AmbientLight(0xfff5ea, 0.5);
+      scene.add(ambientLight);
+
+      // 金黃色主光 (模擬金光大道/賭場燈光)
+      const casinoLight = new THREE.DirectionalLight(0xfbbf24, 1.2);
+      casinoLight.position.set(30, 50, 20);
+      scene.add(casinoLight);
+
+      // 紫藍色補光 (夜景霓虹氛圍)
+      const neonLight = new THREE.PointLight(0x818cf8, 2, 50);
+      neonLight.position.set(-20, 10, -20);
+      scene.add(neonLight);
+
+      // 3. 葡國碎石路/澳門廣場風格地板 (Calçada Portuguesa Color)
+      const floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(120, 120),
+        new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 })
+      );
+      floor.rotation.x = -Math.PI / 2;
+      scene.add(floor);
+
+      // 4. 葡式建築風格掩體 (黃牆、綠窗/黑框風格)
+      const macauColors = [0xfde047, 0xf97316, 0x10b981, 0x3b82f6]; // 葡式黃、橘、綠、藍牆面
+      for(let i = 0; i < 16; i++) {
+        const color = macauColors[i % macauColors.length];
+        const h = 2 + Math.random() * 3; // 隨機建築高度
+        const box = new THREE.Mesh(
+          new THREE.BoxGeometry(3, h, 3),
+          new THREE.MeshStandardMaterial({ color: color, roughness: 0.5 })
+        );
+        box.position.set((Math.random() - 0.5) * 50, h / 2, (Math.random() - 0.5) * 50);
+        scene.add(box);
+      }
+
+      // 敵人模型
+      enemyMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(0.8, 1.8, 0.8),
+        new THREE.MeshStandardMaterial({ color: 0xef4444 })
+      );
+      enemyMesh.position.set(0, -100, 0);
+      scene.add(enemyMesh);
+
+      // 控制器
+      controls = new THREE.PointerLockControls(camera, document.body);
+      const instructions = document.getElementById('instructions');
+      instructions.addEventListener('click', () => {
+        if (controls.enabled) controls.lock();
       });
+      controls.addEventListener('lock', () => { instructions.style.display = 'none'; });
+      controls.addEventListener('unlock', () => { instructions.style.display = 'flex'; });
+      scene.add(controls.getObject());
 
-      // 接收來自對方的數據 (位置、射擊、槍枝狀態等)
+      createGunMesh();
+
+      document.addEventListener('keydown', onKeyDown);
+      document.addEventListener('keyup', onKeyUp);
+      document.addEventListener('mousedown', onShoot);
+      document.getElementById('single-btn').addEventListener('click', startSinglePlayer);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.toneMapping = THREE.ACESFilmicToneMapping; // 提升光影質感
+      document.body.appendChild(renderer.domElement);
+    }
+
+    function startSinglePlayer() {
+      isSinglePlayer = true;
+      document.getElementById('game-mode-text').innerText = '單人練習';
+      document.getElementById('status').innerText = '模式: 澳門 Bot 戰場';
+      respawnBot();
+      controls.lock();
+    }
+
+    function respawnBot() {
+      botHP = 100;
+      enemyMesh.position.set((Math.random() - 0.5) * 40, 0.9, (Math.random() - 0.5) * 40);
+    }
+
+    function createGunMesh() {
+      if (gunMesh) camera.remove(gunMesh);
+      const w = weapons[currentWeaponKey];
+      gunMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(0.1, 0.1, w.length),
+        new THREE.MeshStandardMaterial({ color: w.color })
+      );
+      gunMesh.position.set(0.2, -0.2, -0.5);
+      camera.add(gunMesh);
+      document.getElementById('weapon-name').innerText = w.name;
+    }
+
+    function initPeer() {
+      peer = new Peer();
+      peer.on('open', (id) => { document.getElementById('my-id').innerText = id; });
+      peer.on('connection', (incoming) => {
+        conn = incoming;
+        bindConnEvents();
+        startMultiplayer();
+      });
+      document.getElementById('connect-btn').addEventListener('click', () => {
+        const targetId = document.getElementById('target-id').value.trim();
+        if (!targetId) return alert('請貼上房間 ID');
+        conn = peer.connect(targetId);
+        bindConnEvents();
+        startMultiplayer();
+      });
+    }
+
+    function startMultiplayer() {
+      isSinglePlayer = false;
+      document.getElementById('game-mode-text').innerText = '雙人對戰';
+      document.getElementById('status').innerText = '連線成功！';
+    }
+
+    function bindConnEvents() {
       conn.on('data', (data) => {
-        console.log('收到對方資料：', data);
+        if (data.type === 'move') {
+          enemyMesh.position.set(data.x, data.y - 0.9, data.z);
+          enemyMesh.rotation.y = data.ry;
+        }
       });
-
-      // 連線中斷處理
       conn.on('close', () => {
-        document.getElementById('status').innerText = '對方已斷開連線';
+        document.getElementById('status').innerText = '對方已離線';
+        enemyMesh.position.set(0, -100, 0);
       });
+    }
+
+    function onKeyDown(e) {
+      switch (e.code) {
+        case 'KeyW': moveForward = true; break;
+        case 'KeyS': moveBackward = true; break;
+        case 'KeyA': moveLeft = true; break;
+        case 'KeyD': moveRight = true; break;
+        case 'Digit1': switchWeapon('rifle'); break;
+        case 'Digit2': switchWeapon('pistol'); break;
+      }
+    }
+
+    function onKeyUp(e) {
+      switch (e.code) {
+        case 'KeyW': moveForward = false; break;
+        case 'KeyS': moveBackward = false; break;
+        case 'KeyA': moveLeft = false; break;
+        case 'KeyD': moveRight = false; break;
+      }
+    }
+
+    function switchWeapon(type) {
+      if (weapons[type] && currentWeaponKey !== type) {
+        currentWeaponKey = type;
+        createGunMesh();
+      }
+    }
+
+    function onShoot(e) {
+      if (!controls.isLocked || e.button !== 0) return;
+
+      gunMesh.position.z += 0.05;
+      setTimeout(() => gunMesh.position.z -= 0.05, 50);
+
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+
+      const intersects = raycaster.intersectObject(enemyMesh);
+      if (intersects.length > 0) {
+        const currentWeapon = weapons[currentWeaponKey];
+
+        if (isSinglePlayer) {
+          botHP -= currentWeapon.damage;
+          enemyMesh.material.color.setHex(0xffffff);
+          setTimeout(() => enemyMesh.material.color.setHex(0xef4444), 100);
+
+          if (botHP <= 0) {
+            killCount++;
+            document.getElementById('kills').innerText = killCount;
+            respawnBot();
+          }
+        } else if (conn && conn.open) {
+          conn.send({ type: 'shoot', weapon: currentWeaponKey });
+        }
+      }
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (controls.isLocked) {
+        const time = performance.now();
+        const delta = (time - prevTime) / 1000;
+
+        velocity.x -= velocity.x * 10.0 * delta;
+        velocity.z -= velocity.z * 10.0 * delta;
+
+        direction.z = Number(moveForward) - Number(moveBackward);
+        direction.x = Number(moveRight) - Number(moveLeft);
+        direction.normalize();
+
+        if (moveForward || moveBackward) velocity.z -= direction.z * 40.0 * delta;
+        if (moveLeft || moveRight) velocity.x -= direction.x * 40.0 * delta;
+
+        controls.moveRight(-velocity.x * delta);
+        controls.moveForward(-velocity.z * delta);
+
+        const pos = controls.getObject().position;
+
+        if (isSinglePlayer && enemyMesh.position.y > 0) {
+          const botPos = enemyMesh.position;
+          const dirToPlayer = new THREE.Vector3().subVectors(pos, botPos);
+          dirToPlayer.y = 0;
+          dirToPlayer.normalize();
+          botPos.addScaledVector(dirToPlayer, 2.5 * delta);
+          enemyMesh.lookAt(pos.x, enemyMesh.position.y, pos.z);
+        }
+
+        if (!isSinglePlayer && conn && conn.open) {
+          conn.send({
+            type: 'move',
+            x: pos.x, y: pos.y, z: pos.z,
+            ry: camera.rotation.y
+          });
+        }
+
+        prevTime = time;
+      }
+
+      renderer.render(scene, camera);
     }
   </script>
 </body>
