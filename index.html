@@ -2,38 +2,43 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>Macau Showdown - 3D FPS Game</title>
+  <title>CSO Macau Zombie Survival</title>
   <style>
-    body { margin: 0; overflow: hidden; font-family: sans-serif; background: #000; }
+    body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000; }
     #crosshair {
       position: absolute; top: 50%; left: 50%;
-      width: 8px; height: 8px; background: #00ffcc;
-      border-radius: 50%; transform: translate(-50%, -50%);
-      pointer-events: none; z-index: 10;
+      width: 10px; height: 10px; border: 2px solid #00ff00;
+      transform: translate(-50%, -50%); pointer-events: none; z-index: 10;
+      border-radius: 50%;
     }
     #ui {
       position: absolute; bottom: 20px; left: 20px;
-      color: #fff; font-size: 18px; text-shadow: 2px 2px 4px #000; z-index: 10;
+      color: #fff; font-size: 20px; text-shadow: 2px 2px 5px #000; z-index: 10;
+      background: rgba(0,0,0,0.6); padding: 10px 20px; border-radius: 8px;
     }
+    #hp-bar-container {
+      width: 200px; height: 15px; background: #333; border: 1px solid #fff; margin-top: 5px;
+    }
+    #hp-bar { width: 100%; height: 100%; background: #ff3333; transition: width 0.2s; }
+    
     #menu-panel {
       position: absolute; top: 20px; left: 20px;
-      background: rgba(15, 23, 42, 0.9); color: white;
-      padding: 15px; border-radius: 10px; z-index: 20; max-width: 320px;
-      border: 1px solid #e2e8f033;
+      background: rgba(10, 10, 15, 0.95); color: white;
+      padding: 18px; border-radius: 12px; z-index: 20; max-width: 320px;
+      border: 1px solid #ff4444; box-shadow: 0 0 15px rgba(255,0,0,0.3);
     }
     #menu-panel button {
-      padding: 8px 12px; font-size: 14px; margin-top: 5px; cursor: pointer;
-      background: #059669; color: white; border: none; border-radius: 6px; font-weight: bold;
+      padding: 10px 14px; font-size: 15px; margin-top: 8px; cursor: pointer;
+      background: #cc1111; color: white; border: none; border-radius: 6px; font-weight: bold; width: 100%;
     }
-    #menu-panel button:hover { background: #047857; }
+    #menu-panel button:hover { background: #ff2222; }
     #instructions {
       position: absolute; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7); color: white;
+      background: rgba(0,0,0,0.85); color: white;
       display: flex; flex-direction: column;
       justify-content: center; align-items: center;
       cursor: pointer; z-index: 15;
     }
-    .mode-btn { width: 100%; margin-bottom: 8px; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
@@ -43,29 +48,28 @@
 
   <div id="crosshair"></div>
 
-  <!-- 選單面板 -->
   <div id="menu-panel">
-    <h3 style="margin-top: 0; color: #fbbf24;">🇲🇴 澳門槍戰 Macau FPS</h3>
-    <button class="mode-btn" id="single-btn">單人練習 (Bot 模式)</button>
-    <hr style="border-color: #334155;">
-    <div><strong>雙人連線 ID:</strong> <span id="my-id" style="color: #38bdf8;">建立中...</span></div>
-    <div style="margin-top: 5px;">
-      <input type="text" id="target-id" placeholder="貼上房間 ID" style="width: 140px; padding: 5px; border-radius: 4px; border: none;">
-      <button id="connect-btn" style="background: #0284c7;">連線對戰</button>
+    <h3 style="margin: 0; color: #ff4444; font-size: 22px;">🧟‍♂️ CSO 喪屍生存：澳門</h3>
+    <p style="font-size: 13px; color: #aaa;">真實大樓建築 + 牆壁碰撞 + 喪屍圍攻</p>
+    <button id="single-btn">單人喪屍模式 (Zombie Mode)</button>
+    <hr style="border-color: #444; margin: 12px 0;">
+    <div style="font-size: 13px;"><strong>連線 ID:</strong> <span id="my-id" style="color: #00ffcc;">建立中...</span></div>
+    <div style="margin-top: 6px; display: flex; gap: 5px;">
+      <input type="text" id="target-id" placeholder="貼上對手的 ID" style="width: 160px; padding: 6px; border-radius: 4px; border: none;">
+      <button id="connect-btn" style="background: #0284c7; margin:0;">連線</button>
     </div>
-    <div style="margin-top: 5px; font-size: 12px; color: #94a3b8;" id="status">目前模式: 未選擇</div>
+    <div style="margin-top: 8px; font-size: 12px; color: #888;" id="status">選擇模式以開始</div>
   </div>
 
   <div id="ui">
-    地點: <span style="color:#fbbf24;">澳門不夜城</span> | 
-    模式: <span id="game-mode-text">選單中</span> | 
-    擊殺: <span id="kills">0</span> | 
-    武器: <span id="weapon-name">Rifle (AK-47)</span> (按 1 / 2 切換)
+    <div>血量 HP: <div id="hp-bar-container"><div id="hp-bar"></div></div></div>
+    <div style="margin-top:8px;">喪屍擊殺: <span id="kills" style="color:#ffcc00;">0</span> | 武器: <span id="weapon-name">AK-47</span> (1 / 2 切換)</div>
   </div>
 
   <div id="instructions">
-    <h1>🇲🇴 點擊畫面進入澳門戰場</h1>
+    <h1 style="color:#ff3333;">🧟‍♂️ 點擊進入澳門大樓戰場</h1>
     <p>W, A, S, D 移動 | 滑鼠瞄準 | 左鍵開槍 | 1, 2 切換武器</p>
+    <p style="color:#aaa; font-size:14px;">已修正：穿牆防護、擬真大樓、喪屍 AI 與人型結構</p>
   </div>
 
   <script>
@@ -73,16 +77,24 @@
     let peer, conn;
     let isSinglePlayer = false;
     let killCount = 0;
-    let enemyMesh, botHP = 100;
+    let playerHP = 100;
 
+    // 碰撞建築物列表
+    const collidableObjects = [];
+
+    // 喪屍陣列 (Zombie Array)
+    const zombies = [];
+
+    // 操控
     let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
     let prevTime = performance.now();
     const velocity = new THREE.Vector3();
     const direction = new THREE.Vector3();
 
+    // 武器
     const weapons = {
-      rifle: { name: 'Rifle (AK-47)', color: 0x8B4513, length: 0.8, damage: 35 },
-      pistol: { name: 'Pistol (Glock)', color: 0x111111, length: 0.3, damage: 20 }
+      rifle: { name: 'AK-47 (自動步槍)', color: 0x8B4513, length: 0.9, damage: 40, fireRate: 100 },
+      pistol: { name: 'Glock 18 (沙漠手槍)', color: 0x222222, length: 0.4, damage: 25, fireRate: 250 }
     };
     let currentWeaponKey = 'rifle';
     let gunMesh;
@@ -93,62 +105,34 @@
 
     function init3D() {
       scene = new THREE.Scene();
-      
-      // 1. 澳門夜晚霓虹天空背景 (Midnight Macau Atmosphere)
-      scene.background = new THREE.Color(0x0b0f19); 
-      scene.fog = new THREE.FogExp2(0x0b0f19, 0.015); // 加入夜間霧氣效果
+      scene.background = new THREE.Color(0x050811); // 深夜澳門氛圍
+      scene.fog = new THREE.FogExp2(0x050811, 0.02);
 
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-      // 2. 澳門賭城風格環境光 (金色與璀璨霓虹光)
-      const ambientLight = new THREE.AmbientLight(0xfff5ea, 0.5);
+      // 燈光
+      const ambientLight = new THREE.AmbientLight(0xddeeff, 0.4);
       scene.add(ambientLight);
 
-      // 金黃色主光 (模擬金光大道/賭場燈光)
-      const casinoLight = new THREE.DirectionalLight(0xfbbf24, 1.2);
-      casinoLight.position.set(30, 50, 20);
-      scene.add(casinoLight);
+      const moonLight = new THREE.DirectionalLight(0x88aaff, 0.8);
+      moonLight.position.set(40, 60, 20);
+      scene.add(moonLight);
 
-      // 紫藍色補光 (夜景霓虹氛圍)
-      const neonLight = new THREE.PointLight(0x818cf8, 2, 50);
-      neonLight.position.set(-20, 10, -20);
-      scene.add(neonLight);
-
-      // 3. 葡國碎石路/澳門廣場風格地板 (Calçada Portuguesa Color)
+      // 地板 (瀝青馬路質感)
       const floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(120, 120),
-        new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.8 })
+        new THREE.PlaneGeometry(200, 200),
+        new THREE.MeshStandardMaterial({ color: 0x111622, roughness: 0.9 })
       );
       floor.rotation.x = -Math.PI / 2;
       scene.add(floor);
 
-      // 4. 葡式建築風格掩體 (黃牆、綠窗/黑框風格)
-      const macauColors = [0xfde047, 0xf97316, 0x10b981, 0x3b82f6]; // 葡式黃、橘、綠、藍牆面
-      for(let i = 0; i < 16; i++) {
-        const color = macauColors[i % macauColors.length];
-        const h = 2 + Math.random() * 3; // 隨機建築高度
-        const box = new THREE.Mesh(
-          new THREE.BoxGeometry(3, h, 3),
-          new THREE.MeshStandardMaterial({ color: color, roughness: 0.5 })
-        );
-        box.position.set((Math.random() - 0.5) * 50, h / 2, (Math.random() - 0.5) * 50);
-        scene.add(box);
-      }
+      // --- 建立「真實大樓」與街道區域 ---
+      createCityMap();
 
-      // 敵人模型
-      enemyMesh = new THREE.Mesh(
-        new THREE.BoxGeometry(0.8, 1.8, 0.8),
-        new THREE.MeshStandardMaterial({ color: 0xef4444 })
-      );
-      enemyMesh.position.set(0, -100, 0);
-      scene.add(enemyMesh);
-
-      // 控制器
+      // 第一人稱控制器
       controls = new THREE.PointerLockControls(camera, document.body);
       const instructions = document.getElementById('instructions');
-      instructions.addEventListener('click', () => {
-        if (controls.enabled) controls.lock();
-      });
+      instructions.addEventListener('click', () => { if (controls.enabled) controls.lock(); });
       controls.addEventListener('lock', () => { instructions.style.display = 'none'; });
       controls.addEventListener('unlock', () => { instructions.style.display = 'flex'; });
       scene.add(controls.getObject());
@@ -162,69 +146,257 @@
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.toneMapping = THREE.ACESFilmicToneMapping; // 提升光影質感
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
       document.body.appendChild(renderer.domElement);
     }
 
-    function startSinglePlayer() {
-      isSinglePlayer = true;
-      document.getElementById('game-mode-text').innerText = '單人練習';
-      document.getElementById('status').innerText = '模式: 澳門 Bot 戰場';
-      respawnBot();
-      controls.lock();
+    // --- 建立擬真大樓 (帶窗戶結構與邊框) ---
+    function createCityMap() {
+      const buildingPositions = [
+        { x: -30, z: -30, w: 15, h: 25, d: 20, color: 0x223344 },
+        { x: 30, z: -30, w: 18, h: 35, d: 18, color: 0x332233 },
+        { x: -35, z: 30, w: 20, h: 20, d: 15, color: 0x223322 },
+        { x: 35, z: 30, w: 16, h: 30, d: 22, color: 0x443322 }
+      ];
+
+      buildingPositions.forEach(b => {
+        const group = new THREE.Group();
+        
+        // 主樓體
+        const bodyGeo = new THREE.BoxGeometry(b.w, b.h, b.d);
+        const bodyMat = new THREE.MeshStandardMaterial({ color: b.color, roughness: 0.6 });
+        const body = new THREE.Mesh(bodyGeo, bodyMat);
+        body.position.y = b.h / 2;
+        group.add(body);
+
+        // 窗戶結構 (黃色發光窗口，增加澳門夜景真實感)
+        const windowGeo = new THREE.PlaneGeometry(1.2, 1.8);
+        const windowMat = new THREE.MeshBasicMaterial({ color: 0xffea88 });
+
+        for (let y = 3; y < b.h - 2; y += 4) {
+          for (let x = -b.w / 2 + 2; x < b.w / 2 - 2; x += 3.5) {
+            const winFront = new THREE.Mesh(windowGeo, windowMat);
+            winFront.position.set(x, y, b.d / 2 + 0.05);
+            group.add(winFront);
+
+            const winBack = new THREE.Mesh(windowGeo, windowMat);
+            winBack.position.set(x, y, -b.d / 2 - 0.05);
+            winBack.rotation.y = Math.PI;
+            group.add(winBack);
+          }
+        }
+
+        group.position.set(b.x, 0, b.z);
+        scene.add(group);
+
+        // 納入物理碰撞檢測
+        collidableObjects.push(body);
+      });
     }
 
-    function respawnBot() {
-      botHP = 100;
-      enemyMesh.position.set((Math.random() - 0.5) * 40, 0.9, (Math.random() - 0.5) * 40);
+    // --- 生成擬真喪屍 (人形結構：頭/軀幹/四肢 + 綠眼) ---
+    function spawnZombie() {
+      const zombieGroup = new THREE.Group();
+
+      const skinMat = new THREE.MeshStandardMaterial({ color: 0x2e5a27, roughness: 0.8 }); // 腐爛綠皮膚
+      const clothMat = new THREE.MeshStandardMaterial({ color: 0x1a1a2e }); // 破舊衣服
+
+      // 軀幹
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.1, 0.4), clothMat);
+      torso.position.y = 1.1;
+      zombieGroup.add(torso);
+
+      // 頭部
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 0.45), skinMat);
+      head.position.y = 1.85;
+      zombieGroup.add(head);
+
+      // 喪屍紅/綠發光雙眼
+      const eyeGeo = new THREE.BoxGeometry(0.08, 0.05, 0.05);
+      const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+      eyeL.position.set(-0.1, 1.9, 0.23);
+      const eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+      eyeR.position.set(0.1, 1.9, 0.23);
+      zombieGroup.add(eyeL);
+      zombieGroup.add(eyeR);
+
+      // 雙臂 (伸向前方的經典 CSO 喪屍姿勢)
+      const armGeo = new THREE.BoxGeometry(0.2, 0.8, 0.2);
+      const armL = new THREE.Mesh(armGeo, skinMat);
+      armL.position.set(-0.45, 1.3, 0.35);
+      armL.rotation.x = -Math.PI / 2.5; // 手臂向前伸展
+      const armR = new THREE.Mesh(armGeo, skinMat);
+      armR.position.set(0.45, 1.3, 0.35);
+      armR.rotation.x = -Math.PI / 2.5;
+      zombieGroup.add(armL);
+      zombieGroup.add(armR);
+
+      // 隨機生成於玩家四周
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 25 + Math.random() * 20;
+      zombieGroup.position.set(Math.cos(angle) * dist, 0, Math.sin(angle) * dist);
+
+      scene.add(zombieGroup);
+
+      zombies.push({
+        mesh: zombieGroup,
+        hp: 100,
+        speed: 3.2 + Math.random() * 1.5,
+        attackCooldown: 0
+      });
     }
 
     function createGunMesh() {
       if (gunMesh) camera.remove(gunMesh);
       const w = weapons[currentWeaponKey];
       gunMesh = new THREE.Mesh(
-        new THREE.BoxGeometry(0.1, 0.1, w.length),
+        new THREE.BoxGeometry(0.08, 0.1, w.length),
         new THREE.MeshStandardMaterial({ color: w.color })
       );
-      gunMesh.position.set(0.2, -0.2, -0.5);
+      gunMesh.position.set(0.2, -0.2, -0.4);
       camera.add(gunMesh);
       document.getElementById('weapon-name').innerText = w.name;
     }
 
-    function initPeer() {
-      peer = new Peer();
-      peer.on('open', (id) => { document.getElementById('my-id').innerText = id; });
-      peer.on('connection', (incoming) => {
-        conn = incoming;
-        bindConnEvents();
-        startMultiplayer();
-      });
-      document.getElementById('connect-btn').addEventListener('click', () => {
-        const targetId = document.getElementById('target-id').value.trim();
-        if (!targetId) return alert('請貼上房間 ID');
-        conn = peer.connect(targetId);
-        bindConnEvents();
-        startMultiplayer();
-      });
+    function startSinglePlayer() {
+      isSinglePlayer = true;
+      document.getElementById('status').innerText = '模式: 喪屍圍城';
+      
+      // 清理並生成 6 只喪屍
+      zombies.forEach(z => scene.remove(z.mesh));
+      zombies.length = 0;
+      for(let i = 0; i < 6; i++) spawnZombie();
+
+      controls.lock();
     }
 
-    function startMultiplayer() {
-      isSinglePlayer = false;
-      document.getElementById('game-mode-text').innerText = '雙人對戰';
-      document.getElementById('status').innerText = '連線成功！';
-    }
+    function onShoot(e) {
+      if (!controls.isLocked || e.button !== 0) return;
 
-    function bindConnEvents() {
-      conn.on('data', (data) => {
-        if (data.type === 'move') {
-          enemyMesh.position.set(data.x, data.y - 0.9, data.z);
-          enemyMesh.rotation.y = data.ry;
+      // 後座力效果
+      gunMesh.position.z += 0.06;
+      setTimeout(() => gunMesh.position.z -= 0.06, 50);
+
+      // 射擊線 (Raycaster)
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+
+      // 檢測是否擊中喪屍
+      for (let i = zombies.length - 1; i >= 0; i--) {
+        const z = zombies[i];
+        const intersects = raycaster.intersectObjects(z.mesh.children);
+
+        if (intersects.length > 0) {
+          const w = weapons[currentWeaponKey];
+          z.hp -= w.damage;
+
+          // 擊中退後反應 (Knockback)
+          const dir = new THREE.Vector3().subVectors(z.mesh.position, controls.getObject().position).normalize();
+          z.mesh.position.addScaledVector(dir, 0.8);
+
+          if (z.hp <= 0) {
+            scene.remove(z.mesh);
+            zombies.splice(i, 1);
+            killCount++;
+            document.getElementById('kills').innerText = killCount;
+            // 重生一隻新的喪屍
+            setTimeout(spawnZombie, 1500);
+          }
+          break;
         }
-      });
-      conn.on('close', () => {
-        document.getElementById('status').innerText = '對方已離線';
-        enemyMesh.position.set(0, -100, 0);
-      });
+      }
+    }
+
+    // --- 防過界/防穿牆 碰撞檢測邏輯 (Raycasting Collision Detection) ---
+    function checkWallCollision(newPosition) {
+      const playerRadius = 0.8;
+      const playerPos = newPosition.clone();
+      playerPos.y = 1.0;
+
+      // 向四周發送 8 個方向的射線檢測
+      const directions = [
+        new THREE.Vector3(1, 0, 0), new THREE.Vector3(-1, 0, 0),
+        new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, -1),
+        new THREE.Vector3(0.7, 0, 0.7), new THREE.Vector3(-0.7, 0, -0.7),
+        new THREE.Vector3(-0.7, 0, 0.7), new THREE.Vector3(0.7, 0, -0.7)
+      ];
+
+      for (let dir of directions) {
+        const raycaster = new THREE.Raycaster(playerPos, dir, 0, playerRadius);
+        const hits = raycaster.intersectObjects(collidableObjects);
+        if (hits.length > 0) {
+          return true; // 會撞到牆壁
+        }
+      }
+      return false;
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (controls.isLocked) {
+        const time = performance.now();
+        const delta = (time - prevTime) / 1000;
+
+        velocity.x -= velocity.x * 10.0 * delta;
+        velocity.z -= velocity.z * 10.0 * delta;
+
+        direction.z = Number(moveForward) - Number(moveBackward);
+        direction.x = Number(moveRight) - Number(moveLeft);
+        direction.normalize();
+
+        if (moveForward || moveBackward) velocity.z -= direction.z * 50.0 * delta;
+        if (moveLeft || moveRight) velocity.x -= direction.x * 50.0 * delta;
+
+        // 計算預計移動位置
+        const currentPos = controls.getObject().position.clone();
+        
+        controls.moveRight(-velocity.x * delta);
+        controls.moveForward(-velocity.z * delta);
+
+        // 如果檢測到穿牆，退回上一位置
+        if (checkWallCollision(controls.getObject().position)) {
+          controls.getObject().position.copy(currentPos);
+        }
+
+        // --- 喪屍 AI 邏輯 ---
+        if (isSinglePlayer) {
+          const playerPos = controls.getObject().position;
+
+          zombies.forEach(z => {
+            const zPos = z.mesh.position;
+            const dist = zPos.distanceTo(playerPos);
+
+            if (dist > 1.2) {
+              // 追逐玩家
+              const dir = new THREE.Vector3().subVectors(playerPos, zPos);
+              dir.y = 0;
+              dir.normalize();
+              zPos.addScaledVector(dir, z.speed * delta);
+              z.mesh.lookAt(playerPos.x, 0, playerPos.z);
+            } else {
+              // 抓傷玩家 (攻擊)
+              if (time - z.attackCooldown > 1000) {
+                playerHP -= 15;
+                document.getElementById('hp-bar').style.width = Math.max(0, playerHP) + '%';
+                z.attackCooldown = time;
+
+                if (playerHP <= 0) {
+                  alert('🧟‍♂️ 你被喪屍感染了！遊戲結束！');
+                  playerHP = 100;
+                  document.getElementById('hp-bar').style.width = '100%';
+                  controls.unlock();
+                }
+              }
+            }
+          });
+        }
+
+        prevTime = time;
+      }
+
+      renderer.render(scene, camera);
     }
 
     function onKeyDown(e) {
@@ -254,78 +426,9 @@
       }
     }
 
-    function onShoot(e) {
-      if (!controls.isLocked || e.button !== 0) return;
-
-      gunMesh.position.z += 0.05;
-      setTimeout(() => gunMesh.position.z -= 0.05, 50);
-
-      const raycaster = new THREE.Raycaster();
-      raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-
-      const intersects = raycaster.intersectObject(enemyMesh);
-      if (intersects.length > 0) {
-        const currentWeapon = weapons[currentWeaponKey];
-
-        if (isSinglePlayer) {
-          botHP -= currentWeapon.damage;
-          enemyMesh.material.color.setHex(0xffffff);
-          setTimeout(() => enemyMesh.material.color.setHex(0xef4444), 100);
-
-          if (botHP <= 0) {
-            killCount++;
-            document.getElementById('kills').innerText = killCount;
-            respawnBot();
-          }
-        } else if (conn && conn.open) {
-          conn.send({ type: 'shoot', weapon: currentWeaponKey });
-        }
-      }
-    }
-
-    function animate() {
-      requestAnimationFrame(animate);
-
-      if (controls.isLocked) {
-        const time = performance.now();
-        const delta = (time - prevTime) / 1000;
-
-        velocity.x -= velocity.x * 10.0 * delta;
-        velocity.z -= velocity.z * 10.0 * delta;
-
-        direction.z = Number(moveForward) - Number(moveBackward);
-        direction.x = Number(moveRight) - Number(moveLeft);
-        direction.normalize();
-
-        if (moveForward || moveBackward) velocity.z -= direction.z * 40.0 * delta;
-        if (moveLeft || moveRight) velocity.x -= direction.x * 40.0 * delta;
-
-        controls.moveRight(-velocity.x * delta);
-        controls.moveForward(-velocity.z * delta);
-
-        const pos = controls.getObject().position;
-
-        if (isSinglePlayer && enemyMesh.position.y > 0) {
-          const botPos = enemyMesh.position;
-          const dirToPlayer = new THREE.Vector3().subVectors(pos, botPos);
-          dirToPlayer.y = 0;
-          dirToPlayer.normalize();
-          botPos.addScaledVector(dirToPlayer, 2.5 * delta);
-          enemyMesh.lookAt(pos.x, enemyMesh.position.y, pos.z);
-        }
-
-        if (!isSinglePlayer && conn && conn.open) {
-          conn.send({
-            type: 'move',
-            x: pos.x, y: pos.y, z: pos.z,
-            ry: camera.rotation.y
-          });
-        }
-
-        prevTime = time;
-      }
-
-      renderer.render(scene, camera);
+    function initPeer() {
+      peer = new Peer();
+      peer.on('open', (id) => { document.getElementById('my-id').innerText = id; });
     }
   </script>
 </body>
