@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>PeerJS P2P 連線測試</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #1a1a1a; color: #fff; }
+    .box { border: 1px solid #444; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
+    input, button { padding: 8px 12px; font-size: 16px; margin: 5px 0; }
+  </style>
+  <!-- 1. 引入 PeerJS SDK (使用免費公用 Signaling Server) -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+</head>
+<body>
+
+  <h1>FPS P2P 連線設定 (Step 1)</h1>
+
+  <!-- 顯示自己的 Peer ID -->
+  <div class="box">
+    <h3>你的 房間 ID (Peer ID)：</h3>
+    <p id="my-id" style="font-size: 24px; color: #00ffcc;">連線中...</p>
+    <p>把這個 ID 發給你的朋友！</p>
+  </div>
+
+  <!-- 輸入對方的 Peer ID 進行連線 -->
+  <div class="box">
+    <h3>加入朋友的房間：</h3>
+    <input type="text" id="other-id-input" placeholder="貼上對方的 Peer ID">
+    <button id="connect-btn">連線對戰</button>
+  </div>
+
+  <!-- 連線狀態 display -->
+  <div class="box">
+    <h3>連線狀態：<span id="status" style="color: #ffcc00;">等待中...</span></h3>
+  </div>
+
+  <script>
+    let peer = null;
+    let conn = null;
+
+    // 2. 初始化 Peer 物件 (自動向 PeerJS 免費雲端伺服器註冊並取得隨機 ID)
+    peer = new Peer();
+
+    // 當成功取得自己的 Peer ID 時觸發
+    peer.on('open', (id) => {
+      document.getElementById('my-id').innerText = id;
+    });
+
+    // 3A. 情況 A：被動等待【玩家 B】連進來 (作為 Host)
+    peer.on('connection', (incomingConn) => {
+      conn = incomingConn;
+      setupConnectionEvents();
+      document.getElementById('status').innerText = '玩家已連入！可以直接傳輸遊戲數據了！';
+    });
+
+    // 3B. 情況 B：主動連線到【玩家 A】(作為 Client)
+    document.getElementById('connect-btn').addEventListener('click', () => {
+      const targetId = document.getElementById('other-id-input').value.trim();
+      if (!targetId) return alert('請輸入對方的 Peer ID');
+
+      document.getElementById('status').innerText = '正在連線中...';
+      conn = peer.connect(targetId);
+      setupConnectionEvents();
+    });
+
+    // 4. 設定資料傳送與接收監聽 (DataChannel Events)
+    function setupConnectionEvents() {
+      // 當 P2P 通道建立成功
+      conn.on('open', () => {
+        document.getElementById('status').innerText = '連線成功！(P2P 直連已建立)';
+        
+        // 測試發送資料
+        conn.send({ type: 'hello', message: '哈囉！我連進來了！' });
+      });
+
+      // 接收來自對方的數據 (位置、射擊、槍枝狀態等)
+      conn.on('data', (data) => {
+        console.log('收到對方資料：', data);
+      });
+
+      // 連線中斷處理
+      conn.on('close', () => {
+        document.getElementById('status').innerText = '對方已斷開連線';
+      });
+    }
+  </script>
+</body>
+</html>
