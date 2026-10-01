@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>CSO Macau: Ruined City Apocalypse</title>
+  <title>CSO Macau: Ultimate Apocalypse</title>
   <style>
     body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Arial, sans-serif; background: #050811; touch-action: none; }
     #crosshair {
@@ -23,6 +23,12 @@
     }
     #hp-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #ef4444, #f87171); transition: width 0.2s; }
     
+    #damage-overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(239, 68, 68, 0.3); pointer-events: none; opacity: 0;
+      transition: opacity 0.1s ease-out; z-index: 11;
+    }
+
     #mission-tracker {
       position: absolute; top: 15px; right: 15px;
       background: rgba(15, 23, 42, 0.9); color: #fbbf24;
@@ -91,6 +97,7 @@
 <body>
 
   <div id="crosshair"></div>
+  <div id="damage-overlay"></div>
   <div id="boss-warning">⚠️ 警告：澳門喪屍王 (BOSS) 降臨！</div>
 
   <div id="mission-tracker">
@@ -98,7 +105,7 @@
     📦 搜刮物資：<span id="supply-count" style="color:#fff;">0 / 3</span><br>
     💣 剩餘炸彈：<span id="grenade-count" style="color:#fbbf24;">3</span> 個 (按 3 投擲)<br>
     👹 BOSS 狀態：<span id="boss-status" style="color:#aaa;">未出現 (第2物資解鎖)</span><br>
-    🚁 大三巴撤離點：<span id="evac-status" style="color:#ef4444;">未解鎖</span>
+    🚁 大三巴撤離點：<span id="evac-status" style="color:#ef4444;">🔒 未解鎖</span>
   </div>
 
   <div id="mobile-controls">
@@ -109,9 +116,10 @@
   </div>
 
   <div id="menu-panel">
-    <h3 style="margin: 0; color: #fbbf24; font-size: 22px;">🇲🇴 澳門生存戰：地標大決戰</h3>
+    <h3 style="margin: 0; color: #fbbf24; font-size: 22px;">🇲🇴 澳門生存戰：極致細節</h3>
     <p style="font-size: 12px; color: #cbd5e1; margin-top: 6px;">
-      ✅ 100% 穩定顯示大樓與澳門地標<br>
+      ✅ 修正：擊殺 BOSS + 集齊 3 物資後方可撤離<br>
+      ✅ 新增：唐樓門口/陽台/晾衫、Apple Store 電視手機與竹子<br>
       請選擇難度以開始遊戲：
     </p>
     <button class="diff-btn" id="easy-btn">🟢 簡單 (Easy)</button>
@@ -138,11 +146,12 @@
     let zombieSpeedMultiplier = 1.0;
     let zombieDamageMultiplier = 1.0;
     let bossMaxHP = 800, bossCurrentHP = 800;
-    let bossMesh = null, isBossAlive = false;
+    let bossMesh = null, isBossAlive = false, isBossDefeated = false;
 
     const collidableBoxes = [];
     const zombies = [], supplyBoxes = [], activeGrenades = [];
     let evacZone = null, gunMesh;
+    let lastPlayerHitTime = 0;
 
     let moveVector = { x: 0, y: 0 };
     let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
@@ -171,7 +180,6 @@
 
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
-      // 環境光線與高細節光影
       const ambientLight = new THREE.AmbientLight(0xddeeff, 0.6);
       scene.add(ambientLight);
 
@@ -189,17 +197,19 @@
       document.body.appendChild(renderer.domElement);
 
       createRoadSystem();
+      createMacauStreetSigns();
 
-      // 生成所有澳門實景地標與大樓
+      // 細節建築與地標
       createDetailedRuinsOfStPaul();
       createMacauTower();
       createKunIamStatue();
       createAMaTemple();
-      createDetailedAppleStore();
+      createDetailedAppleStoreWithTechAndBamboo();
       createGrandLisboa();
       createWynnPalace();
       createPataneMarket();
-      createDenseSkyscrapersAndTongLau();
+      createDetailedMacauTongLau();
+      createAbandonedCars();
 
       camera.position.set(0, 1.6, 20);
       if (!isMobile) {
@@ -265,6 +275,12 @@
       collidableBoxes.push(box);
     }
 
+    function triggerDamageVisual() {
+      const overlay = document.getElementById('damage-overlay');
+      overlay.style.opacity = '1';
+      setTimeout(() => { overlay.style.opacity = '0'; }, 150);
+    }
+
     function setDifficulty(diff) {
       difficulty = diff;
       if (diff === 'easy') {
@@ -293,6 +309,30 @@
       ground.rotation.x = -Math.PI / 2;
       ground.receiveShadow = true;
       scene.add(ground);
+
+      // 馬路地線
+      const roadMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
+      const mainRoad = new THREE.Mesh(new THREE.PlaneGeometry(24, 300), roadMat);
+      mainRoad.rotation.x = -Math.PI / 2; mainRoad.position.y = 0.02;
+      scene.add(mainRoad);
+
+      const yellowLineMat = new THREE.MeshBasicMaterial({ color: 0xfbbf24 });
+      const line = new THREE.Mesh(new THREE.PlaneGeometry(0.4, 300), yellowLineMat);
+      line.rotation.x = -Math.PI / 2; line.position.set(0, 0.03, 0);
+      scene.add(line);
+    }
+
+    // 澳門街名路牌 (綠底白字)
+    function createMacauStreetSigns() {
+      const signGroup = new THREE.Group();
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 4), new THREE.MeshStandardMaterial({ color: 0x475569 }));
+      pole.position.y = 2; signGroup.add(pole);
+
+      const board = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.0, 0.1), new THREE.MeshStandardMaterial({ color: 0x059669 }));
+      board.position.set(0, 3.5, 0); signGroup.add(board);
+
+      signGroup.position.set(10, 0, 10);
+      scene.add(signGroup);
     }
 
     function createDetailedRuinsOfStPaul() {
@@ -310,6 +350,97 @@
       evacZone.position.set(0, 0.1, -68); scene.add(evacZone);
     }
 
+    // 澳門唐樓 (帶門口、露台/陽台、晾衣服掛線與霓虹招牌)
+    function createDetailedMacauTongLau() {
+      const tongLauConfigs = [
+        {x: -30, z: -20, h: 20}, {x: 30, z: -20, h: 22},
+        {x: -30, z: 15, h: 18}, {x: 30, z: 15, h: 24}
+      ];
+
+      tongLauConfigs.forEach(c => {
+        const group = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.BoxGeometry(16, c.h, 16), new THREE.MeshStandardMaterial({ color: 0xfef08a, roughness: 0.7 }));
+        body.position.y = c.h / 2; group.add(body);
+
+        // 地面拱形門口
+        const door = new THREE.Mesh(new THREE.BoxGeometry(3, 4, 1), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+        door.position.set(0, 2, 8.1); group.add(door);
+
+        // 露台/陽台 (Balconies) 與 晾衫架掛衣 (Clothes Hanging)
+        for (let y = 6; y < c.h - 3; y += 4) {
+          const balcony = new THREE.Mesh(new THREE.BoxGeometry(8, 0.4, 2), new THREE.MeshStandardMaterial({ color: 0x475569 }));
+          balcony.position.set(0, y, 8.8); group.add(balcony);
+
+          // 晾衫線與吊掛彩色衣物
+          const clothLine = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 6), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+          clothLine.rotation.z = Math.PI / 2; clothLine.position.set(0, y + 1.8, 9.2); group.add(clothLine);
+
+          // 彩色衣服片段
+          const cloth1 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.05), new THREE.MeshBasicMaterial({ color: 0xef4444 }));
+          cloth1.position.set(-1.5, y + 1.2, 9.2); group.add(cloth1);
+          const cloth2 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.2, 0.05), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+          cloth2.position.set(1.5, y + 1.2, 9.2); group.add(cloth2);
+        }
+
+        // 發光唐樓店鋪霓虹招牌
+        const sign = new THREE.Mesh(new THREE.BoxGeometry(1.2, 4, 0.2), new THREE.MeshBasicMaterial({ color: 0xf59e0b }));
+        sign.position.set(8.2, 8, 4); group.add(sign);
+
+        group.position.set(c.x, 0, c.z);
+        addCollidableObject(group);
+      });
+    }
+
+    // 澳門 Apple Store (電視螢幕、手機、展示台、入口門口、竹子綠植)
+    function createDetailedAppleStoreWithTechAndBamboo() {
+      const group = new THREE.Group();
+
+      // 雙層玻璃立方體主體
+      const cube = new THREE.Mesh(new THREE.BoxGeometry(16, 12, 16), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.35, roughness: 0.1 }));
+      cube.position.y = 6; group.add(cube);
+
+      // 前門口玻璃門
+      const glassDoor = new THREE.Mesh(new THREE.BoxGeometry(4, 5, 0.2), new THREE.MeshStandardMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.6 }));
+      glassDoor.position.set(0, 2.5, 8.1); group.add(glassDoor);
+
+      // 內部木質長桌與檯面 Demo 手機
+      const tableMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.4 });
+      for(let x of [-4, 4]) {
+        for(let z of [-3, 3]) {
+          const table = new THREE.Mesh(new THREE.BoxGeometry(3, 1.2, 2), tableMat);
+          table.position.set(x, 0.6, z); group.add(table);
+
+          // 檯面上展示 iPhone / iPad (小白色發光體)
+          const phone = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.05, 0.5), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+          phone.position.set(x, 1.25, z); group.add(phone);
+        }
+      }
+
+      // 牆上巨型電視展板 (Apple Video Wall TV)
+      const tvScreen = new THREE.Mesh(new THREE.BoxGeometry(8, 4.5, 0.2), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+      tvScreen.position.set(0, 6, -7.8); group.add(tvScreen);
+
+      // 門口兩側東方竹子綠植 (Bamboo Plants)
+      for(let bx of [-3.5, 3.5]) {
+        const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 1), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+        pot.position.set(bx, 0.5, 9.0); group.add(pot);
+
+        for(let i = 0; i < 4; i++) {
+          const bamboo = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 3.5), new THREE.MeshStandardMaterial({ color: 0x15803d }));
+          bamboo.position.set(bx + (i*0.2 - 0.3), 2.2, 9.0); group.add(bamboo);
+        }
+      }
+
+      group.position.set(-60, 0, 45);
+      addCollidableObject(group);
+    }
+
+    function createAbandonedCars() {
+      const carMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.6, roughness: 0.5 });
+      const car = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.2, 4.8), carMat);
+      car.position.set(-6, 0.6, 12); addCollidableObject(car);
+    }
+
     function createMacauTower() {
       const body = new THREE.Mesh(new THREE.CylinderGeometry(3, 4, 110, 16), new THREE.MeshStandardMaterial({ color: 0x94a3b8 }));
       body.position.set(80, 55, 60); addCollidableObject(body);
@@ -323,11 +454,6 @@
     function createAMaTemple() {
       const temple = new THREE.Mesh(new THREE.BoxGeometry(16, 7, 12), new THREE.MeshStandardMaterial({ color: 0xb91c1c }));
       temple.position.set(-60, 3.5, -60); addCollidableObject(temple);
-    }
-
-    function createDetailedAppleStore() {
-      const cube = new THREE.Mesh(new THREE.BoxGeometry(16, 12, 16), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.4 }));
-      cube.position.set(-45, 6, 35); addCollidableObject(cube);
     }
 
     function createGrandLisboa() {
@@ -345,22 +471,8 @@
       market.position.set(45, 7.5, 35); addCollidableObject(market);
     }
 
-    function createDenseSkyscrapersAndTongLau() {
-      const configs = [
-        {x: -30, z: -20, h: 22}, {x: 30, z: -20, h: 26},
-        {x: -30, z: 15, h: 18}, {x: 30, z: 15, h: 24},
-        {x: -30, z: 50, h: 28}, {x: 30, z: 50, h: 32}
-      ];
-
-      configs.forEach(c => {
-        const body = new THREE.Mesh(new THREE.BoxGeometry(16, c.h, 16), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 }));
-        body.position.set(c.x, c.h/2, c.z); addCollidableObject(body);
-      });
-    }
-
     function spawnZombie() {
       const zombieGroup = new THREE.Group();
-
       const skinMat = new THREE.MeshStandardMaterial({ color: 0x1c3d1c, roughness: 0.9 });
       const clothMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.8 });
 
@@ -387,11 +499,7 @@
 
       scene.add(zombieGroup);
       zombies.push({
-        mesh: zombieGroup,
-        armL: armL, armR: armR,
-        hp: 100,
-        speed: 3.2 * zombieSpeedMultiplier,
-        walkAnimOffset: Math.random() * 100
+        mesh: zombieGroup, armL: armL, armR: armR, hp: 100, speed: 3.2 * zombieSpeedMultiplier, walkAnimOffset: Math.random() * 100
       });
     }
 
@@ -477,6 +585,17 @@
       document.getElementById('weapon-name').innerText = w.name;
     }
 
+    function checkEvacUnlock() {
+      if (collectedSupplies >= totalSupplies && isBossDefeated) {
+        isEvacReady = true;
+        document.getElementById('evac-status').innerText = '🟢 已解鎖！快前往大三巴！';
+        document.getElementById('evac-status').style.color = '#10b981';
+        evacZone.material.color.setHex(0x10b981);
+      } else {
+        document.getElementById('evac-status').innerText = '🔒 需先消滅 BOSS 並集齊物資';
+      }
+    }
+
     function onShoot() {
       gunMesh.position.z += 0.06; setTimeout(() => gunMesh.position.z -= 0.06, 50);
 
@@ -487,11 +606,12 @@
         if (raycaster.intersectObjects(bossMesh.children).length > 0) {
           bossCurrentHP -= weapons[currentWeaponKey].damage;
           if (bossCurrentHP <= 0) {
-            scene.remove(bossMesh); isBossAlive = false;
+            scene.remove(bossMesh); isBossAlive = false; isBossDefeated = true;
             killCount += 10; document.getElementById('kills').innerText = killCount;
             document.getElementById('boss-status').innerText = '🟢 已消滅';
             document.getElementById('boss-status').style.color = '#10b981';
-            alert('🎉 恭喜！你成功擊敗了「澳門喪屍王 BOSS」！');
+            checkEvacUnlock();
+            alert('🎉 恭喜！成功擊殺「澳門喪屍王 BOSS」！請集齊物資往大三巴撤離！');
           }
           return;
         }
@@ -525,7 +645,11 @@
 
           if (isBossAlive && bossMesh && bossMesh.position.distanceTo(g.mesh.position) < 12.0) {
             bossCurrentHP -= 250;
-            if (bossCurrentHP <= 0) { scene.remove(bossMesh); isBossAlive = false; }
+            if (bossCurrentHP <= 0) {
+              scene.remove(bossMesh); isBossAlive = false; isBossDefeated = true;
+              document.getElementById('boss-status').innerText = '🟢 已消滅';
+              checkEvacUnlock();
+            }
           }
 
           zombies.forEach((z) => {
@@ -559,25 +683,44 @@
 
       const playerPos = camera.position;
 
+      // 撿物資判定
       supplyBoxes.forEach(sb => {
         if (!sb.collected && playerPos.distanceTo(sb.mesh.position) < 2.2) {
           sb.collected = true; scene.remove(sb.mesh); collectedSupplies++;
           document.getElementById('supply-count').innerText = `${collectedSupplies} / ${totalSupplies}`;
 
           if (collectedSupplies === 2) spawnBossZombie();
-
-          if (collectedSupplies >= totalSupplies) {
-            isEvacReady = true;
-            document.getElementById('evac-status').innerText = '🟢 已解鎖，前往大三巴！';
-            document.getElementById('evac-status').style.color = '#10b981'; evacZone.material.color.setHex(0x10b981);
-          }
+          checkEvacUnlock();
         }
       });
 
+      // 撤離判定 (必須解鎖方可撤離)
       if (isEvacReady && playerPos.distanceTo(evacZone.position) < 4.5) {
-        alert('🚁 任務成功！你已安全撤離澳門！'); location.reload();
+        alert('🚁 任務成功！你已成功消滅 BOSS 並安全撤離澳門！'); location.reload();
       }
 
+      const now = performance.now();
+
+      // BOSS 攻擊判定
+      if (isBossAlive && bossMesh) {
+        const bPos = bossMesh.position;
+        const dist = bPos.distanceTo(playerPos);
+        if (dist > 2.5) {
+          const dir = new THREE.Vector3().subVectors(playerPos, bPos); dir.y = 0; dir.normalize();
+          bPos.addScaledVector(dir, 2.5 * zombieSpeedMultiplier * 0.016);
+          bossMesh.lookAt(playerPos.x, 0, playerPos.z);
+        } else {
+          if (now - lastPlayerHitTime > 800) {
+            playerHP -= 20 * zombieDamageMultiplier;
+            triggerDamageVisual();
+            document.getElementById('hp-bar').style.width = Math.max(0, playerHP) + '%';
+            lastPlayerHitTime = now;
+            if (playerHP <= 0) { alert('🧟‍♂️ 你被澳門喪屍王 BOSS 擊殺了！'); location.reload(); }
+          }
+        }
+      }
+
+      // 普通喪屍 攻擊與傷害判定
       zombies.forEach(z => {
         const zPos = z.mesh.position; const dist = zPos.distanceTo(playerPos);
         if (dist > 1.2) {
@@ -589,9 +732,13 @@
           z.armR.rotation.x = -Math.PI / 2.3 - anim * 0.2;
           z.mesh.rotation.z = anim * 0.05;
         } else {
-          playerHP -= 0.25 * zombieDamageMultiplier;
-          document.getElementById('hp-bar').style.width = Math.max(0, playerHP) + '%';
-          if (playerHP <= 0) { alert('🧟‍♂️ 撤離失敗！你被喪屍圍攻了！'); location.reload(); }
+          if (now - lastPlayerHitTime > 800) {
+            playerHP -= 12 * zombieDamageMultiplier;
+            triggerDamageVisual();
+            document.getElementById('hp-bar').style.width = Math.max(0, playerHP) + '%';
+            lastPlayerHitTime = now;
+            if (playerHP <= 0) { alert('🧟‍♂️ 撤離失敗！你被喪屍圍攻倒下了！'); location.reload(); }
+          }
         }
       });
 
