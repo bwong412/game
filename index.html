@@ -1,324 +1,251 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>大三巴牌坊 - 3D 探索場景</title>
+    <title>Web Minecraft - Save & Load</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            background-color: #1a1a1a;
             font-family: Arial, sans-serif;
+            user-select: none;
         }
-        #canvas-container {
-            width: 100vw;
-            height: 100vh;
-        }
-        #loading {
+        #crosshair {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            color: #ffffff;
-            font-size: 18px;
-            font-weight: bold;
+            width: 10px;
+            height: 10px;
+            margin-top: -5px;
+            margin-left: -5px;
             pointer-events: none;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px 25px;
-            border-radius: 8px;
+            color: white;
+            font-size: 20px;
+            line-height: 10px;
             text-align: center;
         }
-        #ui-instructions {
+        #ui {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
             color: white;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
-            pointer-events: none;
-            line-height: 1.5;
             font-size: 14px;
+            line-height: 1.6;
         }
+        button {
+            margin-top: 5px;
+            padding: 6px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+            background: #008CBA;
+            color: white;
+        }
+        button:hover { background: #005f73; }
     </style>
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-        }
-      }
-    </script>
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-    <div id="loading">載入 3D 角色與大三巴模型中...</div>
-    <div id="ui-instructions">
-        <b>控制說明：</b><br>
-        • <b>WASD / 方向鍵</b>：控制真人角色行走<br>
-        • <b>滑鼠拖曳</b>：旋轉視角<br>
-        • <b>滾輪</b>：縮放視角
+
+    <div id="crosshair">+</div>
+    <div id="ui">
+        <b>操作方法:</b><br>
+        ・画面クリック：視点操作開始（Escで解除）<br>
+        ・WASD / 矢印キー：移動<br>
+        ・左クリック：ブロック破壊<br>
+        ・右クリック：ブロック設置<br>
+        <button id="save-btn">セーブ (Save)</button>
+        <button id="load-btn">ロード (Load)</button>
+        <button id="reset-btn" style="background:#f44336;">リセット</button>
     </div>
-    <div id="canvas-container"></div>
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-        // 1. 場景 setup
+    <script>
+        // 1. 基本セットアップ (Scene, Camera, Renderer)
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87ceeb);
-        scene.fog = new THREE.FogExp2(0x87ceeb, 0.005);
+        scene.background = new THREE.Color(0x87ceeb); // 空色
 
-        // 2. 相機 setup
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
-
-        // 3. 渲染器 setup
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        document.body.appendChild(renderer.domElement);
 
-        // 4. 光源 setup
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+        // ライト
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(20, 40, 20);
+        scene.add(dirLight);
 
-        const sunLight = new THREE.DirectionalLight(0xfffaed, 2.5);
-        sunLight.position.set(50, 100, 50);
-        sunLight.castShadow = true;
-        sunLight.shadow.mapSize.width = 2048;
-        sunLight.shadow.mapSize.height = 2048;
-        sunLight.shadow.camera.near = 0.5;
-        sunLight.shadow.camera.far = 500;
-        const d = 100;
-        sunLight.shadow.camera.left = -d;
-        sunLight.shadow.camera.right = d;
-        sunLight.shadow.camera.top = d;
-        sunLight.shadow.camera.bottom = -d;
-        scene.add(sunLight);
+        // ブロック・マテリアル（草ブロック風）
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshLambertMaterial({ color: 0x55aa55 }); // 緑色
 
-        // 5. 控制器跟隨
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.maxPolarAngle = Math.PI / 2 - 0.02;
-        controls.minDistance = 3;
-        controls.maxDistance = 50;
+        // ワールドデータを管理する配列
+        let blocks = [];
 
-        // 6. 比例調整參數 (大三巴高約 25 米，真人高約 1.7 米)
-        const stairWidth = 40;     // 加寬階梯
-        const stairHeight = 0.35;  // 每階高度
-        const stairDepth = 0.8;    // 每階深度
-        const totalSteps = 30;
-        const platformHeight = totalSteps * stairHeight;
-        const platformZ = 40 - (totalSteps * stairDepth) - 15;
-
-        // 生成馬路與地面
-        const groundGeo = new THREE.PlaneGeometry(500, 500);
-        const groundMat = new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.8 });
-        const ground = new THREE.Mesh(groundGeo, groundMat);
-        ground.rotation.x = -Math.PI / 2;
-        ground.receiveShadow = true;
-        scene.add(ground);
-
-        // 馬路標線
-        const roadLineGeo = new THREE.PlaneGeometry(0.5, 100);
-        const roadLineMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
-        const roadLine = new THREE.Mesh(roadLineGeo, roadLineMat);
-        roadLine.rotation.x = -Math.PI / 2;
-        roadLine.rotation.z = Math.PI / 2;
-        roadLine.position.set(0, 0.02, 55);
-        scene.add(roadLine);
-
-        // 7. 生成長階梯與廣場
-        const stairGroup = new THREE.Group();
-        const stairMaterial = new THREE.MeshStandardMaterial({ color: 0xc2b280, roughness: 0.6 });
-
-        for (let i = 0; i < totalSteps; i++) {
-            const stepGeo = new THREE.BoxGeometry(stairWidth, stairHeight, stairDepth);
-            const step = new THREE.Mesh(stepGeo, stairMaterial);
-            step.position.set(0, (i * stairHeight) + stairHeight / 2, 40 - (i * stairDepth));
-            step.castShadow = true;
-            step.receiveShadow = true;
-            stairGroup.add(step);
+        // 2. 初期ワールド生成（平原）
+        function createInitialWorld() {
+            clearWorld();
+            for (let x = -5; x <= 5; x++) {
+                for (let z = -5; z <= 5; z++) {
+                    addBlock(x, 0, z);
+                }
+            }
         }
-        scene.add(stairGroup);
 
-        // 大三巴前廣場
-        const platformGeo = new THREE.BoxGeometry(stairWidth + 10, platformHeight, 30);
-        const platform = new THREE.Mesh(platformGeo, stairMaterial);
-        platform.position.set(0, platformHeight / 2, platformZ);
-        platform.receiveShadow = true;
-        scene.add(platform);
+        function addBlock(x, y, z) {
+            const cube = new THREE.Mesh(geometry, material);
+            cube.position.set(x, y, z);
+            scene.add(cube);
+            blocks.push(cube);
+        }
 
-        // 8. 載入 3D 真人角色 (含動畫)
-        const loader = new GLTFLoader();
-        const loadingElement = document.getElementById('loading');
+        function clearWorld() {
+            blocks.forEach(b => scene.remove(b));
+            blocks = [];
+        }
+
+        // 3. セーブ＆ロード機能 (localStorage)
+        document.getElementById('save-btn').addEventListener('click', () => {
+            const worldData = blocks.map(b => ({
+                x: b.position.x,
+                y: b.position.y,
+                z: b.position.z
+            }));
+            localStorage.setItem('web_minecraft_save', JSON.stringify(worldData));
+            alert('ワールドデータをセーブしました！');
+        });
+
+        document.getElementById('load-btn').addEventListener('click', () => {
+            const savedData = localStorage.getItem('web_minecraft_save');
+            if (savedData) {
+                clearWorld();
+                const worldData = JSON.parse(savedData);
+                worldData.forEach(pos => addBlock(pos.x, pos.y, pos.z));
+                alert('ワールドデータをロードしました！');
+            } else {
+                alert('セーブデータが見つかりません。');
+            }
+        });
+
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            if (confirm('ワールドを初期化しますか？')) {
+                createInitialWorld();
+            }
+        });
+
+        // 4. プレイヤー移動＆視点制御 (Pointer Lock API)
+        camera.position.set(0, 3, 8);
+
+        let isLocked = false;
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+        const velocity = new THREE.Vector3();
+        const direction = new THREE.Vector3();
+
+        document.body.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'BUTTON') {
+                document.body.requestPointerLock();
+            }
+        });
+
+        document.addEventListener('pointerlockchange', () => {
+            isLocked = document.pointerLockElement === document.body;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isLocked) return;
+            camera.rotation.y -= e.movementX * 0.002;
+            camera.rotation.x -= e.movementY * 0.002;
+            camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
+        });
+
+        document.addEventListener('keydown', (e) => {
+            switch (e.code) {
+                case 'KeyW': moveForward = true; break;
+                case 'KeyS': moveBackward = true; break;
+                case 'KeyA': moveLeft = true; break;
+                case 'KeyD': moveRight = true; break;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            switch (e.code) {
+                case 'KeyW': moveForward = false; break;
+                case 'KeyS': moveBackward = false; break;
+                case 'KeyA': moveLeft = false; break;
+                case 'KeyD': moveRight = false; break;
+            }
+        });
+
+        // 5. ブロックの破壊と設置 (Raycaster)
+        const raycaster = new THREE.Raycaster();
         
-        let playerGroup = new THREE.Group();
-        playerGroup.position.set(0, 0, 50); // 馬路起點
-        scene.add(playerGroup);
+        window.addEventListener('mousedown', (e) => {
+            if (!isLocked) return;
 
-        let mixer, walkAction, idleAction;
-        let isCharacterLoaded = false;
+            // 画面中央（レイキャストの発射位置）
+            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+            const intersects = raycaster.intersectObjects(blocks);
 
-        // 載入官方標準 3D 角色模型 (Xbot)
-        loader.load('https://threejs.org/examples/models/gltf/Xbot.glb', (gltf) => {
-            const character = gltf.scene;
-            character.scale.set(1, 1, 1); // 標準身高 (約 1.7m ~ 1.8m)
-            
-            character.traverse((child) => {
-                if (child.isMesh) {
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                }
-            });
+            if (intersects.length > 0) {
+                const intersect = intersects[0];
 
-            playerGroup.add(character);
-
-            // 設置動畫
-            mixer = new THREE.AnimationMixer(character);
-            const animations = gltf.animations;
-            
-            // Xbot 模型中的 0: agree, 3: idle, 6: run, 8: walk
-            idleAction = mixer.clipAction(animations[3]);
-            walkAction = mixer.clipAction(animations[8]);
-            
-            idleAction.play();
-            isCharacterLoaded = true;
-        });
-
-        // 9. 載入大三巴模型並套用真實放大比例 (1:15 比例修正)
-        loader.load(
-            './ruins_of_sp.glb',
-            (gltf) => {
-                const model = gltf.scene;
-                
-                model.traverse((child) => {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                    }
-                });
-
-                // **關鍵修改：放大 15 倍以匹配真實大三巴與人體的比例**
-                model.scale.set(15, 15, 15);
-                model.position.set(0, platformHeight, platformZ - 5);
-                scene.add(model);
-
-                loadingElement.style.display = 'none';
-            },
-            (xhr) => {
-                if (xhr.lengthComputable) {
-                    const percent = Math.round((xhr.loaded / xhr.total) * 100);
-                    loadingElement.innerText = `載入 3D 模型與角色中: ${percent}%`;
-                }
-            },
-            (error) => {
-                console.error('模型載入失敗:', error);
-                loadingElement.innerText = '模型載入失敗，請檢查主機檔案路徑';
-            }
-        );
-
-        // 10. 角色移動與動畫控制
-        const keys = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowLeft: false, ArrowDown: false, ArrowRight: false };
-
-        window.addEventListener('keydown', (e) => {
-            const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-            if (keys.hasOwnProperty(key)) keys[key] = true;
-        });
-
-        window.addEventListener('keyup', (e) => {
-            const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-            if (keys.hasOwnProperty(key)) keys[key] = false;
-        });
-
-        function getTerrainHeight(x, z) {
-            if (Math.abs(x) < stairWidth / 2 && z <= 40 && z >= 40 - (totalSteps * stairDepth)) {
-                const stepIndex = Math.floor((40 - z) / stairDepth);
-                return Math.max(0, stepIndex * stairHeight);
-            }
-            if (Math.abs(x) < (stairWidth + 10) / 2 && z < 40 - (totalSteps * stairDepth)) {
-                return platformHeight;
-            }
-            return 0;
-        }
-
-        const moveSpeed = 0.12;
-        let isMoving = false;
-
-        function updatePlayer() {
-            const moveX = (keys.d || keys.ArrowRight ? 1 : 0) - (keys.a || keys.ArrowLeft ? 1 : 0);
-            const moveZ = (keys.s || keys.ArrowDown ? 1 : 0) - (keys.w || keys.ArrowUp ? 1 : 0);
-
-            const currentlyMoving = moveX !== 0 || moveZ !== 0;
-
-            // 動畫切換：站立 vs 行走
-            if (isCharacterLoaded && currentlyMoving !== isMoving) {
-                isMoving = currentlyMoving;
-                if (isMoving) {
-                    idleAction.fadeOut(0.2);
-                    walkAction.reset().fadeIn(0.2).play();
-                } else {
-                    walkAction.fadeOut(0.2);
-                    idleAction.reset().fadeIn(0.2).play();
+                if (e.button === 0) {
+                    // 左クリック：ブロック破壊
+                    scene.remove(intersect.object);
+                    blocks = blocks.filter(b => b !== intersect.object);
+                } else if (e.button === 2) {
+                    // 右クリック：ブロック設置
+                    const normal = intersect.face.normal;
+                    const newPos = intersect.object.position.clone().add(normal);
+                    addBlock(newPos.x, newPos.y, newPos.z);
                 }
             }
+        });
 
-            if (currentlyMoving) {
-                const cameraDirection = new THREE.Vector3();
-                camera.getWorldDirection(cameraDirection);
-                cameraDirection.y = 0;
-                cameraDirection.normalize();
+        // 右クリックメニューの無効化
+        window.addEventListener('contextmenu', e => e.preventDefault());
 
-                const cameraRight = new THREE.Vector3();
-                cameraRight.crossVectors(cameraDirection, new THREE.Vector3(0, 1, 0)).normalize();
+        // 初期表示
+        createInitialWorld();
 
-                const moveVector = new THREE.Vector3();
-                moveVector.addScaledVector(cameraDirection, -moveZ);
-                moveVector.addScaledVector(cameraRight, moveX);
-                moveVector.normalize().multiplyScalar(moveSpeed);
-
-                playerGroup.position.add(moveVector);
-
-                // 旋轉角色朝向移動方向
-                const targetAngle = Math.atan2(moveVector.x, moveVector.z);
-                playerGroup.rotation.y = targetAngle;
-            }
-
-            // 爬梯高度更新
-            const targetY = getTerrainHeight(playerGroup.position.x, playerGroup.position.z);
-            playerGroup.position.y += (targetY - playerGroup.position.y) * 0.2;
-
-            // 攝影機視角跟隨
-            controls.target.copy(playerGroup.position).add(new THREE.Vector3(0, 1.5, 0));
-        }
-
-        // 11. 繪製迴圈
-        const clock = new THREE.Clock();
+        // 6. アニメーションループ
+        let prevTime = performance.now();
 
         function animate() {
             requestAnimationFrame(animate);
-            const delta = clock.getDelta();
 
-            if (mixer) mixer.update(delta);
-            updatePlayer();
-            controls.update();
+            const time = performance.now();
+            const delta = (time - prevTime) / 1000;
+
+            if (isLocked) {
+                // 移動計算
+                direction.z = Number(moveForward) - Number(moveBackward);
+                direction.x = Number(moveRight) - Number(moveLeft);
+                direction.normalize();
+
+                if (moveForward || moveBackward) camera.translateZ(-direction.z * 10 * delta);
+                if (moveLeft || moveRight) camera.translateX(direction.x * 10 * delta);
+            }
+
+            prevTime = time;
             renderer.render(scene, camera);
         }
 
-        // 視窗 resize 處理
+        animate();
+
+        // リサイズ対応
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
-
-        camera.position.set(0, 4, 60);
-        animate();
     </script>
 </body>
 </html>
