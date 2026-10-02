@@ -1,113 +1,70 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-Hant-MO">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover" />
-    <title>澳門GTA · 鏡海狂飆</title>
-    <meta name="description" content="《澳門GTA》鏡海狂飆 — 在瀏覽器裡暢遊開放世界的澳門：騎電單車穿梭新馬路、新葡京與金光大道。MACAU GTA: an open-world Macau in your browser." />
-    <meta name="theme-color" content="#07080c" />
-    <meta name="color-scheme" content="dark" />
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
-    
-    <!-- Safe-area & Fullscreen styling -->
-    <style>
-      html, body {
-        overscroll-behavior: none;
-        touch-action: none;
-        -webkit-user-select: none;
-        user-select: none;
-        background: #07080c;
-        width: 100%; height: 100%;
-        margin: 0; overflow: hidden;
-      }
-      #app { position: fixed; inset: 0; }
-      
-      /* Loader Interface */
-      #loader {
-        --m: clamp(20px, 3.4vw, 68px);
-        position: fixed; inset: 0; z-index: 100;
-        background: #07080c url('/title/macau-loader-bg.webp') center/cover no-repeat;
-        color: #f4f1ea;
-        font-family: 'PingFang TC', 'Noto Sans TC', system-ui, sans-serif;
-        transition: opacity 0.45s ease-in;
-      }
-      #loader .ld-grade {
-        position: absolute; inset: 0;
-        background: linear-gradient(#05050900 50%, #050509e6 100%), radial-gradient(at 50% 50%, #0000 50%, #0008 100%);
-      }
-      #loader .ld-logo {
-        position: absolute; left: var(--m); bottom: var(--m);
-        width: clamp(230px, 27vw, 520px); z-index: 2;
-      }
-      #loader .ld-prog {
-        position: absolute; right: var(--m); bottom: var(--m);
-        width: clamp(220px, 21vw, 420px); z-index: 2;
-      }
-      #loader .ld-row { display: flex; align-items: center; gap: 12px; }
-      #loader .ld-pct { font-size: clamp(28px, 2vw, 42px); font-weight: 700; }
-      #loader .ld-track { background: rgba(255, 255, 255, 0.2); height: 4px; margin-top: 10px; position: relative; }
-      #loader .ld-fill { background: #008751; height: 100%; width: 0%; transition: width 0.3s ease; } /* 澳門綠 */
-      #loader .ld-tip {
-        position: absolute; left: 50%; bottom: var(--m);
-        transform: translateX(-50%); width: min(36vw, 620px); z-index: 2;
-      }
-      #loader .ld-tip-k { color: #ffc72c; font-weight: bold; font-size: 13px; letter-spacing: 2px; } /* 澳門黃 */
-      #loader .ld-tips { margin-top: 6px; font-size: 15px; line-height: 1.5; text-shadow: 0 1px 3px #000; }
-    </style>
-  </head>
-  <body>
-    <div id="app"></div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>澳門 GTA · 鏡海狂飆</title>
+  <style>
+    body { margin: 0; overflow: hidden; background: #000; }
+    #canvas-container { width: 100vw; height: 100vh; }
+  </style>
+  <!-- 直接引入 Three.js (免 Terminal 安裝) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+  <div id="canvas-container"></div>
 
-    <!-- 載入動畫畫面 -->
-    <div id="loader" role="progressbar" aria-label="澳門GTA 載入中">
-      <div class="ld-grade"></div>
-      
-      <!-- 澳門 GTA Logo (SVG Vector) -->
-      <div class="ld-logo">
-        <svg viewBox="0 0 492 214" role="img" aria-label="澳門GTA 鏡海狂飆">
-          <g font-family="'PingFang TC', sans-serif">
-            <!-- 澳門綠底框 -->
-            <rect x="4" y="4" width="104" height="206" rx="3" fill="#008751" stroke="#09090c" stroke-width="6" />
-            <rect x="13.5" y="13.5" width="85" height="187" fill="none" stroke="#fff" stroke-width="2.4" opacity=".92" />
-            <text x="56" y="95" font-size="72" font-weight="900" fill="#fff" text-anchor="middle">澳</text>
-            <text x="56" y="182" font-size="72" font-weight="900" fill="#fff" text-anchor="middle">門</text>
-            
-            <!-- GTA 斜體標誌 -->
-            <g transform="translate(140 8) skewX(-9) scale(1.26)">
-              <g fill="#fff" stroke="#09090c" stroke-width="5" paint-order="stroke">
-                <path d="M18 0H84V26H28V74H56V62H42V44H84V82L66 100H18L0 82V18Z" />
-                <path d="M92 0H162L172 10V26H146V100H118V26H92Z" />
-                <path fill-rule="evenodd" d="M180 100V22L202 0H244L266 22V100H238V74H208V100ZM208 52V34L216 26H238V52Z" />
-              </g>
-            </g>
-            
-            <rect x="126" y="160" width="232" height="46" fill="#09090c" />
-            <text x="142" y="193" font-size="28" font-weight="800" fill="#fff" letter-spacing="7">鏡海狂飆</text>
-            <text x="370" y="179" font-size="13" font-weight="800" fill="#ffc72c" letter-spacing="3.2">MACAU</text>
-            <text x="370" y="197" font-size="13" font-weight="800" fill="#fff" letter-spacing="3.2">GTA</text>
-          </g>
-        </svg>
-      </div>
+  <script>
+    // 1. 建立 3D 場景
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a0c10); // 澳門夜空色
 
-      <!-- 冷知識 Tip -->
-      <div class="ld-tip">
-        <div class="ld-tip-k">MACAU TIP</div>
-        <div class="ld-tips" id="ld-tips">東望洋跑道是世界上唯一同時舉辦房車賽與單車/方程式賽車的鬧市街道賽道。</div>
-      </div>
+    // 2. 相機
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 5, 10);
 
-      <!-- 進度條 -->
-      <div class="ld-prog">
-        <div class="ld-row">
-          <div style="flex:1;"><b id="ld-stage">初始化澳門地圖</b></div>
-          <div class="ld-pct" id="ld-pct">0%</div>
-        </div>
-        <div class="ld-track">
-          <div class="ld-fill" id="ld-fill"></div>
-        </div>
-      </div>
-    </div>
+    // 3. 渲染器
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+    // 4. 澳門風格地面（深色石仔路感覺）
+    const planeGeo = new THREE.PlaneGeometry(100, 100);
+    const planeMat = new THREE.MeshBasicMaterial({ color: 0x22252a });
+    const plane = new THREE.Mesh(planeGeo, planeMat);
+    plane.rotation.x = -Math.PI / 2;
+    scene.add(plane);
+
+    // 5. 玩家角色（暫時用澳門黃色方塊代表）
+    const playerGeo = new THREE.BoxGeometry(1, 2, 1);
+    const playerMat = new THREE.MeshBasicMaterial({ color: 0xffc72c }); // 澳門黃
+    const player = new THREE.Mesh(playerGeo, playerMat);
+    player.position.y = 1;
+    scene.add(player);
+
+    // 鍵盤操控
+    const keys = {};
+    window.addEventListener('keydown', (e) => keys[e.key] = true);
+    window.addEventListener('keyup', (e) => keys[e.key] = false);
+
+    // 遊戲循環
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // 移動邏輯
+      if (keys['w'] || keys['W']) player.position.z -= 0.1;
+      if (keys['s'] || keys['S']) player.position.z += 0.1;
+      if (keys['a'] || keys['A']) player.position.x -= 0.1;
+      if (keys['d'] || keys['D']) player.position.x += 0.1;
+
+      // 相機跟隨
+      camera.position.x = player.position.x;
+      camera.position.z = player.position.z + 8;
+      camera.lookAt(player.position);
+
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
 </html>
