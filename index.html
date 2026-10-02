@@ -21,12 +21,13 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: #ffffff;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             pointer-events: none;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             padding: 15px 25px;
             border-radius: 8px;
+            text-align: center;
         }
         #ui-instructions {
             position: absolute;
@@ -51,10 +52,10 @@
     </script>
 </head>
 <body>
-    <div id="loading">載入 3D 模型與場景中...</div>
+    <div id="loading">載入 3D 角色與大三巴模型中...</div>
     <div id="ui-instructions">
         <b>控制說明：</b><br>
-        • <b>WASD / 方向鍵</b>：移動角色<br>
+        • <b>WASD / 方向鍵</b>：控制真人角色行走<br>
         • <b>滑鼠拖曳</b>：旋轉視角<br>
         • <b>滾輪</b>：縮放視角
     </div>
@@ -67,11 +68,11 @@
 
         // 1. 場景 setup
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87ceeb); // 天空藍
-        scene.fog = new THREE.FogExp2(0x87ceeb, 0.015);
+        scene.background = new THREE.Color(0x87ceeb);
+        scene.fog = new THREE.FogExp2(0x87ceeb, 0.005);
 
         // 2. 相機 setup
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
 
         // 3. 渲染器 setup
         const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -86,93 +87,116 @@
         const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
         scene.add(ambientLight);
 
-        const sunLight = new THREE.DirectionalLight(0xfffaed, 2.0);
-        sunLight.position.set(20, 40, 20);
+        const sunLight = new THREE.DirectionalLight(0xfffaed, 2.5);
+        sunLight.position.set(50, 100, 50);
         sunLight.castShadow = true;
         sunLight.shadow.mapSize.width = 2048;
         sunLight.shadow.mapSize.height = 2048;
         sunLight.shadow.camera.near = 0.5;
-        sunLight.shadow.camera.far = 150;
-        const d = 40;
+        sunLight.shadow.camera.far = 500;
+        const d = 100;
         sunLight.shadow.camera.left = -d;
         sunLight.shadow.camera.right = d;
         sunLight.shadow.camera.top = d;
         sunLight.shadow.camera.bottom = -d;
         scene.add(sunLight);
 
-        // 5. 創建角色（可代表玩家走動的小膠囊體）
-        const playerGroup = new THREE.Group();
-        playerGroup.position.set(0, 0, 25); // 起始位置在馬路上
-        scene.add(playerGroup);
-
-        const playerGeo = new THREE.CapsuleGeometry(0.4, 1, 4, 8);
-        const playerMat = new THREE.MeshStandardMaterial({ color: 0x00ff88, roughness: 0.3 });
-        const playerMesh = new THREE.Mesh(playerGeo, playerMat);
-        playerMesh.position.y = 0.9;
-        playerMesh.castShadow = true;
-        playerGroup.add(playerMesh);
-
-        // 控制器跟隨角色
+        // 5. 控制器跟隨
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.maxPolarAngle = Math.PI / 2 - 0.05; // 限制不能穿透地面
+        controls.maxPolarAngle = Math.PI / 2 - 0.02;
         controls.minDistance = 3;
-        controls.maxDistance = 20;
+        controls.maxDistance = 50;
 
-        // 6. 生成馬路與地面
-        const groundGeo = new THREE.PlaneGeometry(200, 200);
-        const groundMat = new THREE.MeshStandardMaterial({ color: 0x555555, roughness: 0.8 });
+        // 6. 比例調整參數 (大三巴高約 25 米，真人高約 1.7 米)
+        const stairWidth = 40;     // 加寬階梯
+        const stairHeight = 0.35;  // 每階高度
+        const stairDepth = 0.8;    // 每階深度
+        const totalSteps = 30;
+        const platformHeight = totalSteps * stairHeight;
+        const platformZ = 40 - (totalSteps * stairDepth) - 15;
+
+        // 生成馬路與地面
+        const groundGeo = new THREE.PlaneGeometry(500, 500);
+        const groundMat = new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.8 });
         const ground = new THREE.Mesh(groundGeo, groundMat);
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
         scene.add(ground);
 
-        // 馬路黃線標線
-        const roadLineGeo = new THREE.PlaneGeometry(0.3, 40);
+        // 馬路標線
+        const roadLineGeo = new THREE.PlaneGeometry(0.5, 100);
         const roadLineMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
         const roadLine = new THREE.Mesh(roadLineGeo, roadLineMat);
         roadLine.rotation.x = -Math.PI / 2;
         roadLine.rotation.z = Math.PI / 2;
-        roadLine.position.set(0, 0.01, 25);
+        roadLine.position.set(0, 0.02, 55);
         scene.add(roadLine);
 
-        // 7. 生成階梯 (Stairs) 直通大三巴
-        const stairWidth = 14;
-        const stairHeight = 0.25;
-        const stairDepth = 0.6;
-        const totalSteps = 24;
+        // 7. 生成長階梯與廣場
         const stairGroup = new THREE.Group();
         const stairMaterial = new THREE.MeshStandardMaterial({ color: 0xc2b280, roughness: 0.6 });
 
         for (let i = 0; i < totalSteps; i++) {
             const stepGeo = new THREE.BoxGeometry(stairWidth, stairHeight, stairDepth);
             const step = new THREE.Mesh(stepGeo, stairMaterial);
-            step.position.set(0, (i * stairHeight) + stairHeight / 2, 18 - (i * stairDepth));
+            step.position.set(0, (i * stairHeight) + stairHeight / 2, 40 - (i * stairDepth));
             step.castShadow = true;
             step.receiveShadow = true;
             stairGroup.add(step);
         }
         scene.add(stairGroup);
 
-        // 平台（大三巴牌坊前的廣場）
-        const platformHeight = totalSteps * stairHeight;
-        const platformZ = 18 - (totalSteps * stairDepth) - 5;
-        const platformGeo = new THREE.BoxGeometry(stairWidth + 4, platformHeight, 10);
+        // 大三巴前廣場
+        const platformGeo = new THREE.BoxGeometry(stairWidth + 10, platformHeight, 30);
         const platform = new THREE.Mesh(platformGeo, stairMaterial);
         platform.position.set(0, platformHeight / 2, platformZ);
         platform.receiveShadow = true;
         scene.add(platform);
 
-        // 8. 載入大三巴模型 (GLB)
+        // 8. 載入 3D 真人角色 (含動畫)
         const loader = new GLTFLoader();
         const loadingElement = document.getElementById('loading');
+        
+        let playerGroup = new THREE.Group();
+        playerGroup.position.set(0, 0, 50); // 馬路起點
+        scene.add(playerGroup);
 
+        let mixer, walkAction, idleAction;
+        let isCharacterLoaded = false;
+
+        // 載入官方標準 3D 角色模型 (Xbot)
+        loader.load('https://threejs.org/examples/models/gltf/Xbot.glb', (gltf) => {
+            const character = gltf.scene;
+            character.scale.set(1, 1, 1); // 標準身高 (約 1.7m ~ 1.8m)
+            
+            character.traverse((child) => {
+                if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                }
+            });
+
+            playerGroup.add(character);
+
+            // 設置動畫
+            mixer = new THREE.AnimationMixer(character);
+            const animations = gltf.animations;
+            
+            // Xbot 模型中的 0: agree, 3: idle, 6: run, 8: walk
+            idleAction = mixer.clipAction(animations[3]);
+            walkAction = mixer.clipAction(animations[8]);
+            
+            idleAction.play();
+            isCharacterLoaded = true;
+        });
+
+        // 9. 載入大三巴模型並套用真實放大比例 (1:15 比例修正)
         loader.load(
             './ruins_of_sp.glb',
             (gltf) => {
                 const model = gltf.scene;
                 
-                // 開啟陰影
                 model.traverse((child) => {
                     if (child.isMesh) {
                         child.castShadow = true;
@@ -180,9 +204,9 @@
                     }
                 });
 
-                // 將模型調整並放置在階梯頂端的廣場上
-                model.position.set(0, platformHeight, platformZ - 3);
-                model.scale.set(1.5, 1.5, 1.5); 
+                // **關鍵修改：放大 15 倍以匹配真實大三巴與人體的比例**
+                model.scale.set(15, 15, 15);
+                model.position.set(0, platformHeight, platformZ - 5);
                 scene.add(model);
 
                 loadingElement.style.display = 'none';
@@ -190,56 +214,61 @@
             (xhr) => {
                 if (xhr.lengthComputable) {
                     const percent = Math.round((xhr.loaded / xhr.total) * 100);
-                    loadingElement.innerText = `載入模型中: ${percent}%`;
+                    loadingElement.innerText = `載入 3D 模型與角色中: ${percent}%`;
                 }
             },
             (error) => {
                 console.error('模型載入失敗:', error);
-                loadingElement.innerText = '模型載入失敗，請確認檔案名稱與路徑';
+                loadingElement.innerText = '模型載入失敗，請檢查主機檔案路徑';
             }
         );
 
-        // 9. 玩家移動控制邏輯
+        // 10. 角色移動與動畫控制
         const keys = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowLeft: false, ArrowDown: false, ArrowRight: false };
 
         window.addEventListener('keydown', (e) => {
-            if (keys.hasOwnProperty(e.key) || keys.hasOwnProperty(e.key.toLowerCase())) {
-                keys[e.key.toLowerCase()] = true;
-                keys[e.key] = true;
-            }
+            const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+            if (keys.hasOwnProperty(key)) keys[key] = true;
         });
 
         window.addEventListener('keyup', (e) => {
-            if (keys.hasOwnProperty(e.key) || keys.hasOwnProperty(e.key.toLowerCase())) {
-                keys[e.key.toLowerCase()] = false;
-                keys[e.key] = false;
-            }
+            const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+            if (keys.hasOwnProperty(key)) keys[key] = false;
         });
 
-        // 簡單的高程算子（模擬腳踏在階梯上的高度）
         function getTerrainHeight(x, z) {
-            // 如果在階梯區域
-            if (Math.abs(x) < stairWidth / 2 && z <= 18 && z >= 18 - (totalSteps * stairDepth)) {
-                const stepIndex = Math.floor((18 - z) / stairDepth);
+            if (Math.abs(x) < stairWidth / 2 && z <= 40 && z >= 40 - (totalSteps * stairDepth)) {
+                const stepIndex = Math.floor((40 - z) / stairDepth);
                 return Math.max(0, stepIndex * stairHeight);
             }
-            // 如果在頂部平台區域
-            if (Math.abs(x) < (stairWidth + 4) / 2 && z < 18 - (totalSteps * stairDepth)) {
+            if (Math.abs(x) < (stairWidth + 10) / 2 && z < 40 - (totalSteps * stairDepth)) {
                 return platformHeight;
             }
-            // 普通地面
             return 0;
         }
 
-        const moveSpeed = 0.15;
-        const clock = new THREE.Clock();
+        const moveSpeed = 0.12;
+        let isMoving = false;
 
         function updatePlayer() {
             const moveX = (keys.d || keys.ArrowRight ? 1 : 0) - (keys.a || keys.ArrowLeft ? 1 : 0);
             const moveZ = (keys.s || keys.ArrowDown ? 1 : 0) - (keys.w || keys.ArrowUp ? 1 : 0);
 
-            if (moveX !== 0 || moveZ !== 0) {
-                // 取得相機的前向與右向向量（平原方向）
+            const currentlyMoving = moveX !== 0 || moveZ !== 0;
+
+            // 動畫切換：站立 vs 行走
+            if (isCharacterLoaded && currentlyMoving !== isMoving) {
+                isMoving = currentlyMoving;
+                if (isMoving) {
+                    idleAction.fadeOut(0.2);
+                    walkAction.reset().fadeIn(0.2).play();
+                } else {
+                    walkAction.fadeOut(0.2);
+                    idleAction.reset().fadeIn(0.2).play();
+                }
+            }
+
+            if (currentlyMoving) {
                 const cameraDirection = new THREE.Vector3();
                 camera.getWorldDirection(cameraDirection);
                 cameraDirection.y = 0;
@@ -253,39 +282,42 @@
                 moveVector.addScaledVector(cameraRight, moveX);
                 moveVector.normalize().multiplyScalar(moveSpeed);
 
-                // 更新玩家位置
                 playerGroup.position.add(moveVector);
 
-                // 讓玩家朝向移動方向
+                // 旋轉角色朝向移動方向
                 const targetAngle = Math.atan2(moveVector.x, moveVector.z);
-                playerMesh.rotation.y = targetAngle;
+                playerGroup.rotation.y = targetAngle;
             }
 
-            // 平滑階梯高度過渡 (Y軸碰撞/爬梯)
+            // 爬梯高度更新
             const targetY = getTerrainHeight(playerGroup.position.x, playerGroup.position.z);
             playerGroup.position.y += (targetY - playerGroup.position.y) * 0.2;
 
-            // 更新 OrbitControls 的跟隨中心
-            controls.target.copy(playerGroup.position).add(new THREE.Vector3(0, 1, 0));
+            // 攝影機視角跟隨
+            controls.target.copy(playerGroup.position).add(new THREE.Vector3(0, 1.5, 0));
         }
 
-        // 10. 視窗尺寸調整
+        // 11. 繪製迴圈
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+
+            if (mixer) mixer.update(delta);
+            updatePlayer();
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // 視窗 resize 處理
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // 11. 繪製迴圈
-        function animate() {
-            requestAnimationFrame(animate);
-            updatePlayer();
-            controls.update();
-            renderer.render(scene, camera);
-        }
-
-        // 初始化相機位置
-        camera.position.set(0, 3, 32);
+        camera.position.set(0, 4, 60);
         animate();
     </script>
 </body>
