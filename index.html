@@ -3,374 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>網頁版 Minecraft - 蓋澳門旅遊塔 (物理重力版)</title>
+    <title>澳門 GTA - 旅遊塔探索</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
+            background-color: #87ceeb;
             font-family: Arial, sans-serif;
             user-select: none;
         }
-        #crosshair {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 10px;
-            height: 10px;
-            margin-top: -5px;
-            margin-left: -5px;
-            pointer-events: none;
-            color: white;
-            font-size: 24px;
-            line-height: 10px;
-            text-align: center;
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
         }
         #ui {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.8);
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
             color: white;
             padding: 15px;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 14px;
             line-height: 1.6;
-            max-width: 300px;
+            pointer-events: none;
         }
-        .btn-group {
-            margin-top: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-        button {
-            padding: 6px 10px;
-            font-size: 12px;
-            cursor: pointer;
-            border: none;
-            border-radius: 4px;
-            background: #2196F3;
-            color: white;
-            font-weight: bold;
-        }
-        button:hover { background: #0b7dda; }
-        .export-btn { background: #4CAF50; }
-        .export-btn:hover { background: #45a049; }
-        .fly-btn { background: #ff9800; }
-
-        #hotbar {
+        #loading {
             position: absolute;
-            bottom: 20px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 6px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 8px;
-            border-radius: 8px;
-        }
-        .slot {
-            width: 45px;
-            height: 45px;
-            border: 2px solid #666;
-            border-radius: 4px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.85);
             color: white;
-            font-weight: bold;
-            font-size: 11px;
-            text-shadow: 1px 1px 2px black;
-        }
-        .slot.active {
-            border-color: #ffeb3b;
-            box-shadow: 0 0 10px #ffeb3b;
+            padding: 20px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            text-align: center;
         }
     </style>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
 </head>
 <body>
 
-    <div id="crosshair">+</div>
-    
+    <div id="loading">正在載入澳門旅遊塔與遊戲世界...</div>
+
     <div id="ui">
-        <b>🎮 控制說明：</b><br>
-        ・<b>點擊畫面</b>：鎖定視角（按 Esc 退出）<br>
-        ・<b>WASD</b>：前後左右行走<br>
-        ・<b>Space (空白鍵)</b>：跳躍（長按或切換飛行）<br>
-        ・<b>F 鍵</b>：開啟/關閉 飛行模式（蓋高塔必用）<br>
-        ・<b>滑鼠左鍵</b>：破壞方塊 / <b>右鍵</b>：放置方塊<br>
-        ・<b>數字鍵 1 - 9</b>：切換方塊（含鋼材、玻璃、塔頂混凝土）<br>
-
-        <div class="btn-group">
-            <button id="fly-btn" class="fly-btn">飛行模式: 關</button>
-            <button id="save-btn">儲存存檔</button>
-            <button id="load-btn">讀取存檔</button>
-            <button id="export-btn" class="export-btn">匯出 GLB</button>
-        </div>
+        <b>🎮 澳門 GTA - 控制說明：</b><br>
+        ・<b>WASD / 方向鍵</b>：控制玩家移動<br>
+        ・<b>Space (空白鍵)</b>：跳躍<br>
+        ・<b>滑鼠拖曳</b>：旋轉 GTA 視角<br>
+        ・<b>滾輪</b>：縮放鏡頭距離
     </div>
 
-    <!-- 9 種豐富方塊快捷欄 -->
-    <div id="hotbar">
-        <div class="slot active" style="background: #55aa55;">1<br>草地</div>
-        <div class="slot" style="background: #333333;">2<br>瀝青</div>
-        <div class="slot" style="background: #aaaaaa;">3<br>鋼鐵</div>
-        <div class="slot" style="background: rgba(173, 216, 230, 0.7);">4<br>玻璃</div>
-        <div class="slot" style="background: #e0e0e0;">5<br>白混凝土</div>
-        <div class="slot" style="background: #1a1a1a;">6<br>黑混凝土</div>
-        <div class="slot" style="background: #ffcc00;">7<br>黃金/警示</div>
-        <div class="slot" style="background: #b22222;">8<br>紅磚</div>
-        <div class="slot" style="background: #8b5a2b;">9<br>木材</div>
-    </div>
+    <div id="canvas-container"></div>
 
-    <script>
-        // 1. 三維場景設定
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // 1. 場景與相機 setup
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87ceeb);
+        scene.background = new THREE.Color(0x87ceeb); // 天空藍
+        scene.fog = new THREE.FogExp2(0x87ceeb, 0.005);
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        // 2. 光源
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(40, 80, 40);
-        scene.add(dirLight);
 
-        // 2. 9 種適用於旅遊塔與馬路的方塊材質
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const materials = [
-            new THREE.MeshLambertMaterial({ color: 0x55aa55 }), // 1: 草地
-            new THREE.MeshLambertMaterial({ color: 0x333333 }), // 2: 瀝青馬路
-            new THREE.MeshStandardMaterial({ color: 0xaaaaaa, metalness: 0.8, roughness: 0.2 }), // 3: 鋼鐵結構
-            new THREE.MeshLambertMaterial({ color: 0xadd8e6, transparent: true, opacity: 0.5 }), // 4: 觀景台玻璃
-            new THREE.MeshLambertMaterial({ color: 0xe0e0e0 }), // 5: 白色塔身混凝土
-            new THREE.MeshLambertMaterial({ color: 0x1a1a1a }), // 6: 黑色基座
-            new THREE.MeshLambertMaterial({ color: 0xffcc00 }), // 7: 黃色線條/金屬塔尖
-            new THREE.MeshLambertMaterial({ color: 0xb22222 }), // 8: 紅磚
-            new THREE.MeshLambertMaterial({ color: 0x8b5a2b })  // 9: 木材
-        ];
+        const sunLight = new THREE.DirectionalLight(0xfffaed, 2.0);
+        sunLight.position.set(50, 100, 50);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 2048;
+        sunLight.shadow.mapSize.height = 2048;
+        scene.add(sunLight);
 
-        let selectedBlockType = 0;
-        let blocks = [];
+        // 3. 生成馬路與無限地面
+        const groundGeo = new THREE.PlaneGeometry(500, 500);
+        const groundMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.8 });
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
 
-        // 3. 地圖生成
-        function createInitialWorld() {
-            clearWorld();
-            // 鋪設基礎地面與馬路
-            for (let x = -10; x <= 10; x++) {
-                for (let z = -10; z <= 10; z++) {
-                    const isRoad = Math.abs(x) > 6;
-                    addBlock(x, 0, z, isRoad ? 1 : 0);
+        // 斑馬線與馬路劃線
+        const roadLineGeo = new THREE.PlaneGeometry(1, 200);
+        const roadLineMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
+        const roadLine = new THREE.Mesh(roadLineGeo, roadLineMat);
+        roadLine.rotation.x = -Math.PI / 2;
+        roadLine.position.set(0, 0.01, 0);
+        scene.add(roadLine);
+
+        // 4. 建立玩家角色 (Player)
+        const playerGroup = new THREE.Group();
+        playerGroup.position.set(0, 0, 15);
+        scene.add(playerGroup);
+
+        // 玩家 3D 外觀 (膠囊形狀)
+        const playerGeo = new THREE.CapsuleGeometry(0.4, 1, 4, 8);
+        const playerMat = new THREE.MeshStandardMaterial({ color: 0x00ff88, roughness: 0.3 });
+        const playerMesh = new THREE.Mesh(playerGeo, playerMat);
+        playerMesh.position.y = 0.9;
+        playerMesh.castShadow = true;
+        playerGroup.add(playerMesh);
+
+        // 眼睛（方便分辨正面）
+        const eyeGeo = new THREE.BoxGeometry(0.3, 0.1, 0.2);
+        const eyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const eyes = new THREE.Mesh(eyeGeo, eyeMat);
+        eyes.position.set(0, 1.2, 0.3);
+        playerGroup.add(eyes);
+
+        // 相機控制器 (跟隨玩家)
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.maxPolarAngle = Math.PI / 2 - 0.05;
+        controls.minDistance = 4;
+        controls.maxDistance = 30;
+
+        // 5. 建立 NPC 路人系統 (自動行走)
+        const npcs = [];
+        const npcColors = [0xff5722, 0xe91e63, 0x9c27b0, 0x2196f3, 0xffeb3b];
+
+        for (let i = 0; i < 8; i++) {
+            const npcGroup = new THREE.Group();
+            const npcMat = new THREE.MeshStandardMaterial({ color: npcColors[i % npcColors.length] });
+            const npcMesh = new THREE.Mesh(playerGeo, npcMat);
+            npcMesh.position.y = 0.9;
+            npcMesh.castShadow = true;
+            npcGroup.add(npcMesh);
+
+            // 隨機位置
+            const randomX = (Math.random() - 0.5) * 40;
+            const randomZ = (Math.random() - 0.5) * 40;
+            npcGroup.position.set(randomX, 0, randomZ);
+
+            scene.add(npcGroup);
+
+            npcs.push({
+                group: npcGroup,
+                speed: 0.03 + Math.random() * 0.03,
+                direction: new THREE.Vector3((Math.random() - 0.5), 0, (Math.random() - 0.5)).normalize(),
+                changeDirTimer: Math.random() * 200
+            });
+        }
+
+        function updateNPCs() {
+            npcs.forEach(npc => {
+                npc.changeDirTimer--;
+                if (npc.changeDirTimer <= 0) {
+                    npc.direction.set((Math.random() - 0.5), 0, (Math.random() - 0.5)).normalize();
+                    npc.changeDirTimer = 150 + Math.random() * 200;
                 }
-            }
-        }
 
-        function addBlock(x, y, z, typeIndex) {
-            const cube = new THREE.Mesh(geometry, materials[typeIndex]);
-            cube.position.set(x, y, z);
-            cube.userData = { type: typeIndex };
-            scene.add(cube);
-            blocks.push(cube);
-        }
+                npc.group.position.addScaledVector(npc.direction, npc.speed);
+                npc.group.rotation.y = Math.atan2(npc.direction.x, npc.direction.z);
 
-        function clearWorld() {
-            blocks.forEach(b => scene.remove(b));
-            blocks = [];
-        }
-
-        // 4. 方塊選單
-        const slots = document.querySelectorAll('.slot');
-        function selectSlot(index) {
-            selectedBlockType = index;
-            slots.forEach((slot, i) => slot.classList.toggle('active', i === index));
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key >= '1' && e.key <= '9') {
-                selectSlot(parseInt(e.key) - 1);
-            }
-            if (e.code === 'KeyF') {
-                toggleFlyMode();
-            }
-        });
-
-        // 5. 重力物理與移動系統
-        let isFlyMode = false;
-        let isLocked = false;
-        let velocityY = 0;
-        const gravity = -28; // 重力加速度
-        const jumpSpeed = 10; // 跳躍高度
-        const playerHeight = 1.6;
-
-        camera.position.set(0, 3, 10);
-
-        let keys = { w: false, a: false, s: false, d: false, space: false, shift: false };
-
-        document.body.addEventListener('click', (e) => {
-            if (e.target.tagName !== 'BUTTON') document.body.requestPointerLock();
-        });
-
-        document.addEventListener('pointerlockchange', () => {
-            isLocked = document.pointerLockElement === document.body;
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isLocked) return;
-            camera.rotation.y -= e.movementX * 0.002;
-            camera.rotation.x -= e.movementY * 0.002;
-            camera.rotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, camera.rotation.x));
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'KeyW') keys.w = true;
-            if (e.code === 'KeyS') keys.s = true;
-            if (e.code === 'KeyA') keys.a = true;
-            if (e.code === 'KeyD') keys.d = true;
-            if (e.code === 'Space') keys.space = true;
-            if (e.code === 'ShiftLeft') keys.shift = true;
-        });
-
-        document.addEventListener('keyup', (e) => {
-            if (e.code === 'KeyW') keys.w = false;
-            if (e.code === 'KeyS') keys.s = false;
-            if (e.code === 'KeyA') keys.a = false;
-            if (e.code === 'KeyD') keys.d = false;
-            if (e.code === 'Space') keys.space = false;
-            if (e.code === 'ShiftLeft') keys.shift = false;
-        });
-
-        function toggleFlyMode() {
-            isFlyMode = !isFlyMode;
-            velocityY = 0;
-            document.getElementById('fly-btn').innerText = `飛行模式: ${isFlyMode ? '開' : '關'}`;
-        }
-
-        document.getElementById('fly-btn').addEventListener('click', toggleFlyMode);
-
-        // 簡單方塊碰撞檢測 (檢測腳下高度)
-        function getTerrainHeightAt(x, z) {
-            let maxHeight = -1;
-            blocks.forEach(b => {
-                if (Math.abs(b.position.x - x) < 0.6 && Math.abs(b.position.z - z) < 0.6) {
-                    if (b.position.y > maxHeight) {
-                        maxHeight = b.position.y;
-                    }
+                // 範圍限制
+                if (Math.abs(npc.group.position.x) > 40 || Math.abs(npc.group.position.z) > 40) {
+                    npc.direction.negate();
                 }
             });
-            return maxHeight + 0.5; // 方塊頂部高度
         }
 
-        // 6. 方塊放置與破壞
-        const raycaster = new THREE.Raycaster();
-        window.addEventListener('mousedown', (e) => {
-            if (!isLocked) return;
-            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
-            const intersects = raycaster.intersectObjects(blocks);
+        // 6. 載入你剛剛整好的澳門旅遊塔 GLB 模型 (`macau_tower.glb`)
+        const loader = new GLTFLoader();
+        const loadingElement = document.getElementById('loading');
 
-            if (intersects.length > 0) {
-                const intersect = intersects[0];
-                if (e.button === 0) {
-                    scene.remove(intersect.object);
-                    blocks = blocks.filter(b => b !== intersect.object);
-                } else if (e.button === 2) {
-                    const normal = intersect.face.normal;
-                    const newPos = intersect.object.position.clone().add(normal);
-                    addBlock(newPos.x, newPos.y, newPos.z, selectedBlockType);
+        loader.load(
+            './macau_tower.glb',
+            (gltf) => {
+                const towerModel = gltf.scene;
+
+                towerModel.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+
+                // 調整旅遊塔位置與比例 (放置在地面中央)
+                towerModel.position.set(0, 0, -10);
+                towerModel.scale.set(1.5, 1.5, 1.5); 
+                scene.add(towerModel);
+
+                loadingElement.style.display = 'none';
+            },
+            (xhr) => {
+                if (xhr.lengthComputable) {
+                    const percent = Math.round((xhr.loaded / xhr.total) * 100);
+                    loadingElement.innerText = `載入澳門旅遊塔中: ${percent}%`;
                 }
+            },
+            (error) => {
+                console.error('模型載入失敗:', error);
+                loadingElement.innerText = '模型載入失敗！請確認 macau_tower.glb 檔案是否已放進倉庫。';
             }
-        });
-        window.addEventListener('contextmenu', e => e.preventDefault());
+        );
 
-        // 7. 儲存 / 讀取 / 匯出 GLB
-        document.getElementById('save-btn').addEventListener('click', () => {
-            const worldData = blocks.map(b => ({ x: b.position.x, y: b.position.y, z: b.position.z, type: b.userData.type }));
-            localStorage.setItem('macau_tower_save', JSON.stringify(worldData));
-            alert('已儲存建築紀錄！');
+        // 7. 玩家控制與重力/移動邏輯
+        const keys = { w: false, a: false, s: false, d: false, space: false };
+
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === 'w' || key === 'arrowup') keys.w = true;
+            if (key === 'a' || key === 'arrowleft') keys.a = true;
+            if (key === 's' || key === 'arrowdown') keys.s = true;
+            if (key === 'd' || key === 'arrowright') keys.d = true;
+            if (e.code === 'Space') keys.space = true;
         });
 
-        document.getElementById('load-btn').addEventListener('click', () => {
-            const savedData = localStorage.getItem('macau_tower_save');
-            if (savedData) {
-                clearWorld();
-                JSON.parse(savedData).forEach(b => addBlock(b.x, b.y, b.z, b.type));
-                alert('成功載入建築紀錄！');
+        window.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            if (key === 'w' || key === 'arrowup') keys.w = false;
+            if (key === 'a' || key === 'arrowleft') keys.a = false;
+            if (key === 's' || key === 'arrowdown') keys.s = false;
+            if (key === 'd' || key === 'arrowright') keys.d = false;
+            if (e.code === 'Space') keys.space = false;
+        });
+
+        const moveSpeed = 0.12;
+        let velocityY = 0;
+        const gravity = -0.015;
+        let isGrounded = true;
+
+        function updatePlayer() {
+            const moveX = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
+            const moveZ = (keys.s ? 1 : 0) - (keys.w ? 1 : 0);
+
+            if (moveX !== 0 || moveZ !== 0) {
+                const cameraDirection = new THREE.Vector3();
+                camera.getWorldDirection(cameraDirection);
+                cameraDirection.y = 0;
+                cameraDirection.normalize();
+
+                const cameraRight = new THREE.Vector3();
+                cameraRight.crossVectors(cameraDirection, new THREE.Vector3(0, 1, 0)).normalize();
+
+                const moveVector = new THREE.Vector3();
+                moveVector.addScaledVector(cameraDirection, -moveZ);
+                moveVector.addScaledVector(cameraRight, moveX);
+                moveVector.normalize().multiplyScalar(moveSpeed);
+
+                playerGroup.position.add(moveVector);
+
+                // 角色朝向
+                const targetAngle = Math.atan2(moveVector.x, moveVector.z);
+                playerGroup.rotation.y = targetAngle;
             }
-        });
 
-        document.getElementById('export-btn').addEventListener('click', () => {
-            const exporter = new THREE.GLTFExporter();
-            const exportGroup = new THREE.Group();
-            blocks.forEach(b => exportGroup.add(b.clone()));
+            // 重力與跳躍
+            if (keys.space && isGrounded) {
+                velocityY = 0.3;
+                isGrounded = false;
+            }
 
-            exporter.parse(exportGroup, (gltf) => {
-                const blob = new Blob([gltf], { type: 'application/octet-stream' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'macau_tower.glb';
-                link.click();
-            }, { binary: true });
-        });
+            playerGroup.position.y += velocityY;
 
-        createInitialWorld();
+            if (playerGroup.position.y > 0) {
+                velocityY += gravity;
+            } else {
+                playerGroup.position.y = 0;
+                velocityY = 0;
+                isGrounded = true;
+            }
 
-        // 8. 物理與渲染迴圈
-        let prevTime = performance.now();
+            // 攝影機鏡頭跟隨玩家
+            controls.target.copy(playerGroup.position).add(new THREE.Vector3(0, 1.2, 0));
+        }
 
+        // 8. 繪製迴圈
         function animate() {
             requestAnimationFrame(animate);
-            const time = performance.now();
-            const delta = (time - prevTime) / 1000;
-
-            if (isLocked) {
-                const speed = 10 * delta;
-
-                // 前後左右移動
-                const moveZ = (keys.s ? 1 : 0) - (keys.w ? 1 : 0);
-                const moveX = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
-
-                if (keys.w || keys.s) camera.translateZ(moveZ * speed);
-                if (keys.a || keys.d) camera.translateX(moveX * speed);
-
-                if (isFlyMode) {
-                    // 飛行模式：Space 上升，Shift 下降
-                    if (keys.space) camera.position.y += speed * 1.2;
-                    if (keys.shift) camera.position.y -= speed * 1.2;
-                } else {
-                    // 正常重力模式
-                    const groundY = getTerrainHeightAt(camera.position.x, camera.position.z) + playerHeight;
-
-                    if (camera.position.y > groundY) {
-                        velocityY += gravity * delta;
-                    } else {
-                        velocityY = 0;
-                        camera.position.y = groundY; // 落在方塊上
-
-                        // 站立在地面時按 Space 跳躍
-                        if (keys.space) {
-                            velocityY = jumpSpeed;
-                        }
-                    }
-                    camera.position.y += velocityY * delta;
-                }
-            }
-
-            prevTime = time;
+            updatePlayer();
+            updateNPCs();
+            controls.update();
             renderer.render(scene, camera);
         }
-
-        animate();
 
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        camera.position.set(0, 5, 25);
+        animate();
     </script>
 </body>
 </html>
