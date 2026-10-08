@@ -1,310 +1,81 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>澳門 GTA - 旅遊塔探索</title>
+    <title>Apple Lounge Mini Games</title>
     <style>
         body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
             margin: 0;
-            overflow: hidden;
-            background-color: #87ceeb;
-            font-family: Arial, sans-serif;
-            user-select: none;
         }
-        #canvas-container {
-            width: 100vw;
-            height: 100vh;
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #a259ff, #ff6200);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        #ui {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 14px;
-            line-height: 1.6;
-            pointer-events: none;
+        .game-card {
+            width: 100%;
+            max-width: 350px;
+            background: #1c1c1e;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            cursor: pointer;
+            transition: transform 0.2s;
         }
-        #loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.85);
-            color: white;
-            padding: 20px 30px;
-            border-radius: 10px;
-            font-size: 18px;
-            text-align: center;
+        .game-card:active {
+            transform: scale(0.98);
+        }
+        .game-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #0a84ff;
+        }
+        .game-desc {
+            font-size: 0.9rem;
+            color: #8e8e93;
         }
     </style>
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-        }
-      }
-    </script>
 </head>
 <body>
 
-    <div id="loading">正在載入澳門旅遊塔與遊戲世界...</div>
+    <h1> Rest Room Arcade</h1>
 
-    <div id="ui">
-        <b>🎮 澳門 GTA - 控制說明：</b><br>
-        ・<b>WASD / 方向鍵</b>：控制玩家移動<br>
-        ・<b>Space (空白鍵)</b>：跳躍<br>
-        ・<b>滑鼠拖曳</b>：旋轉 GTA 視角<br>
-        ・<b>滾輪</b>：縮放鏡頭距離
+    <!-- 第一個 Game -->
+    <div class="game-card" onclick="startGame(1)">
+        <div class="game-title">🥷 忍者刀 切切樂</div>
+        <div class="game-desc">考手速與反應，挑戰 Apple Intelligence 關鍵字！</div>
     </div>
 
-    <div id="canvas-container"></div>
+    <!-- 第二個 Game -->
+    <div class="game-card" onclick="startGame(2)">
+        <div class="game-title">🔍 8x 鏡 找不同</div>
+        <div class="game-desc">用超強 8x 鏡頭模式，找出 iPhone 18 Pro 與 Duo 的微小差異。</div>
+    </div>
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    <!-- 第三個 Game -->
+    <div class="game-card" onclick="startGame(3)">
+        <div class="game-title">💰 百萬富翁 Quiz</div>
+        <div class="game-desc">Siri AI & 旗艦產品大考驗，挑戰成為 Apple 百萬富翁！</div>
+    </div>
 
-        // 1. 場景與相機 setup
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87ceeb); // 天空藍
-        scene.fog = new THREE.FogExp2(0x87ceeb, 0.005);
-
-        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-        // 2. 光源
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-        scene.add(ambientLight);
-
-        const sunLight = new THREE.DirectionalLight(0xfffaed, 2.0);
-        sunLight.position.set(50, 100, 50);
-        sunLight.castShadow = true;
-        sunLight.shadow.mapSize.width = 2048;
-        sunLight.shadow.mapSize.height = 2048;
-        scene.add(sunLight);
-
-        // 3. 生成馬路與無限地面
-        const groundGeo = new THREE.PlaneGeometry(500, 500);
-        const groundMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.8 });
-        const ground = new THREE.Mesh(groundGeo, groundMat);
-        ground.rotation.x = -Math.PI / 2;
-        ground.receiveShadow = true;
-        scene.add(ground);
-
-        // 斑馬線與馬路劃線
-        const roadLineGeo = new THREE.PlaneGeometry(1, 200);
-        const roadLineMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
-        const roadLine = new THREE.Mesh(roadLineGeo, roadLineMat);
-        roadLine.rotation.x = -Math.PI / 2;
-        roadLine.position.set(0, 0.01, 0);
-        scene.add(roadLine);
-
-        // 4. 建立玩家角色 (Player)
-        const playerGroup = new THREE.Group();
-        playerGroup.position.set(0, 0, 15);
-        scene.add(playerGroup);
-
-        // 玩家 3D 外觀 (膠囊形狀)
-        const playerGeo = new THREE.CapsuleGeometry(0.4, 1, 4, 8);
-        const playerMat = new THREE.MeshStandardMaterial({ color: 0x00ff88, roughness: 0.3 });
-        const playerMesh = new THREE.Mesh(playerGeo, playerMat);
-        playerMesh.position.y = 0.9;
-        playerMesh.castShadow = true;
-        playerGroup.add(playerMesh);
-
-        // 眼睛（方便分辨正面）
-        const eyeGeo = new THREE.BoxGeometry(0.3, 0.1, 0.2);
-        const eyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-        const eyes = new THREE.Mesh(eyeGeo, eyeMat);
-        eyes.position.set(0, 1.2, 0.3);
-        playerGroup.add(eyes);
-
-        // 相機控制器 (跟隨玩家)
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.maxPolarAngle = Math.PI / 2 - 0.05;
-        controls.minDistance = 4;
-        controls.maxDistance = 30;
-
-        // 5. 建立 NPC 路人系統 (自動行走)
-        const npcs = [];
-        const npcColors = [0xff5722, 0xe91e63, 0x9c27b0, 0x2196f3, 0xffeb3b];
-
-        for (let i = 0; i < 8; i++) {
-            const npcGroup = new THREE.Group();
-            const npcMat = new THREE.MeshStandardMaterial({ color: npcColors[i % npcColors.length] });
-            const npcMesh = new THREE.Mesh(playerGeo, npcMat);
-            npcMesh.position.y = 0.9;
-            npcMesh.castShadow = true;
-            npcGroup.add(npcMesh);
-
-            // 隨機位置
-            const randomX = (Math.random() - 0.5) * 40;
-            const randomZ = (Math.random() - 0.5) * 40;
-            npcGroup.position.set(randomX, 0, randomZ);
-
-            scene.add(npcGroup);
-
-            npcs.push({
-                group: npcGroup,
-                speed: 0.03 + Math.random() * 0.03,
-                direction: new THREE.Vector3((Math.random() - 0.5), 0, (Math.random() - 0.5)).normalize(),
-                changeDirTimer: Math.random() * 200
-            });
+    <script>
+        function startGame(gameId) {
+            alert("即將進入第 " + gameId + " 個 Game！");
+            // 之後呢度會轉頁或者載入遊戲畫面
         }
-
-        function updateNPCs() {
-            npcs.forEach(npc => {
-                npc.changeDirTimer--;
-                if (npc.changeDirTimer <= 0) {
-                    npc.direction.set((Math.random() - 0.5), 0, (Math.random() - 0.5)).normalize();
-                    npc.changeDirTimer = 150 + Math.random() * 200;
-                }
-
-                npc.group.position.addScaledVector(npc.direction, npc.speed);
-                npc.group.rotation.y = Math.atan2(npc.direction.x, npc.direction.z);
-
-                // 範圍限制
-                if (Math.abs(npc.group.position.x) > 40 || Math.abs(npc.group.position.z) > 40) {
-                    npc.direction.negate();
-                }
-            });
-        }
-
-        // 6. 載入你剛剛整好的澳門旅遊塔 GLB 模型 (`macau_tower.glb`)
-        const loader = new GLTFLoader();
-        const loadingElement = document.getElementById('loading');
-
-        loader.load(
-            './macau_tower.glb',
-            (gltf) => {
-                const towerModel = gltf.scene;
-
-                towerModel.traverse((child) => {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                    }
-                });
-
-                // 調整旅遊塔位置與比例 (放置在地面中央)
-                towerModel.position.set(0, 0, -10);
-                towerModel.scale.set(1.5, 1.5, 1.5); 
-                scene.add(towerModel);
-
-                loadingElement.style.display = 'none';
-            },
-            (xhr) => {
-                if (xhr.lengthComputable) {
-                    const percent = Math.round((xhr.loaded / xhr.total) * 100);
-                    loadingElement.innerText = `載入澳門旅遊塔中: ${percent}%`;
-                }
-            },
-            (error) => {
-                console.error('模型載入失敗:', error);
-                loadingElement.innerText = '模型載入失敗！請確認 macau_tower.glb 檔案是否已放進倉庫。';
-            }
-        );
-
-        // 7. 玩家控制與重力/移動邏輯
-        const keys = { w: false, a: false, s: false, d: false, space: false };
-
-        window.addEventListener('keydown', (e) => {
-            const key = e.key.toLowerCase();
-            if (key === 'w' || key === 'arrowup') keys.w = true;
-            if (key === 'a' || key === 'arrowleft') keys.a = true;
-            if (key === 's' || key === 'arrowdown') keys.s = true;
-            if (key === 'd' || key === 'arrowright') keys.d = true;
-            if (e.code === 'Space') keys.space = true;
-        });
-
-        window.addEventListener('keyup', (e) => {
-            const key = e.key.toLowerCase();
-            if (key === 'w' || key === 'arrowup') keys.w = false;
-            if (key === 'a' || key === 'arrowleft') keys.a = false;
-            if (key === 's' || key === 'arrowdown') keys.s = false;
-            if (key === 'd' || key === 'arrowright') keys.d = false;
-            if (e.code === 'Space') keys.space = false;
-        });
-
-        const moveSpeed = 0.12;
-        let velocityY = 0;
-        const gravity = -0.015;
-        let isGrounded = true;
-
-        function updatePlayer() {
-            const moveX = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
-            const moveZ = (keys.s ? 1 : 0) - (keys.w ? 1 : 0);
-
-            if (moveX !== 0 || moveZ !== 0) {
-                const cameraDirection = new THREE.Vector3();
-                camera.getWorldDirection(cameraDirection);
-                cameraDirection.y = 0;
-                cameraDirection.normalize();
-
-                const cameraRight = new THREE.Vector3();
-                cameraRight.crossVectors(cameraDirection, new THREE.Vector3(0, 1, 0)).normalize();
-
-                const moveVector = new THREE.Vector3();
-                moveVector.addScaledVector(cameraDirection, -moveZ);
-                moveVector.addScaledVector(cameraRight, moveX);
-                moveVector.normalize().multiplyScalar(moveSpeed);
-
-                playerGroup.position.add(moveVector);
-
-                // 角色朝向
-                const targetAngle = Math.atan2(moveVector.x, moveVector.z);
-                playerGroup.rotation.y = targetAngle;
-            }
-
-            // 重力與跳躍
-            if (keys.space && isGrounded) {
-                velocityY = 0.3;
-                isGrounded = false;
-            }
-
-            playerGroup.position.y += velocityY;
-
-            if (playerGroup.position.y > 0) {
-                velocityY += gravity;
-            } else {
-                playerGroup.position.y = 0;
-                velocityY = 0;
-                isGrounded = true;
-            }
-
-            // 攝影機鏡頭跟隨玩家
-            controls.target.copy(playerGroup.position).add(new THREE.Vector3(0, 1.2, 0));
-        }
-
-        // 8. 繪製迴圈
-        function animate() {
-            requestAnimationFrame(animate);
-            updatePlayer();
-            updateNPCs();
-            controls.update();
-            renderer.render(scene, camera);
-        }
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        camera.position.set(0, 5, 25);
-        animate();
     </script>
 </body>
 </html>
