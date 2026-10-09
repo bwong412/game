@@ -27,7 +27,6 @@
             overflow: hidden;
         }
 
-        /* 修正 1：指定 #000 實色背景，防止轉頁時背景互相透出重疊 */
         .screen {
             position: absolute;
             top: 0; left: 0;
@@ -47,14 +46,14 @@
 
         .back-btn {
             position: fixed;
-            top: 15px; left: 15px;
+            top: 20px; left: 20px;
             z-index: 9999;
-            background: rgba(40, 40, 45, 0.88);
+            background: rgba(40, 40, 45, 0.9);
             color: #ffffff;
-            padding: 10px 22px;
-            border-radius: 20px;
+            padding: 12px 24px;
+            border-radius: 24px;
             border: 1px solid rgba(255, 255, 255, 0.3);
-            font-size: 1rem;
+            font-size: 1.05rem;
             cursor: pointer;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -64,62 +63,67 @@
 
         .back-btn:active { transform: scale(0.95); }
 
-        /* ================= 1. 主頁選單 ================= */
+        /* ================= 1. 主頁選單 (放大優化) ================= */
         #main-menu {
-            padding: 40px 20px;
+            padding: 60px 30px;
             align-items: center;
         }
 
         .menu-container {
-            max-width: 900px;
+            max-width: 1100px;
             width: 100%;
             margin: 0 auto;
         }
 
-        /* 修正 2：變回官網風格螢光霓虹發光招牌 */
+        /* 霓虹燈招牌放大 */
         .header h1 {
-            font-size: 3.5rem;
+            font-size: 4.2rem;
             font-weight: 800;
-            margin: 0 0 10px 0;
+            margin: 0 0 12px 0;
             color: #ffffff;
             letter-spacing: -0.02em;
             text-shadow: 
-                0 0 5px #ffffff,
-                0 0 10px #ffffff,
-                0 0 20px rgba(41, 151, 255, 0.8),
-                0 0 30px rgba(41, 151, 255, 0.6),
-                0 0 40px rgba(41, 151, 255, 0.4);
+                0 0 8px #ffffff,
+                0 0 15px #ffffff,
+                0 0 25px rgba(41, 151, 255, 0.8),
+                0 0 35px rgba(41, 151, 255, 0.6),
+                0 0 50px rgba(41, 151, 255, 0.4);
         }
 
         .header p {
-            font-size: 1.25rem;
+            font-size: 1.4rem;
             color: var(--text-secondary);
-            margin: 0 0 35px 0;
+            margin: 0 0 45px 0;
             font-weight: 500;
         }
 
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 28px;
         }
 
         .game-card {
             background-color: var(--card-bg);
-            border-radius: 24px;
+            border-radius: 28px;
             overflow: hidden;
             cursor: pointer;
-            transition: transform 0.25s ease;
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .game-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5);
         }
 
         .game-card:active { transform: scale(0.98); }
 
         .card-image {
-            height: 150px;
+            height: 180px;
             display: flex;
             align-items: flex-end;
-            padding: 20px;
+            padding: 24px;
             box-sizing: border-box;
         }
 
@@ -127,233 +131,150 @@
         .card-2 { background: linear-gradient(135deg, #0d253f, #01b4e4); }
         .card-3 { background: linear-gradient(135deg, #41295a, #2f0743); }
 
-        .card-title { font-size: 1.35rem; font-weight: 700; color: #fff; }
-        .card-body { padding: 20px; }
-        .card-body p { font-size: 0.95rem; color: var(--text-secondary); margin: 0; line-height: 1.4; }
+        .card-title { font-size: 1.55rem; font-weight: 700; color: #fff; }
+        .card-body { padding: 24px; }
+        .card-body p { font-size: 1.05rem; color: var(--text-secondary); margin: 0; line-height: 1.5; }
 
         /* ================= GAME 1: 忍者刀 ================= */
         #ninja-screen { background: #000; overflow: hidden; }
         #game-ui {
             position: absolute;
-            top: 15px; left: 50%; transform: translateX(-50%);
-            width: 92%; max-width: 700px; z-index: 20; pointer-events: none;
+            top: 20px; left: 50%; transform: translateX(-50%);
+            width: 92%; max-width: 800px; z-index: 20; pointer-events: none;
             display: flex; flex-direction: column; align-items: center;
         }
 
         .question-box {
-            background: rgba(28, 28, 30, 0.92); backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 20px;
-            padding: 14px 20px; text-align: center; width: 100%; box-sizing: border-box;
+            background: rgba(28, 28, 30, 0.94); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 22px;
+            padding: 16px 24px; text-align: center; width: 100%; box-sizing: border-box;
         }
 
-        .question-title { font-size: 1rem; color: var(--accent-blue); font-weight: 700; }
-        .question-text { font-size: 1.25rem; font-weight: 600; color: #fff; margin-top: 4px; }
-        .progress-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.15); border-radius: 4px; margin-top: 10px; overflow: hidden; }
+        .question-title { font-size: 1.1rem; color: var(--accent-blue); font-weight: 700; }
+        .question-text { font-size: 1.35rem; font-weight: 600; color: #fff; margin-top: 6px; }
+        .progress-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.15); border-radius: 4px; margin-top: 12px; overflow: hidden; }
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-blue), var(--apple-green)); transition: width 0.3s; }
         canvas { display: block; width: 100%; height: 100%; }
 
-        /* ================= GAME 2: 分類大師 (修正 3：超逼真機身) ================= */
+        /* 通關 AI 複習簡介 */
+        .ai-review-box {
+            background: #1c1c1e; border-radius: 18px; padding: 18px;
+            margin: 15px 0; text-align: left; max-width: 550px; width: 100%;
+            border: 1px solid rgba(255,255,255,0.15); font-size: 0.92rem; color: #d1d1d6; line-height: 1.5;
+        }
+        .ai-review-box h4 { margin: 0 0 8px 0; color: var(--accent-blue); font-size: 1.05rem; }
+
+        /* ================= GAME 2: 分類大師 ================= */
         #drag-screen {
             background: #0a0a0c;
-            padding: 75px 15px 40px 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-sizing: border-box;
+            padding: 85px 20px 40px 20px;
+            display: flex; flex-direction: column; align-items: center; box-sizing: border-box;
         }
 
         .model-display {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            width: 100%;
-            max-width: 820px;
-            background: linear-gradient(180deg, #1c1c1e 0%, #121214 100%);
-            border-radius: 24px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.12);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex; justify-content: space-around; align-items: center;
+            width: 100%; max-width: 850px; background: linear-gradient(180deg, #1c1c1e 0%, #121214 100%);
+            border-radius: 24px; padding: 22px; margin-bottom: 22px;
+            border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .phone-mock-container { text-align: center; }
 
-        /* 逼真 iPhone 18 Pro Max */
         .mock-pro-real {
-            width: 110px; height: 190px;
-            background: #1c1c1e;
-            border-radius: 26px;
-            border: 3px solid #7d7d82;
-            box-shadow: inset 0 0 0 2px #000, 0 8px 25px rgba(0,0,0,0.8);
-            position: relative;
-            margin: 0 auto 10px auto;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 110px; height: 190px; background: #1c1c1e; border-radius: 26px;
+            border: 3px solid #7d7d82; box-shadow: inset 0 0 0 2px #000, 0 8px 25px rgba(0,0,0,0.8);
+            position: relative; margin: 0 auto 10px auto; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
         }
 
         .mock-pro-real .screen-inner {
-            width: 102px; height: 182px;
-            background: linear-gradient(135deg, #050508 0%, #111118 100%);
-            border-radius: 22px;
-            position: relative;
+            width: 102px; height: 182px; background: linear-gradient(135deg, #050508 0%, #111118 100%);
+            border-radius: 22px; position: relative;
         }
 
         .mock-pro-real .island {
-            width: 32px; height: 10px;
-            background: #000000;
-            border-radius: 10px;
-            position: absolute;
-            top: 6px; left: 35px;
-            box-shadow: 0 0 2px rgba(255,255,255,0.2);
+            width: 32px; height: 10px; background: #000000; border-radius: 10px;
+            position: absolute; top: 6px; left: 35px;
         }
 
-        .mock-pro-real .camera-bump {
-            position: absolute; top: 10px; left: 10px;
-            width: 35px; height: 35px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 10px; border: 1px solid rgba(255,255,255,0.15);
-        }
-
-        /* 逼真 iPhone Duo 摺疊屏 */
         .mock-duo-real {
-            width: 170px; height: 170px;
-            background: #1c1c1e;
-            border-radius: 20px;
-            border: 3px solid #7d7d82;
-            box-shadow: inset 0 0 0 2px #000, 0 8px 25px rgba(0,0,0,0.8);
-            position: relative;
-            margin: 0 auto 10px auto;
-            display: flex;
-            overflow: hidden;
+            width: 170px; height: 170px; background: #1c1c1e; border-radius: 20px;
+            border: 3px solid #7d7d82; box-shadow: inset 0 0 0 2px #000, 0 8px 25px rgba(0,0,0,0.8);
+            position: relative; margin: 0 auto 10px auto; display: flex; overflow: hidden;
         }
 
         .duo-hinge {
-            width: 5px; height: 100%;
-            background: linear-gradient(90deg, #111, #8e8e93, #111);
+            width: 5px; height: 100%; background: linear-gradient(90deg, #111, #8e8e93, #111);
             position: absolute; left: 82.5px; z-index: 5;
-            box-shadow: 0 0 4px rgba(0,0,0,0.9);
         }
 
         .duo-screen-left, .duo-screen-right {
-            flex: 1; height: 100%;
-            background: linear-gradient(180deg, #09090d 0%, #151520 100%);
-            box-sizing: border-box;
-            border: 3px solid #000;
+            flex: 1; height: 100%; background: linear-gradient(180deg, #09090d 0%, #151520 100%);
+            box-sizing: border-box; border: 3px solid #000;
         }
 
-        .duo-touchid {
-            position: absolute;
-            right: -3px; top: 55px;
-            width: 3px; height: 35px;
-            background: #a1a1a6;
-            border-radius: 2px;
-        }
-
-        .drop-container {
-            display: flex;
-            gap: 15px;
-            width: 100%;
-            max-width: 820px;
-            margin-bottom: 20px;
-        }
-
+        .drop-container { display: flex; gap: 18px; width: 100%; max-width: 850px; margin-bottom: 22px; }
         .drop-zone {
-            flex: 1;
-            min-height: 140px;
-            background: rgba(255,255,255,0.04);
-            border: 2px dashed #42a5f5;
-            border-radius: 20px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
+            flex: 1; min-height: 140px; background: rgba(255,255,255,0.04);
+            border: 2px dashed #42a5f5; border-radius: 20px; padding: 14px;
+            display: flex; flex-direction: column; align-items: center; cursor: pointer;
         }
-
         .drop-zone.different { border-color: #ff9f0a; }
-        .drop-zone h3 { margin: 0 0 10px 0; font-size: 1.1rem; pointer-events: none; }
+        .drop-zone h3 { margin: 0 0 10px 0; font-size: 1.15rem; pointer-events: none; }
 
         .items-pool {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
-            width: 100%;
-            max-width: 820px;
-            background: rgba(255,255,255,0.03);
-            padding: 20px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.08);
-            box-sizing: border-box;
-            margin-bottom: 20px;
+            display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+            width: 100%; max-width: 850px; background: rgba(255,255,255,0.03);
+            padding: 22px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08);
+            box-sizing: border-box; margin-bottom: 22px;
         }
 
         .drag-item {
-            background: #2c2c2e;
-            color: #fff;
-            padding: 12px 18px;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: all 0.2s ease;
+            background: #2c2c2e; color: #fff; padding: 12px 18px; border-radius: 14px;
+            font-size: 0.95rem; font-weight: 600; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s ease;
         }
 
         .drag-item.selected {
-            background: var(--accent-blue);
-            border-color: #fff;
-            transform: scale(1.06);
+            background: var(--accent-blue); border-color: #fff; transform: scale(1.06);
             box-shadow: 0 0 15px rgba(41, 151, 255, 0.8);
         }
 
         .submit-btn {
-            background: linear-gradient(135deg, #30d158, #28cd41);
-            color: #fff;
-            padding: 16px 45px;
-            border-radius: 30px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 6px 20px rgba(48, 209, 88, 0.4);
-            transition: transform 0.2s;
+            background: linear-gradient(135deg, #30d158, #28cd41); color: #fff;
+            padding: 16px 48px; border-radius: 30px; font-size: 1.25rem; font-weight: 700;
+            border: none; cursor: pointer; box-shadow: 0 6px 20px rgba(48, 209, 88, 0.4);
         }
-
-        .submit-btn:active { transform: scale(0.95); }
 
         /* ================= GAME 3: 百萬富翁 QUIZ ================= */
         #quiz-screen {
-            padding: 75px 15px 40px 15px;
+            padding: 85px 20px 40px 20px;
             display: flex; flex-direction: column; align-items: center;
         }
 
-        .quiz-container { width: 100%; max-width: 800px; }
+        .quiz-container { width: 100%; max-width: 850px; }
         .quiz-hud-bar {
             display: flex; justify-content: space-between; align-items: center;
             background: #1c1c1e; border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 16px; padding: 12px 20px; font-size: 0.95rem; margin-bottom: 20px;
+            border-radius: 18px; padding: 14px 24px; font-size: 1.05rem; margin-bottom: 22px;
         }
 
         .quiz-card {
             background: #1c1c1e; border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 24px; padding: 25px; margin-bottom: 20px;
+            border-radius: 24px; padding: 28px; margin-bottom: 22px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .quiz-q-num { color: var(--accent-blue); font-weight: bold; font-size: 0.95rem; margin-bottom: 10px; }
-        .quiz-q-text { font-size: 1.2rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; color: #fff; }
+        .quiz-q-num { color: var(--accent-blue); font-weight: bold; font-size: 1rem; margin-bottom: 12px; }
+        .quiz-q-text { font-size: 1.25rem; font-weight: 600; line-height: 1.5; margin-bottom: 22px; color: #fff; }
 
-        .quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
         @media (max-width: 600px) { .quiz-opts { grid-template-columns: 1fr; } }
 
         .quiz-opt-btn {
             background: #2c2c2e; border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 14px; color: #fff; padding: 14px 18px; text-align: left;
-            font-size: 0.95rem; cursor: pointer; transition: all 0.2s;
+            border-radius: 16px; color: #fff; padding: 16px 20px; text-align: left;
+            font-size: 1rem; cursor: pointer; transition: all 0.2s;
         }
 
         .quiz-opt-btn:hover { border-color: var(--accent-blue); }
@@ -362,45 +283,53 @@
         .quiz-opt-btn.wrong { background: #4a151b; border-color: #ff453a; color: #fff; }
 
         .quiz-fb {
-            margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05);
-            border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem; line-height: 1.5;
+            margin-top: 22px; padding: 16px; background: rgba(255,255,255,0.05);
+            border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); font-size: 1rem; line-height: 1.5;
+        }
+
+        /* 百萬富翁全對彈窗 & 煙花 Canvas */
+        #fireworksCanvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 10001; display: none;
         }
 
         /* 彈窗與排行榜 */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.94); backdrop-filter: blur(25px);
+            background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(25px);
             display: none; flex-direction: column; justify-content: flex-start; align-items: center;
             z-index: 10000; text-align: center; padding: 40px 20px; box-sizing: border-box;
             overflow-y: auto;
         }
 
-        .modal h1 { font-size: 2.5rem; margin-bottom: 8px; margin-top: 20px; }
+        .modal h1 { font-size: 2.6rem; margin-bottom: 10px; margin-top: 20px; }
 
         .leaderboard-box {
-            background: rgba(255,255,255,0.08);
-            border-radius: 18px; padding: 15px 25px;
-            width: 100%; max-width: 500px; margin: 15px 0;
+            background: rgba(255,255,255,0.08); border-radius: 18px;
+            padding: 16px 26px; width: 100%; max-width: 520px; margin: 18px 0;
             border: 1px solid rgba(255,255,255,0.15);
         }
 
         .leaderboard-title { font-size: 1.1rem; color: var(--apple-gold); font-weight: bold; margin-bottom: 10px; }
-        .leaderboard-item { display: flex; justify-content: space-between; font-size: 1rem; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .leaderboard-item { display: flex; justify-content: space-between; font-size: 1.05rem; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
 
         .input-box {
             background: #2c2c2e; border: 1px solid #48484a; color: #fff;
-            padding: 14px 20px; border-radius: 15px; font-size: 1.1rem;
+            padding: 14px 20px; border-radius: 15px; font-size: 1.15rem;
             width: 80%; max-width: 320px; text-align: center; margin-bottom: 20px; outline: none;
         }
 
         .btn {
-            background: var(--accent-blue); color: #fff; padding: 14px 36px;
+            background: var(--accent-blue); color: #fff; padding: 14px 38px;
             border-radius: 25px; font-size: 1.1rem; font-weight: 600;
             border: none; cursor: pointer; margin: 6px;
         }
     </style>
 </head>
 <body>
+
+    <!-- 煙花特效 Canvas -->
+    <canvas id="fireworksCanvas"></canvas>
 
     <!-- ================= 1. 主頁選單 ================= -->
     <div id="main-menu" class="screen active">
@@ -425,7 +354,7 @@
                         <div class="card-title">🧩 02. 分類大師 (Classify Master)</div>
                     </div>
                     <div class="card-body">
-                        <p><strong>思考後遞交：</strong> 歸類 iPhone 18 Pro Max 與 Duo 規格，點擊提交驗證腦力！</p>
+                        <p><strong>思考後遞交：</strong> 歸類 iPhone 18 Pro 系列與 Duo 規格，點擊提交驗證腦力！</p>
                     </div>
                 </div>
 
@@ -434,7 +363,7 @@
                         <div class="card-title">💰 03. Who Wants to be a Genius?</div>
                     </div>
                     <div class="card-body">
-                        <p><strong>百萬富翁問答：</strong> 挑戰 Siri AI 與旗艦產品知識，衝擊百萬大獎！</p>
+                        <p><strong>百萬富翁問答：</strong> 挑戰 10 道終極題目，回答累積累進獎金，衝擊 $1,000,000！</p>
                     </div>
                 </div>
             </div>
@@ -475,6 +404,15 @@
             <h1 style="color:var(--apple-green)">🎉 通關成功！</h1>
             <p>耗時：<span id="ninja-time-val" style="color:#fff; font-weight:bold;">0</span> 秒</p>
             
+            <div class="ai-review-box">
+                <h4> Apple Intelligence & Siri AI 重點溫習</h4>
+                • <strong>Siri AI：</strong> 跨 App 操作，率先以英文推出。<br>
+                • <strong>視覺智能：</strong> 辨識餐廳、海報加入日曆。<br>
+                • <strong>相片與影像：</strong> Clean Up 清除工具、Genmoji 創作。<br>
+                • <strong>生產力與溝通：</strong> Writing Tools、Summarize 重點摘要。<br>
+                • <strong>保密周全：</strong> 私密雲端運算 (Private Cloud Compute) 鐵證防護。
+            </div>
+
             <div class="leaderboard-box">
                 <div class="leaderboard-title">🏆 忍者刀 Top 3 排行榜</div>
                 <div id="ninja-leaderboard"></div>
@@ -496,7 +434,7 @@
                         <div class="island"></div>
                     </div>
                 </div>
-                <strong style="font-size:0.9rem;">iPhone 18 Pro Max</strong>
+                <strong style="font-size:0.95rem;">iPhone 18 Pro 系列</strong>
             </div>
 
             <div style="font-size: 1.4rem; color: var(--text-secondary); font-weight:bold;">VS</div>
@@ -506,9 +444,8 @@
                     <div class="duo-screen-left"></div>
                     <div class="duo-hinge"></div>
                     <div class="duo-screen-right"></div>
-                    <div class="duo-touchid"></div>
                 </div>
-                <strong style="font-size:0.9rem;">iPhone Duo (摺疊屏)</strong>
+                <strong style="font-size:0.95rem;">iPhone Duo (摺疊屏)</strong>
             </div>
         </div>
 
@@ -544,8 +481,8 @@
         
         <div class="quiz-container">
             <div class="quiz-hud-bar">
-                <span id="quiz-progress" style="color:var(--accent-blue); font-weight:bold;">題目 1 / 8</span>
-                <span id="quiz-score" style="color:var(--apple-gold); font-weight:bold;">分數: 0</span>
+                <span id="quiz-progress" style="color:var(--accent-blue); font-weight:bold;">題目 1 / 10</span>
+                <span id="quiz-score" style="color:var(--apple-gold); font-weight:bold;">獎金: $0</span>
             </div>
 
             <div class="quiz-card">
@@ -555,18 +492,18 @@
                 <div class="quiz-fb" id="quiz-feedback" style="display:none;"></div>
             </div>
 
-            <div style="display:flex; justify-content:space-between; width:100%;">
+            <div style="display:flex; justify-between; width:100%;">
                 <button class="btn" id="quiz-lock-btn" onclick="lockQuizAnswer()" disabled>🔒 鎖定答案</button>
                 <button class="btn" id="quiz-next-btn" onclick="nextQuizQuestion()" style="display:none; background:var(--apple-green);">下一題 ▶</button>
             </div>
         </div>
 
         <div id="quiz-win-modal" class="modal" style="justify-content: center;">
-            <h1 style="color:var(--apple-gold)">🏆 挑戰完成！</h1>
-            <p id="quiz-final-score" style="margin-bottom:20px; font-size:1.2rem;"></p>
+            <h1 id="quiz-win-title" style="color:var(--apple-gold)">🏆 挑戰完成！</h1>
+            <p id="quiz-final-score" style="margin-bottom:20px; font-size:1.3rem; line-height:1.6;"></p>
             
             <div class="leaderboard-box">
-                <div class="leaderboard-title">🏆 百萬富翁 Top 3 排行榜</div>
+                <div class="leaderboard-title">🏆 百萬富翁 最高累積獎金榜</div>
                 <div id="quiz-leaderboard"></div>
             </div>
 
@@ -587,6 +524,7 @@
 
         function goHome() {
             isGameOver = true;
+            stopFireworks();
             if (spawnTimer) clearInterval(spawnTimer);
             if (animFrameId) cancelAnimationFrame(animFrameId);
             
@@ -644,7 +582,7 @@
             container.innerHTML = records.map((r, i) => `
                 <div class="leaderboard-item">
                     <span>${i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉"} ${r.name}</span>
-                    <span style="color:var(--apple-green); font-weight:bold;">${r.val} ${unit}</span>
+                    <span style="color:var(--apple-green); font-weight:bold;">${unit === '$' ? '$' + r.val.toLocaleString() : r.val + ' ' + unit}</span>
                 </div>
             `).join('');
         }
@@ -659,7 +597,7 @@
         const questionPool = [
             { q: "客人處理大量文書與長文章，你會推薦邊個 Apple Intelligence 功能？", correct: ["Summarize 智能摘要", "Writing Tools 書寫工具"], wrong: ["飛行模式當航拍機", "代寫功課功能"] },
             { q: "蘋果智能（Visual Intelligence）視覺功能可以幫客人做到咩？", correct: ["辨識餐廳營業時間", "海報活動加到日曆"], wrong: ["透視隔壁房間", "睇穿朋友銀行餘額"] },
-            { q: "全新 Siri AI 嘅跨 App 操作（App Actions）可以幫客人做到邊樣？", correct: ["尋找幾年前在西班牙的照片", "語音儲存到備忘錄"], wrong: ["排隊買 iPhone", "自動駁通 CEO 電話"] },
+            { q: "全新 Siri AI 嘅跨 App 操作（App Actions）可以幫客人做到邊樣？", correct: ["尋找幾年前照片", "語音儲存到備忘錄"], wrong: ["排隊買 iPhone", "自動駁通 CEO 電話"] },
             { q: "AirPods 嘅即時同聲傳譯 / 翻譯功能，需要搭配邊個系統？", correct: ["iOS 18 或以上", "支持 Apple Intelligence 裝置"], wrong: ["5G 衛星天線", "Windows 11 插件"] },
             { q: "Apple Watch 有邊啲極具實用價值嘅智能健康與安全功能？", correct: ["跌倒與車禍偵測", "心率過高過低通知"], wrong: ["邊度痛貼邊度", "預測六合彩頭獎"] },
             { q: "介紹保護殼時，可以順勢介紹邊啲 MagSafe 智能生態功能？", correct: ["MagSafe 磁吸無線充電", "StandBy 待機模式立架"], wrong: ["保護殼自動發熱", "跌落彈出降落傘"] },
@@ -671,10 +609,10 @@
 
         class TargetItem {
             constructor(text, isCorrect, isBomb = false) {
-                this.x = Math.random() * (canvas.width - 240) + 120;
-                this.y = canvas.height + 90;
+                this.x = Math.random() * (canvas.width - 260) + 130;
+                this.y = canvas.height + 110;
                 this.vx = (Math.random() - 0.5) * 3;
-                this.radius = 80;
+                this.radius = 110; // 放大氣球
                 this.gravity = 0.12;
                 this.vy = -Math.sqrt(2 * this.gravity * (canvas.height * (0.35 + Math.random() * 0.15)));
                 this.text = text; this.isCorrect = isCorrect; this.isBomb = isBomb;
@@ -683,20 +621,34 @@
             update() { this.x += this.vx; this.y += this.vy; this.vy += this.gravity; }
             draw() {
                 ctx.save(); ctx.translate(this.x, this.y);
-                /* 修正 4：取消旋轉，讓文字永遠保持水平正面，方便閱讀 */
                 
                 ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.isBomb ? "rgba(255, 69, 58, 0.3)" : "rgba(28, 28, 30, 0.95)";
+                ctx.fillStyle = this.isBomb ? "rgba(255, 69, 58, 0.35)" : "rgba(28, 28, 30, 0.95)";
                 ctx.strokeStyle = this.isBomb ? "#ff453a" : "rgba(255, 255, 255, 0.5)";
                 ctx.lineWidth = 3.5; ctx.fill(); ctx.stroke();
                 
                 ctx.font = "38px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                ctx.fillText(this.icon, 0, -22);
+                ctx.fillText(this.icon, 0, -35);
                 
-                ctx.font = "bold 17px -apple-system, sans-serif";
+                // 多行清晰文字渲染，防止被截斷
+                ctx.font = "bold 16px -apple-system, sans-serif";
                 ctx.fillStyle = "#ffffff";
-                const displayText = this.text.length > 8 ? this.text.substring(0,7)+"..." : this.text;
-                ctx.fillText(displayText, 0, 28);
+                
+                const words = this.text.split(" ");
+                if (this.text.length > 7 && words.length === 1) {
+                    ctx.fillText(this.text.substring(0,6), 0, 10);
+                    ctx.fillText(this.text.substring(6), 0, 32);
+                } else {
+                    let line1 = "", line2 = "";
+                    if (this.text.length > 7) {
+                        line1 = this.text.substring(0, Math.ceil(this.text.length / 2));
+                        line2 = this.text.substring(Math.ceil(this.text.length / 2));
+                        ctx.fillText(line1, 0, 10);
+                        ctx.fillText(line2, 0, 32);
+                    } else {
+                        ctx.fillText(this.text, 0, 20);
+                    }
+                }
                 ctx.restore();
             }
         }
@@ -743,11 +695,19 @@
                 targets[i].update(); targets[i].draw();
                 if (targets[i].y > canvas.height + 120 || targets[i].sliced) targets.splice(i, 1);
             }
-            const now = Date.now(); bladePath = bladePath.filter(p => now - p.time < 160);
+            
+            // Apple Intelligence 彩虹光芒刀痕 (Rainbow AI Glow)
+            const now = Date.now(); bladePath = bladePath.filter(p => now - p.time < 180);
             if (bladePath.length > 1) {
+                const gradient = ctx.createLinearGradient(bladePath[0].x, bladePath[0].y, bladePath[bladePath.length-1].x, bladePath[bladePath.length-1].y);
+                gradient.addColorStop(0, '#2997ff');
+                gradient.addColorStop(0.3, '#a259ff');
+                gradient.addColorStop(0.7, '#ff6200');
+                gradient.addColorStop(1, '#ff3b30');
+
                 ctx.beginPath(); ctx.moveTo(bladePath[0].x, bladePath[0].y);
                 for (let i = 1; i < bladePath.length; i++) ctx.lineTo(bladePath[i].x, bladePath[i].y);
-                ctx.strokeStyle = "#2997ff"; ctx.lineWidth = 8; ctx.lineCap = "round"; ctx.stroke();
+                ctx.strokeStyle = gradient; ctx.lineWidth = 10; ctx.lineCap = "round"; ctx.stroke();
             }
             if (!isGameOver) animFrameId = requestAnimationFrame(gameLoop);
         }
@@ -879,7 +839,9 @@
             document.getElementById('drag-win-modal').style.display = 'flex';
         }
 
-        // ================= GAME 3 (百萬富翁 QUIZ) LOGIC =================
+        // ================= GAME 3 (百萬富翁 QUIZ 10題$梯級) LOGIC =================
+        const moneyLadder = [100, 1000, 2500, 5000, 10000, 25000, 50000, 100000, 500000, 1000000];
+
         const quizQuestions = [
             {
                 topic: "螢幕規格",
@@ -957,13 +919,13 @@
                 topic: "AI 與語言支援",
                 q: "關於 Apple Intelligence 與 Siri AI 的語言支援，哪項說明正確？",
                 opts: [
-                    "Apple Intelligence 支援繁體中文；Siri AI Beta 版首先以英文推出",
+                    "Apple Intelligence 支援繁體中文；Siri AI Beta 版率先以英文推出",
                     "Apple Intelligence 及 Siri AI 目前均只支援英文",
                     "Siri AI Beta 支援廣東話，Apple Intelligence 僅限英文",
                     "兩者均已完全支援繁體中文與廣東話"
                 ],
                 a: 0,
-                why: "Apple Intelligence 適用於繁體中文；全新 Siri AI Beta 版首先以英文推出。"
+                why: "Apple Intelligence 適用於繁體中文；全新 Siri AI Beta 版率先以英文推出。"
             },
             {
                 topic: "SIM 卡生態",
@@ -976,26 +938,52 @@
                 ],
                 a: 1,
                 why: "iPhone Duo 全球一致只支援 eSIM，不兼容實體 SIM 卡，為電池騰出更多內部空間。"
+            },
+            {
+                topic: "AI 影像創作",
+                q: "Apple Intelligence 讓顧客可以用文字描述直接創作原創表情符號，這個功能名稱是？",
+                opts: [
+                    "Genmoji",
+                    "Image Wand",
+                    "Memoji AI",
+                    "Visual Emoji"
+                ],
+                a: 0,
+                why: "Genmoji 是 Apple Intelligence 的原創 Emoji 創作功能，輸入描述即可生成！"
+            },
+            {
+                topic: "私密雲端運算",
+                q: "Apple Intelligence 在處理複雜 AI 任務時，如何確保顧客個人私隱安全？",
+                opts: [
+                    "將所有數據永久儲存在雲端伺服器",
+                    "採用「私密雲端運算」(Private Cloud Compute)，數據不被儲存且獨立驗證",
+                    "將數據傳送到第三方 AI 公司處理",
+                    "關閉所有網路連接才能使用 AI 功能"
+                ],
+                a: 1,
+                why: "私密雲端運算 (Private Cloud Compute) 確保數據僅用於處理請求，絕不被儲存或供 Apple 存取。"
             }
         ];
 
         let quizCurrentIndex = 0;
-        let quizScore = 0;
+        let quizCurrentMoney = 0;
         let quizSelectedOpt = null;
 
         function startQuizGame() {
             quizCurrentIndex = 0;
-            quizScore = 0;
+            quizCurrentMoney = 0;
             quizSelectedOpt = null;
+            stopFireworks();
             document.getElementById('quiz-win-modal').style.display = 'none';
             renderQuizQuestion();
         }
 
         function renderQuizQuestion() {
             const q = quizQuestions[quizCurrentIndex];
-            document.getElementById('quiz-progress').innerText = `題目 ${quizCurrentIndex + 1} / ${quizQuestions.length}`;
-            document.getElementById('quiz-score').innerText = `分數: ${quizScore}`;
-            document.getElementById('quiz-topic').innerText = `分類: ${q.topic}`;
+            const prize = moneyLadder[quizCurrentIndex];
+            document.getElementById('quiz-progress').innerText = `題目 ${quizCurrentIndex + 1} / 10 (目標獎金: $${prize.toLocaleString()})`;
+            document.getElementById('quiz-score').innerText = `累積獎金: $${quizCurrentMoney.toLocaleString()}`;
+            document.getElementById('quiz-topic').innerText = `TOPIC: ${q.topic}`;
             document.getElementById('quiz-question-text').innerText = q.q;
 
             const optsContainer = document.getElementById('quiz-opts-container');
@@ -1035,18 +1023,18 @@
             fb.style.display = 'block';
 
             if (quizSelectedOpt === q.a) {
-                quizScore += 100;
+                quizCurrentMoney = moneyLadder[quizCurrentIndex];
                 btns[quizSelectedOpt].classList.remove('selected');
                 btns[quizSelectedOpt].classList.add('correct');
-                fb.innerHTML = `<strong style="color:#30d158;">✅ 回答正確！+100 分</strong><br>${q.why}`;
+                fb.innerHTML = `<strong style="color:#30d158;">✅ 回答正確！獲得 $${quizCurrentMoney.toLocaleString()} 獎金</strong><br>${q.why}`;
             } else {
                 btns[quizSelectedOpt].classList.remove('selected');
                 btns[quizSelectedOpt].classList.add('wrong');
                 btns[q.a].classList.add('correct');
-                fb.innerHTML = `<strong style="color:#ff453a;">❌ 回答錯誤！</strong><br>${q.why}`;
+                fb.innerHTML = `<strong style="color:#ff453a;">❌ 回答錯誤！遺憾未能獲得本題獎金。</strong><br>${q.why}`;
             }
 
-            document.getElementById('quiz-score').innerText = `分數: ${quizScore}`;
+            document.getElementById('quiz-score').innerText = `累積獎金: $${quizCurrentMoney.toLocaleString()}`;
             document.getElementById('quiz-lock-btn').style.display = 'none';
             
             const nextBtn = document.getElementById('quiz-next-btn');
@@ -1064,10 +1052,92 @@
         }
 
         function finishQuizGame() {
-            document.getElementById('quiz-final-score').innerText = `挑戰者：${currentPlayerName}\n最終得分：${quizScore} / 800 分`;
-            const top3 = saveScore('quiz_arcade_scores', quizScore);
-            renderLeaderboard('quiz-leaderboard', top3, "分");
+            const winTitle = document.getElementById('quiz-win-title');
+            const winScore = document.getElementById('quiz-final-score');
+
+            if (quizCurrentMoney === 1000000) {
+                winTitle.innerText = "Congratulations! You are the Genius! ";
+                winTitle.style.color = "#ffd60a";
+                winScore.innerHTML = `🎉 太強喇！玩家 <strong>${currentPlayerName}</strong> 10 題全對，贏取最高 <strong>$1,000,000</strong> 獎金！`;
+                startFireworks(); // 觸發煙花特效！
+            } else {
+                winTitle.innerText = "🏆 挑戰完成！";
+                winTitle.style.color = "#ffffff";
+                winScore.innerHTML = `挑戰者：${currentPlayerName}<br>累積總獎金：<strong style="color:#ffd60a;">$${quizCurrentMoney.toLocaleString()}</strong>`;
+            }
+
+            const top3 = saveScore('quiz_arcade_scores', quizCurrentMoney);
+            renderLeaderboard('quiz-leaderboard', top3, "$");
             document.getElementById('quiz-win-modal').style.display = 'flex';
+        }
+
+        // ================= 煙花動畫邏輯 (FIREWORKS ANIMATION) =================
+        let fwCanvas = document.getElementById('fireworksCanvas');
+        let fwCtx = fwCanvas.getContext('2d');
+        let fwAnimId = null;
+        let particles = [];
+
+        function startFireworks() {
+            fwCanvas.style.display = 'block';
+            fwCanvas.width = window.innerWidth;
+            fwCanvas.height = window.innerHeight;
+            particles = [];
+            
+            for (let i = 0; i < 5; i++) {
+                createFirework();
+            }
+            animateFireworks();
+        }
+
+        function createFirework() {
+            const x = Math.random() * fwCanvas.width;
+            const y = Math.random() * (fwCanvas.height * 0.5);
+            const count = 80;
+            const colors = ['#2997ff', '#30d158', '#ffd60a', '#ff453a', '#a259ff'];
+
+            for (let i = 0; i < count; i++) {
+                const angle = (Math.PI * 2 / count) * i;
+                const speed = Math.random() * 5 + 2;
+                particles.push({
+                    x: x, y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    alpha: 1,
+                    color: colors[Math.floor(Math.random() * colors.length)]
+                });
+            }
+        }
+
+        function animateFireworks() {
+            fwCtx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            fwCtx.fillRect(0, 0, fwCanvas.width, fwCanvas.height);
+
+            if (Math.random() < 0.08) createFirework();
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.05; // 破空重力
+                p.alpha -= 0.015;
+
+                fwCtx.save();
+                fwCtx.globalAlpha = p.alpha;
+                fwCtx.beginPath();
+                fwCtx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+                fwCtx.fillStyle = p.color;
+                fwCtx.fill();
+                fwCtx.restore();
+
+                if (p.alpha <= 0) particles.splice(i, 1);
+            }
+
+            fwAnimId = requestAnimationFrame(animateFireworks);
+        }
+
+        function stopFireworks() {
+            if (fwAnimId) cancelAnimationFrame(fwAnimId);
+            fwCanvas.style.display = 'none';
         }
 
         switchScreen('main-menu');
