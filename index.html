@@ -3,33 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Cotai Arcade</title>
+    <title> Cotai Arcade</title>
     <style>
-        /* ================= 點陣科技風格 (Dot-Matrix Tech Style) ================= */
         :root {
-            --bg-color: #050505;
-            --card-bg: #121212;
-            --text-primary: #ffffff;
-            --text-secondary: #888888;
-            --accent-red: #d71921;
-            --dot-color: rgba(255, 255, 255, 0.15);
-            --border-line: rgba(255, 255, 255, 0.2);
-            --font-mono: "SF Mono", "Courier New", Courier, monospace;
+            --bg-color: #000000;
+            --card-bg: #1c1c1e;
+            --text-primary: #f5f5f7;
+            --text-secondary: #86868b;
+            --accent-blue: #2997ff;
+            --apple-green: #30d158;
+            --apple-red: #ff453a;
+            --apple-gold: #ffd60a;
         }
 
         body, html {
             margin: 0; padding: 0;
             width: 100%; height: 100%;
             background-color: var(--bg-color);
-            background-image: radial-gradient(var(--dot-color) 1px, transparent 1px);
-            background-size: 16px 16px;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
             color: var(--text-primary);
             user-select: none;
             -webkit-user-select: none;
             overflow: hidden;
         }
 
+        /* 修正 1：指定 #000 實色背景，防止轉頁時背景互相透出重疊 */
         .screen {
             position: absolute;
             top: 0; left: 0;
@@ -38,7 +36,7 @@
             box-sizing: border-box;
             overflow-y: auto;
             z-index: 1;
-            background-color: transparent;
+            background-color: #000000;
         }
 
         .screen.active {
@@ -51,23 +49,24 @@
             position: fixed;
             top: 15px; left: 15px;
             z-index: 9999;
-            background: #000000;
+            background: rgba(40, 40, 45, 0.88);
             color: #ffffff;
-            padding: 8px 18px;
-            border-radius: 4px;
-            border: 1px solid var(--text-primary);
-            font-family: var(--font-mono);
-            font-size: 0.85rem;
+            padding: 10px 22px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 1rem;
             cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
         }
 
-        .back-btn:active { background: #333; }
+        .back-btn:active { transform: scale(0.95); }
 
         /* ================= 1. 主頁選單 ================= */
         #main-menu {
-            padding: 50px 20px;
+            padding: 40px 20px;
             align-items: center;
         }
 
@@ -77,24 +76,26 @@
             margin: 0 auto;
         }
 
+        /* 修正 2：變回官網風格螢光霓虹發光招牌 */
         .header h1 {
-            font-family: var(--font-mono);
-            font-size: 2.8rem;
-            font-weight: 700;
+            font-size: 3.5rem;
+            font-weight: 800;
             margin: 0 0 10px 0;
-            color: var(--text-primary);
-            letter-spacing: -1px;
-            text-transform: uppercase;
-            border-bottom: 2px dashed var(--border-line);
-            padding-bottom: 15px;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            text-shadow: 
+                0 0 5px #ffffff,
+                0 0 10px #ffffff,
+                0 0 20px rgba(41, 151, 255, 0.8),
+                0 0 30px rgba(41, 151, 255, 0.6),
+                0 0 40px rgba(41, 151, 255, 0.4);
         }
 
         .header p {
-            font-family: var(--font-mono);
-            font-size: 0.95rem;
+            font-size: 1.25rem;
             color: var(--text-secondary);
-            margin: 15px 0 35px 0;
-            letter-spacing: 1px;
+            margin: 0 0 35px 0;
+            font-weight: 500;
         }
 
         .grid-container {
@@ -105,45 +106,30 @@
 
         .game-card {
             background-color: var(--card-bg);
-            border-radius: 2px;
+            border-radius: 24px;
             overflow: hidden;
             cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s;
-            border: 1px solid var(--border-line);
-        }
-
-        .game-card:hover {
-            border-color: var(--text-primary);
+            transition: transform 0.25s ease;
+            border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         .game-card:active { transform: scale(0.98); }
 
         .card-image {
-            height: 120px;
+            height: 150px;
             display: flex;
             align-items: flex-end;
             padding: 20px;
             box-sizing: border-box;
-            background: #0d0d0d;
-            border-bottom: 1px solid var(--border-line);
         }
 
-        .card-title {
-            font-family: var(--font-mono);
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: 1px;
-        }
+        .card-1 { background: linear-gradient(135deg, #1e3c72, #2a5298); }
+        .card-2 { background: linear-gradient(135deg, #0d253f, #01b4e4); }
+        .card-3 { background: linear-gradient(135deg, #41295a, #2f0743); }
 
+        .card-title { font-size: 1.35rem; font-weight: 700; color: #fff; }
         .card-body { padding: 20px; }
-        .card-body p {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin: 0;
-            line-height: 1.5;
-            font-family: var(--font-mono);
-        }
+        .card-body p { font-size: 0.95rem; color: var(--text-secondary); margin: 0; line-height: 1.4; }
 
         /* ================= GAME 1: 忍者刀 ================= */
         #ninja-screen { background: #000; overflow: hidden; }
@@ -155,19 +141,20 @@
         }
 
         .question-box {
-            background: rgba(10, 10, 10, 0.95);
-            border: 1px solid var(--text-primary);
+            background: rgba(28, 28, 30, 0.92); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 20px;
             padding: 14px 20px; text-align: center; width: 100%; box-sizing: border-box;
         }
 
-        .question-title { font-family: var(--font-mono); font-size: 0.9rem; color: var(--accent-red); font-weight: 700; }
-        .question-text { font-size: 1.15rem; font-weight: 600; color: #fff; margin-top: 6px; }
-        .progress-bar-container { width: 100%; height: 4px; background: #222; margin-top: 12px; }
-        .progress-bar { height: 100%; width: 0%; background: #fff; transition: width 0.3s; }
+        .question-title { font-size: 1rem; color: var(--accent-blue); font-weight: 700; }
+        .question-text { font-size: 1.25rem; font-weight: 600; color: #fff; margin-top: 4px; }
+        .progress-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.15); border-radius: 4px; margin-top: 10px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-blue), var(--apple-green)); transition: width 0.3s; }
         canvas { display: block; width: 100%; height: 100%; }
 
-        /* ================= GAME 2: 分類大師 ================= */
+        /* ================= GAME 2: 分類大師 (修正 3：超逼真機身) ================= */
         #drag-screen {
+            background: #0a0a0c;
             padding: 75px 15px 40px 15px;
             display: flex;
             flex-direction: column;
@@ -179,66 +166,164 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            width: 100%; max-width: 820px;
-            background: #111;
-            padding: 20px; margin-bottom: 20px;
-            border: 1px solid var(--border-line);
+            width: 100%;
+            max-width: 820px;
+            background: linear-gradient(180deg, #1c1c1e 0%, #121214 100%);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .phone-mock-container { text-align: center; font-family: var(--font-mono); }
+        .phone-mock-container { text-align: center; }
 
+        /* 逼真 iPhone 18 Pro Max */
         .mock-pro-real {
-            width: 100px; height: 170px;
-            background: #000;
-            border: 2px solid var(--text-primary);
-            position: relative; margin: 0 auto 10px auto;
-            display: flex; justify-content: center; align-items: center;
+            width: 110px; height: 190px;
+            background: #1c1c1e;
+            border-radius: 26px;
+            border: 3px solid #7d7d82;
+            box-shadow: inset 0 0 0 2px #000, 0 8px 25px rgba(0,0,0,0.8);
+            position: relative;
+            margin: 0 auto 10px auto;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
+        .mock-pro-real .screen-inner {
+            width: 102px; height: 182px;
+            background: linear-gradient(135deg, #050508 0%, #111118 100%);
+            border-radius: 22px;
+            position: relative;
+        }
+
+        .mock-pro-real .island {
+            width: 32px; height: 10px;
+            background: #000000;
+            border-radius: 10px;
+            position: absolute;
+            top: 6px; left: 35px;
+            box-shadow: 0 0 2px rgba(255,255,255,0.2);
+        }
+
+        .mock-pro-real .camera-bump {
+            position: absolute; top: 10px; left: 10px;
+            width: 35px; height: 35px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px; border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        /* 逼真 iPhone Duo 摺疊屏 */
         .mock-duo-real {
-            width: 150px; height: 150px;
-            background: #000;
-            border: 2px solid var(--text-primary);
-            position: relative; margin: 0 auto 10px auto;
+            width: 170px; height: 170px;
+            background: #1c1c1e;
+            border-radius: 20px;
+            border: 3px solid #7d7d82;
+            box-shadow: inset 0 0 0 2px #000, 0 8px 25px rgba(0,0,0,0.8);
+            position: relative;
+            margin: 0 auto 10px auto;
             display: flex;
+            overflow: hidden;
         }
 
         .duo-hinge {
-            width: 2px; height: 100%;
-            background: var(--text-primary);
-            position: absolute; left: 74px; z-index: 5;
+            width: 5px; height: 100%;
+            background: linear-gradient(90deg, #111, #8e8e93, #111);
+            position: absolute; left: 82.5px; z-index: 5;
+            box-shadow: 0 0 4px rgba(0,0,0,0.9);
         }
 
-        .duo-screen-left, .duo-screen-right { flex: 1; height: 100%; background: #080808; }
+        .duo-screen-left, .duo-screen-right {
+            flex: 1; height: 100%;
+            background: linear-gradient(180deg, #09090d 0%, #151520 100%);
+            box-sizing: border-box;
+            border: 3px solid #000;
+        }
 
-        .drop-container { display: flex; gap: 15px; width: 100%; max-width: 820px; margin-bottom: 20px; }
+        .duo-touchid {
+            position: absolute;
+            right: -3px; top: 55px;
+            width: 3px; height: 35px;
+            background: #a1a1a6;
+            border-radius: 2px;
+        }
+
+        .drop-container {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            max-width: 820px;
+            margin-bottom: 20px;
+        }
+
         .drop-zone {
-            flex: 1; min-height: 120px;
-            background: #0a0a0a;
-            border: 1px dashed var(--border-line);
-            padding: 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer;
+            flex: 1;
+            min-height: 140px;
+            background: rgba(255,255,255,0.04);
+            border: 2px dashed #42a5f5;
+            border-radius: 20px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
         }
-        .drop-zone h3 { margin: 0 0 10px 0; font-family: var(--font-mono); font-size: 0.95rem; pointer-events: none; }
+
+        .drop-zone.different { border-color: #ff9f0a; }
+        .drop-zone h3 { margin: 0 0 10px 0; font-size: 1.1rem; pointer-events: none; }
 
         .items-pool {
-            display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
-            width: 100%; max-width: 820px; background: #0a0a0a; padding: 20px;
-            border: 1px solid var(--border-line); box-sizing: border-box; margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            width: 100%;
+            max-width: 820px;
+            background: rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.08);
+            box-sizing: border-box;
+            margin-bottom: 20px;
         }
 
         .drag-item {
-            background: #1a1a1a; color: #fff; padding: 10px 14px;
-            font-family: var(--font-mono); font-size: 0.85rem; cursor: pointer;
-            border: 1px solid var(--border-line);
+            background: #2c2c2e;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
         }
 
-        .drag-item.selected { background: #fff; color: #000; font-weight: bold; }
+        .drag-item.selected {
+            background: var(--accent-blue);
+            border-color: #fff;
+            transform: scale(1.06);
+            box-shadow: 0 0 15px rgba(41, 151, 255, 0.8);
+        }
 
         .submit-btn {
-            background: #fff; color: #000; padding: 14px 40px;
-            font-family: var(--font-mono); font-size: 1rem; font-weight: 700;
-            border: none; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            background: linear-gradient(135deg, #30d158, #28cd41);
+            color: #fff;
+            padding: 16px 45px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(48, 209, 88, 0.4);
+            transition: transform 0.2s;
         }
+
+        .submit-btn:active { transform: scale(0.95); }
 
         /* ================= GAME 3: 百萬富翁 QUIZ ================= */
         #quiz-screen {
@@ -249,67 +334,69 @@
         .quiz-container { width: 100%; max-width: 800px; }
         .quiz-hud-bar {
             display: flex; justify-content: space-between; align-items: center;
-            background: #111; border: 1px solid var(--border-line);
-            padding: 12px 20px; font-family: var(--font-mono); font-size: 0.9rem; margin-bottom: 20px;
+            background: #1c1c1e; border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 16px; padding: 12px 20px; font-size: 0.95rem; margin-bottom: 20px;
         }
 
         .quiz-card {
-            background: #0d0d0d; border: 1px solid var(--text-primary);
-            padding: 25px; margin-bottom: 20px;
+            background: #1c1c1e; border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 24px; padding: 25px; margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .quiz-q-num { font-family: var(--font-mono); color: var(--accent-red); font-size: 0.85rem; margin-bottom: 10px; }
-        .quiz-q-text { font-size: 1.2rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+        .quiz-q-num { color: var(--accent-blue); font-weight: bold; font-size: 0.95rem; margin-bottom: 10px; }
+        .quiz-q-text { font-size: 1.2rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; color: #fff; }
 
         .quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         @media (max-width: 600px) { .quiz-opts { grid-template-columns: 1fr; } }
 
         .quiz-opt-btn {
-            background: #181818; border: 1px solid var(--border-line);
-            color: #fff; padding: 14px 18px; text-align: left;
-            font-family: var(--font-mono); font-size: 0.9rem; cursor: pointer;
-            transition: all 0.2s;
+            background: #2c2c2e; border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 14px; color: #fff; padding: 14px 18px; text-align: left;
+            font-size: 0.95rem; cursor: pointer; transition: all 0.2s;
         }
 
-        .quiz-opt-btn:hover { border-color: #fff; background: #222; }
-        .quiz-opt-btn.selected { background: #fff; color: #000; font-weight: bold; }
+        .quiz-opt-btn:hover { border-color: var(--accent-blue); }
+        .quiz-opt-btn.selected { background: var(--accent-blue); color: #fff; font-weight: bold; }
         .quiz-opt-btn.correct { background: #1b4325; border-color: #30d158; color: #fff; }
         .quiz-opt-btn.wrong { background: #4a151b; border-color: #ff453a; color: #fff; }
 
         .quiz-fb {
-            margin-top: 20px; padding: 15px; background: #111;
-            border: 1px dashed var(--border-line); font-size: 0.9rem; line-height: 1.5;
+            margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.05);
+            border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem; line-height: 1.5;
         }
 
-        /* 彈窗、排行榜 */
+        /* 彈窗與排行榜 */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(0, 0, 0, 0.94); backdrop-filter: blur(25px);
             display: none; flex-direction: column; justify-content: flex-start; align-items: center;
             z-index: 10000; text-align: center; padding: 40px 20px; box-sizing: border-box;
-            overflow-y: auto; font-family: var(--font-mono);
+            overflow-y: auto;
         }
 
-        .modal h1 { font-size: 2rem; margin-bottom: 10px; margin-top: 20px; letter-spacing: -1px; }
+        .modal h1 { font-size: 2.5rem; margin-bottom: 8px; margin-top: 20px; }
 
         .leaderboard-box {
-            background: #111; border: 1px solid var(--border-line);
-            padding: 15px 20px; width: 100%; max-width: 500px; margin: 15px 0; text-align: left;
+            background: rgba(255,255,255,0.08);
+            border-radius: 18px; padding: 15px 25px;
+            width: 100%; max-width: 500px; margin: 15px 0;
+            border: 1px solid rgba(255,255,255,0.15);
         }
 
-        .leaderboard-title { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 10px; text-transform: uppercase; }
-        .leaderboard-item { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 6px 0; border-bottom: 1px dashed #222; }
+        .leaderboard-title { font-size: 1.1rem; color: var(--apple-gold); font-weight: bold; margin-bottom: 10px; }
+        .leaderboard-item { display: flex; justify-content: space-between; font-size: 1rem; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
 
         .input-box {
-            background: #111; border: 1px solid var(--border-line); color: #fff;
-            padding: 12px 18px; font-family: var(--font-mono); font-size: 1rem;
-            width: 80%; max-width: 300px; text-align: center; margin-bottom: 20px; outline: none;
+            background: #2c2c2e; border: 1px solid #48484a; color: #fff;
+            padding: 14px 20px; border-radius: 15px; font-size: 1.1rem;
+            width: 80%; max-width: 320px; text-align: center; margin-bottom: 20px; outline: none;
         }
 
         .btn {
-            background: #fff; color: #000; padding: 12px 30px;
-            font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700;
-            border: none; cursor: pointer; margin: 6px; text-transform: uppercase;
+            background: var(--accent-blue); color: #fff; padding: 14px 36px;
+            border-radius: 25px; font-size: 1.1rem; font-weight: 600;
+            border: none; cursor: pointer; margin: 6px;
         }
     </style>
 </head>
@@ -319,35 +406,35 @@
     <div id="main-menu" class="screen active">
         <div class="menu-container">
             <div class="header">
-                <h1>Cotai Arcade</h1>
-                <p>RESTING ROOM EXCLUSIVE // MINI-GAME SUITE</p>
+                <h1> Cotai Arcade</h1>
+                <p>Resting Room Exclusive • AI & Hardware Mini Games</p>
             </div>
 
             <div class="grid-container">
                 <div class="game-card" onclick="promptPlayerName('ninja')">
-                    <div class="card-image">
-                        <div class="card-title">01. Siri Slash 忍者刀</div>
+                    <div class="card-image card-1">
+                        <div class="card-title">🥷 01. Siri Slash 忍者刀</div>
                     </div>
                     <div class="card-body">
-                        <p>> 8關速切挑戰。切開正確 Apple 功能，避開干擾項！衝擊最快通關紀錄。</p>
+                        <p><strong>8關速切挑戰：</strong> 切開正確 Apple 功能，避開搞笑假答案！計時爭奪 Top 3！</p>
                     </div>
                 </div>
 
                 <div class="game-card" onclick="promptPlayerName('drag')">
-                    <div class="card-image">
-                        <div class="card-title">02. 分類大師 (Classify)</div>
+                    <div class="card-image card-2">
+                        <div class="card-title">🧩 02. 分類大師 (Classify Master)</div>
                     </div>
                     <div class="card-body">
-                        <p>> 歸類 iPhone 18 Pro Max 與 Duo 規格，考驗硬件認知精準度。</p>
+                        <p><strong>思考後遞交：</strong> 歸類 iPhone 18 Pro Max 與 Duo 規格，點擊提交驗證腦力！</p>
                     </div>
                 </div>
 
                 <div class="game-card" onclick="promptPlayerName('quiz')">
-                    <div class="card-image">
-                        <div class="card-title">03. 百萬富翁 Quiz</div>
+                    <div class="card-image card-3">
+                        <div class="card-title">💰 03. Who Wants to be a Genius?</div>
                     </div>
                     <div class="card-body">
-                        <p>> Duo Quest 經典問答。挑戰 8 道硬件與軟件終極難題！</p>
+                        <p><strong>百萬富翁問答：</strong> 挑戰 Siri AI 與旗艦產品知識，衝擊百萬大獎！</p>
                     </div>
                 </div>
             </div>
@@ -356,102 +443,109 @@
 
     <!-- 玩家登記彈窗 -->
     <div id="player-modal" class="modal" style="justify-content: center;">
-        <h1>[ PLAYER REGISTRATION ]</h1>
-        <p style="color:var(--text-secondary); margin-bottom:20px;">請輸入名字以紀錄成績：</p>
-        <input type="text" id="player-name-input" class="input-box" placeholder="Name / Specialist ID" maxlength="15">
+        <h1 style="color:#fff;"> 歡迎挑戰</h1>
+        <p style="color:var(--text-secondary);">請輸入你嘅名字 (重複名字自動接續紀錄)：</p>
+        <input type="text" id="player-name-input" class="input-box" placeholder="例如: Alex / Specialist Wong" maxlength="15">
         <div>
-            <button class="btn" onclick="confirmStartGame()">開始 START</button>
-            <button class="btn" style="background:#222; color:#fff;" onclick="cancelPlayerPrompt()">取消 CANCEL</button>
+            <button class="btn" onclick="confirmStartGame()">開始遊戲</button>
+            <button class="btn" style="background:#333;" onclick="cancelPlayerPrompt()">取消返回</button>
         </div>
     </div>
 
     <!-- ================= 2. GAME 1: 忍者刀 ================= -->
     <div id="ninja-screen" class="screen">
-        <button class="back-btn" onclick="goHome()">< BACK</button>
+        <button class="back-btn" onclick="goHome()">‹ 返回主頁</button>
         <div id="game-ui">
             <div class="question-box">
-                <div id="question-title" class="question-title">STAGE 1 / 8</div>
-                <div id="question-text" class="question-text">LOADING...</div>
+                <div id="question-title" class="question-title">關卡 1 / 8</div>
+                <div id="question-text" class="question-text">載入中...</div>
                 <div class="progress-bar-container"><div id="progress-bar" class="progress-bar"></div></div>
             </div>
         </div>
         <canvas id="gameCanvas"></canvas>
 
         <div id="game-over-modal" class="modal" style="justify-content: center;">
-            <h1 style="color:var(--accent-red)">[ SYSTEM OVERLOAD ]</h1>
-            <p id="over-reason">切錯答案！</p>
-            <button class="btn" onclick="startNinjaGame()">RETRY</button>
-            <button class="btn" style="background:#222; color:#fff;" onclick="goHome()">MENU</button>
+            <h1 style="color:var(--apple-red)">BOOM! 💥</h1>
+            <p id="over-reason">切錯咗答案！</p>
+            <button class="btn" onclick="startNinjaGame()">重新挑戰</button>
+            <button class="btn" style="background:#333;" onclick="goHome()">返回主頁</button>
         </div>
 
         <div id="victory-modal" class="modal" style="justify-content: center;">
-            <h1>[ STAGE CLEAR ]</h1>
-            <p>耗時 TIME：<span id="ninja-time-val" style="color:#fff; font-weight:bold;">0</span> SEC</p>
+            <h1 style="color:var(--apple-green)">🎉 通關成功！</h1>
+            <p>耗時：<span id="ninja-time-val" style="color:#fff; font-weight:bold;">0</span> 秒</p>
             
             <div class="leaderboard-box">
-                <div class="leaderboard-title">// TOP 3 RECORD</div>
+                <div class="leaderboard-title">🏆 忍者刀 Top 3 排行榜</div>
                 <div id="ninja-leaderboard"></div>
             </div>
 
-            <button class="btn" onclick="startNinjaGame()">AGAIN</button>
-            <button class="btn" style="background:#222; color:#fff;" onclick="goHome()">MENU</button>
+            <button class="btn" onclick="startNinjaGame()">再玩一次</button>
+            <button class="btn" style="background:#333;" onclick="goHome()">返回主頁</button>
         </div>
     </div>
 
     <!-- ================= 3. GAME 2: 分類大師 ================= -->
     <div id="drag-screen" class="screen">
-        <button class="back-btn" onclick="goHome()">< BACK</button>
+        <button class="back-btn" onclick="goHome()">‹ 返回主頁</button>
 
         <div class="model-display">
             <div class="phone-mock-container">
-                <div class="mock-pro-real"></div>
-                <strong style="font-size:0.8rem;">18 PRO MAX</strong>
+                <div class="mock-pro-real">
+                    <div class="screen-inner">
+                        <div class="island"></div>
+                    </div>
+                </div>
+                <strong style="font-size:0.9rem;">iPhone 18 Pro Max</strong>
             </div>
-            <div style="font-family:var(--font-mono); color: var(--text-secondary);">VS</div>
+
+            <div style="font-size: 1.4rem; color: var(--text-secondary); font-weight:bold;">VS</div>
+
             <div class="phone-mock-container">
                 <div class="mock-duo-real">
                     <div class="duo-screen-left"></div>
                     <div class="duo-hinge"></div>
                     <div class="duo-screen-right"></div>
+                    <div class="duo-touchid"></div>
                 </div>
-                <strong style="font-size:0.8rem;">IPHONE DUO</strong>
+                <strong style="font-size:0.9rem;">iPhone Duo (摺疊屏)</strong>
             </div>
         </div>
 
         <div class="drop-container">
             <div class="drop-zone" id="zone-same" onclick="placeSelectedItem('same')">
-                <h3>[ SAME SPEC ]</h3>
+                <h3 style="color:#42a5f5;">✅ 相同規格</h3>
             </div>
-            <div class="drop-zone" id="zone-diff" onclick="placeSelectedItem('diff')">
-                <h3 style="color:var(--accent-red)">[ DIFF SPEC ]</h3>
+            <div class="drop-zone different" id="zone-diff" onclick="placeSelectedItem('diff')">
+                <h3 style="color:#ff9f0a;">⚡️ 不相同規格</h3>
             </div>
         </div>
 
         <div class="items-pool" id="items-pool"></div>
-        <button class="submit-btn" onclick="submitClassification()">SUBMIT ANSWERS</button>
+        <button class="submit-btn" onclick="submitClassification()">確認遞交答案 (Submit)</button>
 
         <div id="drag-win-modal" class="modal">
-            <h1 id="drag-win-title">[ EVALUATION COMPLETE ]</h1>
+            <h1 id="drag-win-title" style="color:var(--apple-green)">🎉 分類結算</h1>
             <p id="drag-win-desc" style="white-space: pre-wrap; margin-bottom:20px;"></p>
 
             <div class="leaderboard-box">
-                <div class="leaderboard-title">// TOP 3 RECORD</div>
+                <div class="leaderboard-title">🏆 分類大師 Top 3 排行榜</div>
                 <div id="drag-leaderboard"></div>
             </div>
 
-            <button class="btn" onclick="startDragGame()">RETRY</button>
-            <button class="btn" style="background:#222; color:#fff;" onclick="goHome()">MENU</button>
+            <button class="btn" onclick="startDragGame()">再玩一次</button>
+            <button class="btn" style="background:#333;" onclick="goHome()">返回主頁</button>
         </div>
     </div>
 
     <!-- ================= 4. GAME 3: 百萬富翁 QUIZ ================= -->
     <div id="quiz-screen" class="screen">
-        <button class="back-btn" onclick="goHome()">< BACK</button>
+        <button class="back-btn" onclick="goHome()">‹ 返回主頁</button>
         
         <div class="quiz-container">
             <div class="quiz-hud-bar">
-                <span id="quiz-progress">QUESTION 1/8</span>
-                <span id="quiz-score">SCORE: 0</span>
+                <span id="quiz-progress" style="color:var(--accent-blue); font-weight:bold;">題目 1 / 8</span>
+                <span id="quiz-score" style="color:var(--apple-gold); font-weight:bold;">分數: 0</span>
             </div>
 
             <div class="quiz-card">
@@ -461,23 +555,23 @@
                 <div class="quiz-fb" id="quiz-feedback" style="display:none;"></div>
             </div>
 
-            <div style="display:flex; justify-between; width:100%;">
-                <button class="btn" id="quiz-lock-btn" onclick="lockQuizAnswer()" disabled>LOCK ANSWER</button>
-                <button class="btn" id="quiz-next-btn" onclick="nextQuizQuestion()" style="display:none; background:var(--accent-red); color:#fff;">NEXT ></button>
+            <div style="display:flex; justify-content:space-between; width:100%;">
+                <button class="btn" id="quiz-lock-btn" onclick="lockQuizAnswer()" disabled>🔒 鎖定答案</button>
+                <button class="btn" id="quiz-next-btn" onclick="nextQuizQuestion()" style="display:none; background:var(--apple-green);">下一題 ▶</button>
             </div>
         </div>
 
         <div id="quiz-win-modal" class="modal" style="justify-content: center;">
-            <h1>[ QUIZ COMPLETE ]</h1>
-            <p id="quiz-final-score" style="margin-bottom:20px;"></p>
+            <h1 style="color:var(--apple-gold)">🏆 挑戰完成！</h1>
+            <p id="quiz-final-score" style="margin-bottom:20px; font-size:1.2rem;"></p>
             
             <div class="leaderboard-box">
-                <div class="leaderboard-title">// TOP 3 QUIZ RECORD</div>
+                <div class="leaderboard-title">🏆 百萬富翁 Top 3 排行榜</div>
                 <div id="quiz-leaderboard"></div>
             </div>
 
-            <button class="btn" onclick="startQuizGame()">RETRY</button>
-            <button class="btn" style="background:#222; color:#fff;" onclick="goHome()">MENU</button>
+            <button class="btn" onclick="startQuizGame()">再玩一次</button>
+            <button class="btn" style="background:#333;" onclick="goHome()">返回主頁</button>
         </div>
     </div>
 
@@ -530,7 +624,6 @@
             let records = JSON.parse(localStorage.getItem(gameKey) || "[]");
             records.push({ name: currentPlayerName, val: scoreVal, date: new Date().toLocaleDateString() });
             
-            // 如果是時間則升序，分數則降序
             if (gameKey.includes('quiz')) {
                 records.sort((a, b) => b.val - a.val);
             } else {
@@ -542,16 +635,16 @@
             return records;
         }
 
-        function renderLeaderboard(elementId, records, unit = "SEC") {
+        function renderLeaderboard(elementId, records, unit = "秒") {
             const container = document.getElementById(elementId);
             if (!records || records.length === 0) {
-                container.innerHTML = "<div style='color:var(--text-secondary);'>NO RECORD</div>";
+                container.innerHTML = "<div style='color:#86868b;'>暫無紀錄</div>";
                 return;
             }
             container.innerHTML = records.map((r, i) => `
                 <div class="leaderboard-item">
-                    <span>#0${i+1} ${r.name}</span>
-                    <span style="font-weight:bold;">${r.val} ${unit}</span>
+                    <span>${i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉"} ${r.name}</span>
+                    <span style="color:var(--apple-green); font-weight:bold;">${r.val} ${unit}</span>
                 </div>
             `).join('');
         }
@@ -565,13 +658,13 @@
 
         const questionPool = [
             { q: "客人處理大量文書與長文章，你會推薦邊個 Apple Intelligence 功能？", correct: ["Summarize 智能摘要", "Writing Tools 書寫工具"], wrong: ["飛行模式當航拍機", "代寫功課功能"] },
-            { q: "蘋果智能（Visual Intelligence）視覺功能可以幫客人做到咩？", correct: ["辨識餐廳營業時間", "海報活動加到日曆"], wrong: ["透視隔壁房間", "睇穿銀行餘額"] },
-            { q: "全新 Siri AI 嘅跨 App 操作（App Actions）可以幫客人做到邊樣？", correct: ["尋找幾年前照片", "語音儲存到備忘錄"], wrong: ["排隊買 iPhone", "自動駁通 CEO 電話"] },
+            { q: "蘋果智能（Visual Intelligence）視覺功能可以幫客人做到咩？", correct: ["辨識餐廳營業時間", "海報活動加到日曆"], wrong: ["透視隔壁房間", "睇穿朋友銀行餘額"] },
+            { q: "全新 Siri AI 嘅跨 App 操作（App Actions）可以幫客人做到邊樣？", correct: ["尋找幾年前在西班牙的照片", "語音儲存到備忘錄"], wrong: ["排隊買 iPhone", "自動駁通 CEO 電話"] },
             { q: "AirPods 嘅即時同聲傳譯 / 翻譯功能，需要搭配邊個系統？", correct: ["iOS 18 或以上", "支持 Apple Intelligence 裝置"], wrong: ["5G 衛星天線", "Windows 11 插件"] },
             { q: "Apple Watch 有邊啲極具實用價值嘅智能健康與安全功能？", correct: ["跌倒與車禍偵測", "心率過高過低通知"], wrong: ["邊度痛貼邊度", "預測六合彩頭獎"] },
-            { q: "介紹保護殼時，可以順勢介紹邊啲 MagSafe 智能生態功能？", correct: ["MagSafe 無線充電", "StandBy 待機模式立架"], wrong: ["保護殼自動發熱", "跌落彈出降落傘"] },
-            { q: "喺 Safari 瀏覽器入面，Apple Intelligence 提供咗咩功能？", correct: ["Highlights 網頁重點摘要", "網頁文字即時翻譯"], wrong: ["填寫信用卡密碼", "自動幫網頁點讚"] },
-            { q: "客人想喺照片入面移除無關嘅行人，應該推薦邊個功能？", correct: ["Clean Up 清除工具", "Object Removal 物件消除"], wrong: ["把人變成外星人", "換成海灘背景"] }
+            { q: "介紹保護殼時，可以順勢介紹邊啲 MagSafe 智能生態功能？", correct: ["MagSafe 磁吸無線充電", "StandBy 待機模式立架"], wrong: ["保護殼自動發熱", "跌落彈出降落傘"] },
+            { q: "喺 Safari 瀏覽器入面，Apple Intelligence 提供咗咩功能？", correct: ["Highlights 網頁重點摘要", "網頁文字即時翻譯"], wrong: ["填寫信用卡密碼", "自動幫網頁文章點讚"] },
+            { q: "客人想喺照片入面移除無關嘅行人，應該推薦邊個功能？", correct: ["Clean Up 清除工具", "Object Removal 物件消除"], wrong: ["把人變成外星人", "換成馬爾代夫海灘"] }
         ];
 
         let currentQIndex = 0, score = 0, targets = [], bladePath = [], isGameOver = true, spawnTimer = null, animFrameId = null;
@@ -581,31 +674,28 @@
                 this.x = Math.random() * (canvas.width - 240) + 120;
                 this.y = canvas.height + 90;
                 this.vx = (Math.random() - 0.5) * 3;
-                this.radius = 80; // 稍放大
+                this.radius = 80;
                 this.gravity = 0.12;
-                // 增加初速度 (vy)，使果實拋得更高，停留更久
                 this.vy = -Math.sqrt(2 * this.gravity * (canvas.height * (0.35 + Math.random() * 0.15)));
                 this.text = text; this.isCorrect = isCorrect; this.isBomb = isBomb;
-                this.icon = isBomb ? "💣" : "🍎"; this.sliced = false; this.rotation = 0; this.vRot = 0.02;
+                this.icon = isBomb ? "💣" : "🍎"; this.sliced = false;
             }
-            update() { this.x += this.vx; this.y += this.vy; this.vy += this.gravity; this.rotation += this.vRot; }
+            update() { this.x += this.vx; this.y += this.vy; this.vy += this.gravity; }
             draw() {
-                ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.rotation);
-                ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.isBomb ? "rgba(215, 25, 33, 0.4)" : "#111111";
-                ctx.strokeStyle = this.isBomb ? "#d71921" : "#ffffff";
-                ctx.lineWidth = 2; ctx.fill(); ctx.stroke();
+                ctx.save(); ctx.translate(this.x, this.y);
+                /* 修正 4：取消旋轉，讓文字永遠保持水平正面，方便閱讀 */
                 
-                ctx.font = "36px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.isBomb ? "rgba(255, 69, 58, 0.3)" : "rgba(28, 28, 30, 0.95)";
+                ctx.strokeStyle = this.isBomb ? "#ff453a" : "rgba(255, 255, 255, 0.5)";
+                ctx.lineWidth = 3.5; ctx.fill(); ctx.stroke();
+                
+                ctx.font = "38px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
                 ctx.fillText(this.icon, 0, -22);
                 
-                // 加大字體並加入描邊提高清晰度
-                ctx.font = "bold 17px monospace";
-                ctx.strokeStyle = "#000000";
-                ctx.lineWidth = 4;
-                const displayText = this.text.length > 8 ? this.text.substring(0,7)+"..." : this.text;
-                ctx.strokeText(displayText, 0, 28);
+                ctx.font = "bold 17px -apple-system, sans-serif";
                 ctx.fillStyle = "#ffffff";
+                const displayText = this.text.length > 8 ? this.text.substring(0,7)+"..." : this.text;
                 ctx.fillText(displayText, 0, 28);
                 ctx.restore();
             }
@@ -613,7 +703,7 @@
 
         function loadQuestion() {
             const qData = questionPool[currentQIndex];
-            document.getElementById('question-title').innerText = `STAGE ${currentQIndex + 1} / 8`;
+            document.getElementById('question-title').innerText = `關卡 ${currentQIndex + 1} / 8`;
             document.getElementById('question-text').innerText = qData.q;
             document.getElementById('progress-bar').style.width = `${(score / 8) * 100}%`;
         }
@@ -639,7 +729,7 @@
                         score++;
                         if (score >= 8) triggerNinjaVictory();
                         else { currentQIndex++; targets = []; loadQuestion(); }
-                    } else triggerGameOver(`切錯答案！「${target.text}」非正確選項！`);
+                    } else triggerGameOver(`切錯答案！「${target.text}」唔係 Apple 功能！`);
                 }
             });
         }
@@ -657,7 +747,7 @@
             if (bladePath.length > 1) {
                 ctx.beginPath(); ctx.moveTo(bladePath[0].x, bladePath[0].y);
                 for (let i = 1; i < bladePath.length; i++) ctx.lineTo(bladePath[i].x, bladePath[i].y);
-                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 4; ctx.lineCap = "square"; ctx.stroke();
+                ctx.strokeStyle = "#2997ff"; ctx.lineWidth = 8; ctx.lineCap = "round"; ctx.stroke();
             }
             if (!isGameOver) animFrameId = requestAnimationFrame(gameLoop);
         }
@@ -668,7 +758,7 @@
             document.getElementById('game-over-modal').style.display = "none";
             document.getElementById('victory-modal').style.display = "none";
             loadQuestion();
-            if (spawnTimer) clearInterval(spawnTimer); spawnTimer = setInterval(spawnTargets, 2000);
+            if (spawnTimer) clearInterval(spawnTimer); spawnTimer = setInterval(spawnTargets, 2200);
             if (animFrameId) cancelAnimationFrame(animFrameId); gameLoop();
         }
 
@@ -753,20 +843,20 @@
             const zSame = document.getElementById('zone-same');
             const zDiff = document.getElementById('zone-diff');
 
-            zSame.innerHTML = '<h3>[ SAME SPEC ] (' + placedSame.length + ')</h3>';
+            zSame.innerHTML = '<h3 style="color:#42a5f5;">✅ 相同規格 (' + placedSame.length + ')</h3>';
             placedSame.forEach(item => {
-                zSame.innerHTML += `<div class="drag-item" style="margin:2px; font-size:0.75rem;">${item.text}</div>`;
+                zSame.innerHTML += `<div class="drag-item" style="margin:3px; background:#1c3d5a; font-size:0.85rem;">${item.text}</div>`;
             });
 
-            zDiff.innerHTML = '<h3 style="color:var(--accent-red)">[ DIFF SPEC ] (' + placedDiff.length + ')</h3>';
+            zDiff.innerHTML = '<h3 style="color:#ff9f0a;">⚡️ 不相同規格 (' + placedDiff.length + ')</h3>';
             placedDiff.forEach(item => {
-                zDiff.innerHTML += `<div class="drag-item" style="margin:2px; font-size:0.75rem;">${item.text}</div>`;
+                zDiff.innerHTML += `<div class="drag-item" style="margin:3px; background:#5a3d1c; font-size:0.85rem;">${item.text}</div>`;
             });
         }
 
         function submitClassification() {
             if (remainingItems.length > 0) {
-                alert(`尚有 ${remainingItems.length} 項規格未歸類！`);
+                alert(`仲有 ${remainingItems.length} 個規格未歸類，請先全部放置完成！`);
                 return;
             }
 
@@ -776,14 +866,14 @@
 
             const timeUsed = Math.round((Date.now() - startTime) / 1000);
             
-            document.getElementById('drag-win-title').innerText = correctCount === 14 ? "[ PERFECT MATCH ]" : "[ EVALUATION COMPLETE ]";
-            document.getElementById('drag-win-desc').innerText = `PLAYER: ${currentPlayerName}\nACCURACY: ${correctCount} / 14\nTIME: ${timeUsed} SEC`;
+            document.getElementById('drag-win-title').innerText = correctCount === 14 ? "🎉 完美全對！" : "📊 分類結算";
+            document.getElementById('drag-win-desc').innerText = `玩家：${currentPlayerName}\n正確率：${correctCount} / 14 條\n總耗時：${timeUsed} 秒`;
 
             if (correctCount === 14) {
                 const top3 = saveScore('drag_arcade_scores', timeUsed);
                 renderLeaderboard('drag-leaderboard', top3);
             } else {
-                document.getElementById('drag-leaderboard').innerHTML = "<div style='color:var(--accent-red);'>未達 100% 正確率，無法上榜</div>";
+                document.getElementById('drag-leaderboard').innerHTML = "<div style='color:var(--apple-red);'>未達到全對條件，未能登上 Top 3 排行榜</div>";
             }
 
             document.getElementById('drag-win-modal').style.display = 'flex';
@@ -792,7 +882,7 @@
         // ================= GAME 3 (百萬富翁 QUIZ) LOGIC =================
         const quizQuestions = [
             {
-                topic: "HARDWARE // SCREEN",
+                topic: "螢幕規格",
                 q: "一位用 iPhone 18 Pro Max 的顧客問：「Duo 的螢幕跟我現在的比怎樣？」哪一句說法正確？",
                 opts: [
                     "內螢幕比 iPhone 18 Pro 大 50%；外螢幕相當於 iPhone 18 Pro Max 的 90%",
@@ -804,7 +894,7 @@
                 why: "7.6 吋內螢幕比 Pro Max 大 50%；5.4 吋外螢幕相當於 Pro 的 90% 螢幕空間。"
             },
             {
-                topic: "HARDWARE // BATTERY",
+                topic: "電池續航",
                 q: "顧客問電池可以用多久。以下哪一組官方規格說法正確？",
                 opts: [
                     "影片播放：內螢幕 44 小時、外螢幕 31 小時；一般使用 24 小時",
@@ -816,7 +906,7 @@
                 why: "影片播放最長：內螢幕 31 小時，外螢幕 44 小時；24 小時為「一般使用」以平均使用內外螢幕為基礎。"
             },
             {
-                topic: "HARDWARE // AUTH",
+                topic: "解鎖驗證",
                 q: "顧客一直用 Face ID，拿起 Duo 問：「這部怎樣解鎖？」最準確的回答是？",
                 opts: [
                     "外螢幕上方有 Face ID，用法跟以前一樣",
@@ -828,7 +918,7 @@
                 why: "iPhone Duo 採用 Touch ID，整合在側邊按鈕，無論打開或摺合都用一致的方式認證。"
             },
             {
-                topic: "HARDWARE // CAMERA",
+                topic: "相機鏡頭",
                 q: "比較 iPhone Duo 和 iPhone 18 Pro 的相機，哪一句正確？",
                 opts: [
                     "Duo 和 18 Pro 一樣支援 8 倍光學級變焦",
@@ -840,7 +930,7 @@
                 why: "Duo 有 48MP 融合主相機和超廣角，支援 2 倍變焦；18 Pro 具備融合長焦支援 8 倍變焦及可變光圈。"
             },
             {
-                topic: "SOFTWARE // MULTI-TASKING",
+                topic: "多工作業",
                 q: "打開後用分割顯示，兩個 App 平分內螢幕。左邊那個 App 的控制項會在哪裏？",
                 opts: [
                     "左邊 App 的控制項在左邊，即外側邊緣",
@@ -852,7 +942,7 @@
                 why: "Apple HIG：兩個 App 分割顯示時，各自把控制項放在外側邊緣，方便左右手操作。"
             },
             {
-                topic: "SOFTWARE // APP CONTINUITY",
+                topic: "App 連貫體驗",
                 q: "顧客在外螢幕用「郵件」看著郵件列表，然後打開機身。內螢幕會怎樣顯示？",
                 opts: [
                     "只是把郵件列表放大",
@@ -864,7 +954,7 @@
                 why: "合上時顯示列表或單封郵件；打開後兩者並排顯示，多層資訊但狀態保持一致。"
             },
             {
-                topic: "SOFTWARE // AI & LANGUAGE",
+                topic: "AI 與語言支援",
                 q: "關於 Apple Intelligence 與 Siri AI 的語言支援，哪項說明正確？",
                 opts: [
                     "Apple Intelligence 支援繁體中文；Siri AI Beta 版首先以英文推出",
@@ -876,7 +966,7 @@
                 why: "Apple Intelligence 適用於繁體中文；全新 Siri AI Beta 版首先以英文推出。"
             },
             {
-                topic: "HARDWARE // SIM & ECOSYSTEM",
+                topic: "SIM 卡生態",
                 q: "關於 iPhone Duo 的 SIM 卡配置，下列何者正確？",
                 opts: [
                     "支援 1 張實體 Nano-SIM + 1 張 eSIM",
@@ -903,9 +993,9 @@
 
         function renderQuizQuestion() {
             const q = quizQuestions[quizCurrentIndex];
-            document.getElementById('quiz-progress').innerText = `QUESTION ${quizCurrentIndex + 1}/${quizQuestions.length}`;
-            document.getElementById('quiz-score').innerText = `SCORE: ${quizScore}`;
-            document.getElementById('quiz-topic').innerText = `TOPIC: ${q.topic}`;
+            document.getElementById('quiz-progress').innerText = `題目 ${quizCurrentIndex + 1} / ${quizQuestions.length}`;
+            document.getElementById('quiz-score').innerText = `分數: ${quizScore}`;
+            document.getElementById('quiz-topic').innerText = `分類: ${q.topic}`;
             document.getElementById('quiz-question-text').innerText = q.q;
 
             const optsContainer = document.getElementById('quiz-opts-container');
@@ -915,7 +1005,7 @@
             q.opts.forEach((optText, idx) => {
                 const btn = document.createElement('button');
                 btn.className = 'quiz-opt-btn';
-                btn.innerText = `[${labels[idx]}] ${optText}`;
+                btn.innerText = `${labels[idx]}. ${optText}`;
                 btn.onclick = () => selectQuizOpt(idx, btn);
                 optsContainer.appendChild(btn);
             });
@@ -939,7 +1029,7 @@
 
             const q = quizQuestions[quizCurrentIndex];
             const btns = document.querySelectorAll('.quiz-opt-btn');
-            btns.forEach(b => b.onclick = null); // 禁用點擊
+            btns.forEach(b => b.onclick = null);
 
             const fb = document.getElementById('quiz-feedback');
             fb.style.display = 'block';
@@ -948,20 +1038,20 @@
                 quizScore += 100;
                 btns[quizSelectedOpt].classList.remove('selected');
                 btns[quizSelectedOpt].classList.add('correct');
-                fb.innerHTML = `<strong style="color:#30d158;">[ CORRECT ] +100 PTS</strong><br>${q.why}`;
+                fb.innerHTML = `<strong style="color:#30d158;">✅ 回答正確！+100 分</strong><br>${q.why}`;
             } else {
                 btns[quizSelectedOpt].classList.remove('selected');
                 btns[quizSelectedOpt].classList.add('wrong');
                 btns[q.a].classList.add('correct');
-                fb.innerHTML = `<strong style="color:#ff453a;">[ INCORRECT ]</strong><br>${q.why}`;
+                fb.innerHTML = `<strong style="color:#ff453a;">❌ 回答錯誤！</strong><br>${q.why}`;
             }
 
-            document.getElementById('quiz-score').innerText = `SCORE: ${quizScore}`;
+            document.getElementById('quiz-score').innerText = `分數: ${quizScore}`;
             document.getElementById('quiz-lock-btn').style.display = 'none';
             
             const nextBtn = document.getElementById('quiz-next-btn');
             nextBtn.style.display = 'block';
-            nextBtn.innerText = (quizCurrentIndex === quizQuestions.length - 1) ? "FINISH >" : "NEXT >";
+            nextBtn.innerText = (quizCurrentIndex === quizQuestions.length - 1) ? "完成結算 ▶" : "下一題 ▶";
         }
 
         function nextQuizQuestion() {
@@ -974,9 +1064,9 @@
         }
 
         function finishQuizGame() {
-            document.getElementById('quiz-final-score').innerText = `PLAYER: ${currentPlayerName}\nFINAL SCORE: ${quizScore} / 800 PTS`;
+            document.getElementById('quiz-final-score').innerText = `挑戰者：${currentPlayerName}\n最終得分：${quizScore} / 800 分`;
             const top3 = saveScore('quiz_arcade_scores', quizScore);
-            renderLeaderboard('quiz-leaderboard', top3, "PTS");
+            renderLeaderboard('quiz-leaderboard', top3, "分");
             document.getElementById('quiz-win-modal').style.display = 'flex';
         }
 
