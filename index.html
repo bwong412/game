@@ -3,26 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title> Cotai Arcade</title>
+    <title>Cotai Arcade</title>
     <style>
+        /* ================= 點陣科技風格 (Dot-Matrix Tech Style) ================= */
         :root {
-            --bg-color: #000000;
-            --card-bg: #1c1c1e;
-            --text-primary: #f5f5f7;
-            --text-secondary: #86868b;
-            --accent-blue: #2997ff;
-            --apple-green: #30d158;
-            --apple-red: #ff453a;
-            --apple-gold: #ffd60a;
+            --bg-color: #050505;
+            --card-bg: #121212;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --accent-red: #d71921;
+            --dot-color: rgba(255, 255, 255, 0.15);
+            --border-line: rgba(255, 255, 255, 0.2);
+            --font-mono: "SF Mono", "Courier New", Courier, monospace;
         }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
             background-color: var(--bg-color);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+            background-image: radial-gradient(var(--dot-color) 1px, transparent 1px);
+            background-size: 16px 16px;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
             color: var(--text-primary);
             user-select: none;
             -webkit-user-select: none;
@@ -37,7 +38,7 @@
             box-sizing: border-box;
             overflow-y: auto;
             z-index: 1;
-            background-color: var(--bg-color);
+            background-color: transparent;
         }
 
         .screen.active {
@@ -50,24 +51,23 @@
             position: fixed;
             top: 15px; left: 15px;
             z-index: 9999;
-            background: rgba(40, 40, 45, 0.88);
+            background: #000000;
             color: #ffffff;
-            padding: 10px 22px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            font-size: 1rem;
+            padding: 8px 18px;
+            border-radius: 4px;
+            border: 1px solid var(--text-primary);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
             cursor: pointer;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .back-btn:active { transform: scale(0.95); }
+        .back-btn:active { background: #333; }
 
         /* ================= 1. 主頁選單 ================= */
         #main-menu {
-            padding: 40px 20px;
+            padding: 50px 20px;
             align-items: center;
         }
 
@@ -77,26 +77,24 @@
             margin: 0 auto;
         }
 
-        /* 官網風格螢光霓虹標題 */
         .header h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
+            font-family: var(--font-mono);
+            font-size: 2.8rem;
+            font-weight: 700;
             margin: 0 0 10px 0;
-            color: #ffffff;
-            letter-spacing: -0.02em;
-            text-shadow: 
-                0 0 5px #ffffff,
-                0 0 10px #ffffff,
-                0 0 20px rgba(41, 151, 255, 0.8),
-                0 0 30px rgba(41, 151, 255, 0.6),
-                0 0 40px rgba(41, 151, 255, 0.4);
+            color: var(--text-primary);
+            letter-spacing: -1px;
+            text-transform: uppercase;
+            border-bottom: 2px dashed var(--border-line);
+            padding-bottom: 15px;
         }
 
         .header p {
-            font-size: 1.25rem;
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
             color: var(--text-secondary);
-            margin: 0 0 35px 0;
-            font-weight: 500;
+            margin: 15px 0 35px 0;
+            letter-spacing: 1px;
         }
 
         .grid-container {
@@ -107,30 +105,45 @@
 
         .game-card {
             background-color: var(--card-bg);
-            border-radius: 24px;
+            border-radius: 2px;
             overflow: hidden;
             cursor: pointer;
-            transition: transform 0.25s ease;
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: transform 0.2s, border-color 0.2s;
+            border: 1px solid var(--border-line);
+        }
+
+        .game-card:hover {
+            border-color: var(--text-primary);
         }
 
         .game-card:active { transform: scale(0.98); }
 
         .card-image {
-            height: 150px;
+            height: 120px;
             display: flex;
             align-items: flex-end;
             padding: 20px;
             box-sizing: border-box;
+            background: #0d0d0d;
+            border-bottom: 1px solid var(--border-line);
         }
 
-        .card-1 { background: linear-gradient(135deg, #1e3c72, #2a5298); }
-        .card-2 { background: linear-gradient(135deg, #0d253f, #01b4e4); }
-        .card-3 { background: linear-gradient(135deg, #41295a, #2f0743); }
+        .card-title {
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+        }
 
-        .card-title { font-size: 1.35rem; font-weight: 700; color: #fff; }
         .card-body { padding: 20px; }
-        .card-body p { font-size: 0.95rem; color: var(--text-secondary); margin: 0; line-height: 1.4; }
+        .card-body p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.5;
+            font-family: var(--font-mono);
+        }
 
         /* ================= GAME 1: 忍者刀 ================= */
         #ninja-screen { background: #000; overflow: hidden; }
@@ -142,20 +155,19 @@
         }
 
         .question-box {
-            background: rgba(28, 28, 30, 0.92); backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 20px;
+            background: rgba(10, 10, 10, 0.95);
+            border: 1px solid var(--text-primary);
             padding: 14px 20px; text-align: center; width: 100%; box-sizing: border-box;
         }
 
-        .question-title { font-size: 1rem; color: var(--accent-blue); font-weight: 700; }
-        .question-text { font-size: 1.25rem; font-weight: 600; color: #fff; margin-top: 4px; }
-        .progress-bar-container { width: 100%; height: 8px; background: rgba(255,255,255,0.15); border-radius: 4px; margin-top: 10px; overflow: hidden; }
-        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-blue), var(--apple-green)); transition: width 0.3s; }
+        .question-title { font-family: var(--font-mono); font-size: 0.9rem; color: var(--accent-red); font-weight: 700; }
+        .question-text { font-size: 1.15rem; font-weight: 600; color: #fff; margin-top: 6px; }
+        .progress-bar-container { width: 100%; height: 4px; background: #222; margin-top: 12px; }
+        .progress-bar { height: 100%; width: 0%; background: #fff; transition: width 0.3s; }
         canvas { display: block; width: 100%; height: 100%; }
 
         /* ================= GAME 2: 分類大師 ================= */
         #drag-screen {
-            background: #0a0a0c;
             padding: 75px 15px 40px 15px;
             display: flex;
             flex-direction: column;
@@ -167,217 +179,138 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            width: 100%;
-            max-width: 820px;
-            background: linear-gradient(180deg, #1c1c1e 0%, #121214 100%);
-            border-radius: 24px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.12);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 100%; max-width: 820px;
+            background: #111;
+            padding: 20px; margin-bottom: 20px;
+            border: 1px solid var(--border-line);
         }
 
-        .phone-mock-container { text-align: center; }
+        .phone-mock-container { text-align: center; font-family: var(--font-mono); }
 
         .mock-pro-real {
-            width: 110px; height: 190px;
-            background: #2c2c2e;
-            border-radius: 24px;
-            border: 2.5px solid #636366;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.8);
-            position: relative;
-            margin: 0 auto 10px auto;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .mock-pro-real .screen-inner {
-            width: 102px; height: 182px;
+            width: 100px; height: 170px;
             background: #000;
-            border-radius: 20px;
-            position: relative;
-        }
-
-        .mock-pro-real .island {
-            width: 32px; height: 10px;
-            background: #111;
-            border-radius: 10px;
-            position: absolute;
-            top: 6px; left: 35px;
+            border: 2px solid var(--text-primary);
+            position: relative; margin: 0 auto 10px auto;
+            display: flex; justify-content: center; align-items: center;
         }
 
         .mock-duo-real {
-            width: 170px; height: 170px;
-            background: #222224;
-            border-radius: 18px;
-            border: 2.5px solid #636366;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.8);
-            position: relative;
-            margin: 0 auto 10px auto;
+            width: 150px; height: 150px;
+            background: #000;
+            border: 2px solid var(--text-primary);
+            position: relative; margin: 0 auto 10px auto;
             display: flex;
-            overflow: hidden;
         }
 
         .duo-hinge {
-            width: 4px; height: 100%;
-            background: linear-gradient(90deg, #111, #555, #111);
-            position: absolute; left: 83px; z-index: 5;
+            width: 2px; height: 100%;
+            background: var(--text-primary);
+            position: absolute; left: 74px; z-index: 5;
         }
 
-        .duo-screen-left, .duo-screen-right {
-            flex: 1; height: 100%;
-            background: #050507;
-            box-sizing: border-box;
-            border: 4px solid #1c1c1e;
-        }
+        .duo-screen-left, .duo-screen-right { flex: 1; height: 100%; background: #080808; }
 
-        .duo-touchid {
-            position: absolute;
-            right: -2px; top: 60px;
-            width: 3px; height: 35px;
-            background: #8e8e93;
-            border-radius: 2px;
-        }
-
-        .drop-container {
-            display: flex;
-            gap: 15px;
-            width: 100%;
-            max-width: 820px;
-            margin-bottom: 20px;
-        }
-
+        .drop-container { display: flex; gap: 15px; width: 100%; max-width: 820px; margin-bottom: 20px; }
         .drop-zone {
-            flex: 1;
-            min-height: 140px;
-            background: rgba(255,255,255,0.04);
-            border: 2px dashed #42a5f5;
-            border-radius: 20px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
+            flex: 1; min-height: 120px;
+            background: #0a0a0a;
+            border: 1px dashed var(--border-line);
+            padding: 12px; display: flex; flex-direction: column; align-items: center; cursor: pointer;
         }
-
-        .drop-zone.different { border-color: #ff9f0a; }
-        .drop-zone h3 { margin: 0 0 10px 0; font-size: 1.1rem; pointer-events: none; }
+        .drop-zone h3 { margin: 0 0 10px 0; font-family: var(--font-mono); font-size: 0.95rem; pointer-events: none; }
 
         .items-pool {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
-            width: 100%;
-            max-width: 820px;
-            background: rgba(255,255,255,0.03);
-            padding: 20px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.08);
-            box-sizing: border-box;
-            margin-bottom: 20px;
+            display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+            width: 100%; max-width: 820px; background: #0a0a0a; padding: 20px;
+            border: 1px solid var(--border-line); box-sizing: border-box; margin-bottom: 20px;
         }
 
         .drag-item {
-            background: #2c2c2e;
-            color: #fff;
-            padding: 12px 18px;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: all 0.2s ease;
+            background: #1a1a1a; color: #fff; padding: 10px 14px;
+            font-family: var(--font-mono); font-size: 0.85rem; cursor: pointer;
+            border: 1px solid var(--border-line);
         }
 
-        .drag-item.selected {
-            background: var(--accent-blue);
-            border-color: #fff;
-            transform: scale(1.06);
-            box-shadow: 0 0 15px rgba(41, 151, 255, 0.8);
-        }
+        .drag-item.selected { background: #fff; color: #000; font-weight: bold; }
 
         .submit-btn {
-            background: linear-gradient(135deg, #30d158, #28cd41);
-            color: #fff;
-            padding: 16px 45px;
-            border-radius: 30px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 6px 20px rgba(48, 209, 88, 0.4);
-            transition: transform 0.2s;
+            background: #fff; color: #000; padding: 14px 40px;
+            font-family: var(--font-mono); font-size: 1rem; font-weight: 700;
+            border: none; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
         }
 
-        .submit-btn:active { transform: scale(0.95); }
+        /* ================= GAME 3: 百萬富翁 QUIZ ================= */
+        #quiz-screen {
+            padding: 75px 15px 40px 15px;
+            display: flex; flex-direction: column; align-items: center;
+        }
 
-        /* 彈窗、排行榜與解答列表 */
+        .quiz-container { width: 100%; max-width: 800px; }
+        .quiz-hud-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #111; border: 1px solid var(--border-line);
+            padding: 12px 20px; font-family: var(--font-mono); font-size: 0.9rem; margin-bottom: 20px;
+        }
+
+        .quiz-card {
+            background: #0d0d0d; border: 1px solid var(--text-primary);
+            padding: 25px; margin-bottom: 20px;
+        }
+
+        .quiz-q-num { font-family: var(--font-mono); color: var(--accent-red); font-size: 0.85rem; margin-bottom: 10px; }
+        .quiz-q-text { font-size: 1.2rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+
+        .quiz-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        @media (max-width: 600px) { .quiz-opts { grid-template-columns: 1fr; } }
+
+        .quiz-opt-btn {
+            background: #181818; border: 1px solid var(--border-line);
+            color: #fff; padding: 14px 18px; text-align: left;
+            font-family: var(--font-mono); font-size: 0.9rem; cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quiz-opt-btn:hover { border-color: #fff; background: #222; }
+        .quiz-opt-btn.selected { background: #fff; color: #000; font-weight: bold; }
+        .quiz-opt-btn.correct { background: #1b4325; border-color: #30d158; color: #fff; }
+        .quiz-opt-btn.wrong { background: #4a151b; border-color: #ff453a; color: #fff; }
+
+        .quiz-fb {
+            margin-top: 20px; padding: 15px; background: #111;
+            border: 1px dashed var(--border-line); font-size: 0.9rem; line-height: 1.5;
+        }
+
+        /* 彈窗、排行榜 */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.94); backdrop-filter: blur(25px);
+            background: rgba(0, 0, 0, 0.95);
             display: none; flex-direction: column; justify-content: flex-start; align-items: center;
             z-index: 10000; text-align: center; padding: 40px 20px; box-sizing: border-box;
-            overflow-y: auto;
+            overflow-y: auto; font-family: var(--font-mono);
         }
 
-        .modal h1 { font-size: 2.5rem; margin-bottom: 8px; margin-top: 20px; }
-        .modal.over h1 { color: var(--apple-red); }
-        .modal.win h1 { color: var(--apple-green); }
+        .modal h1 { font-size: 2rem; margin-bottom: 10px; margin-top: 20px; letter-spacing: -1px; }
 
         .leaderboard-box {
-            background: rgba(255,255,255,0.08);
-            border-radius: 18px;
-            padding: 15px 25px;
-            width: 100%; max-width: 500px;
-            margin: 15px 0;
-            border: 1px solid rgba(255,255,255,0.15);
+            background: #111; border: 1px solid var(--border-line);
+            padding: 15px 20px; width: 100%; max-width: 500px; margin: 15px 0; text-align: left;
         }
 
-        .leaderboard-title { font-size: 1.1rem; color: var(--apple-gold); font-weight: bold; margin-bottom: 10px; }
-        .leaderboard-item { display: flex; justify-content: space-between; font-size: 1rem; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .leaderboard-item:last-child { border-bottom: none; }
-
-        .reference-answers {
-            background: #1c1c1e;
-            border-radius: 20px;
-            padding: 22px;
-            width: 100%;
-            max-width: 620px;
-            text-align: left;
-            margin-bottom: 25px;
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-
-        .reference-answers h3 {
-            color: var(--accent-blue);
-            margin-top: 0;
-            font-size: 1.25rem;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 10px;
-        }
-
-        .ref-item {
-            margin-bottom: 14px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            color: #d1d1d6;
-        }
-
-        .ref-item strong {
-            color: #fff;
-        }
+        .leaderboard-title { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 10px; text-transform: uppercase; }
+        .leaderboard-item { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 6px 0; border-bottom: 1px dashed #222; }
 
         .input-box {
-            background: #2c2c2e; border: 1px solid #48484a; color: #fff;
-            padding: 14px 20px; border-radius: 15px; font-size: 1.1rem;
-            width: 80%; max-width: 320px; text-align: center; margin-bottom: 20px; outline: none;
+            background: #111; border: 1px solid var(--border-line); color: #fff;
+            padding: 12px 18px; font-family: var(--font-mono); font-size: 1rem;
+            width: 80%; max-width: 300px; text-align: center; margin-bottom: 20px; outline: none;
         }
 
-        .btn { background: var(--accent-blue); color: #fff; padding: 14px 36px; border-radius: 25px; font-size: 1.1rem; font-weight: 600; border: none; cursor: pointer; margin: 6px; }
+        .btn {
+            background: #fff; color: #000; padding: 12px 30px;
+            font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700;
+            border: none; cursor: pointer; margin: 6px; text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
@@ -386,160 +319,165 @@
     <div id="main-menu" class="screen active">
         <div class="menu-container">
             <div class="header">
-                <h1> Cotai Arcade</h1>
-                <p>Resting Room Exclusive • AI & Hardware Mini Games</p>
+                <h1>Cotai Arcade</h1>
+                <p>RESTING ROOM EXCLUSIVE // MINI-GAME SUITE</p>
             </div>
 
             <div class="grid-container">
                 <div class="game-card" onclick="promptPlayerName('ninja')">
-                    <div class="card-image card-1">
-                        <div class="card-title">🥷 01. Siri Slash 忍者刀</div>
+                    <div class="card-image">
+                        <div class="card-title">01. Siri Slash 忍者刀</div>
                     </div>
                     <div class="card-body">
-                        <p><strong>8關速切挑戰：</strong> 切開正確 Apple 功能，避開搞笑假答案！計時爭奪 Top 3！</p>
+                        <p>> 8關速切挑戰。切開正確 Apple 功能，避開干擾項！衝擊最快通關紀錄。</p>
                     </div>
                 </div>
 
                 <div class="game-card" onclick="promptPlayerName('drag')">
-                    <div class="card-image card-2">
-                        <div class="card-title">🧩 02. 分類大師 (Classify Master)</div>
+                    <div class="card-image">
+                        <div class="card-title">02. 分類大師 (Classify)</div>
                     </div>
                     <div class="card-body">
-                        <p><strong>思考後遞交：</strong> 歸類 iPhone 18 Pro Max 與 Duo 規格，點擊提交驗證腦力！</p>
+                        <p>> 歸類 iPhone 18 Pro Max 與 Duo 規格，考驗硬件認知精準度。</p>
                     </div>
                 </div>
 
-                <div class="game-card" onclick="alert('Game 3: 百萬富翁 Quiz 正在開發中，請先體驗 Game 1 及 Game 2！')">
-                    <div class="card-image card-3">
-                        <div class="card-title">💰 03. Who Wants to be a Genius?</div>
+                <div class="game-card" onclick="promptPlayerName('quiz')">
+                    <div class="card-image">
+                        <div class="card-title">03. 百萬富翁 Quiz</div>
                     </div>
                     <div class="card-body">
-                        <p><strong>百萬富翁問答：</strong> 挑戰 Siri AI 與旗艦產品知識，衝擊百萬大獎！</p>
+                        <p>> Duo Quest 經典問答。挑戰 8 道硬件與軟件終極難題！</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 玩家登記彈窗 (新增取消返回主頁按鈕) -->
+    <!-- 玩家登記彈窗 -->
     <div id="player-modal" class="modal" style="justify-content: center;">
-        <h1 style="color:#fff;"> 歡迎挑戰</h1>
-        <p style="color:var(--text-secondary);">請輸入你嘅名字 (重複名字自動接續紀錄)：</p>
-        <input type="text" id="player-name-input" class="input-box" placeholder="例如: Alex / Specialist Wong" maxlength="15">
+        <h1>[ PLAYER REGISTRATION ]</h1>
+        <p style="color:var(--text-secondary); margin-bottom:20px;">請輸入名字以紀錄成績：</p>
+        <input type="text" id="player-name-input" class="input-box" placeholder="Name / Specialist ID" maxlength="15">
         <div>
-            <button class="btn" onclick="confirmStartGame()">開始遊戲</button>
-            <button class="btn" style="background:#333;" onclick="cancelPlayerPrompt()">取消返回</button>
+            <button class="btn" onclick="confirmStartGame()">開始 START</button>
+            <button class="btn" style="background:#222; color:#fff;" onclick="cancelPlayerPrompt()">取消 CANCEL</button>
         </div>
     </div>
 
     <!-- ================= 2. GAME 1: 忍者刀 ================= -->
     <div id="ninja-screen" class="screen">
-        <button class="back-btn" onclick="goHome()">‹ 返回主頁</button>
+        <button class="back-btn" onclick="goHome()">< BACK</button>
         <div id="game-ui">
             <div class="question-box">
-                <div id="question-title" class="question-title">關卡 1 / 8</div>
-                <div id="question-text" class="question-text">載入中...</div>
+                <div id="question-title" class="question-title">STAGE 1 / 8</div>
+                <div id="question-text" class="question-text">LOADING...</div>
                 <div class="progress-bar-container"><div id="progress-bar" class="progress-bar"></div></div>
             </div>
         </div>
         <canvas id="gameCanvas"></canvas>
 
-        <div id="game-over-modal" class="modal over" style="justify-content: center;">
-            <h1>BOOM! 💥</h1>
-            <p id="over-reason">切錯咗答案！</p>
-            <button class="btn" onclick="startNinjaGame()">重新挑戰</button>
-            <button class="btn" style="background:#333;" onclick="goHome()">返回主頁</button>
+        <div id="game-over-modal" class="modal" style="justify-content: center;">
+            <h1 style="color:var(--accent-red)">[ SYSTEM OVERLOAD ]</h1>
+            <p id="over-reason">切錯答案！</p>
+            <button class="btn" onclick="startNinjaGame()">RETRY</button>
+            <button class="btn" style="background:#222; color:#fff;" onclick="goHome()">MENU</button>
         </div>
 
-        <div id="victory-modal" class="modal win" style="justify-content: center;">
-            <h1>🎉 通關成功！</h1>
-            <p>耗時：<span id="ninja-time-val" style="color:#fff; font-weight:bold;">0</span> 秒</p>
+        <div id="victory-modal" class="modal" style="justify-content: center;">
+            <h1>[ STAGE CLEAR ]</h1>
+            <p>耗時 TIME：<span id="ninja-time-val" style="color:#fff; font-weight:bold;">0</span> SEC</p>
             
             <div class="leaderboard-box">
-                <div class="leaderboard-title">🏆 忍者刀 Top 3 排行榜</div>
+                <div class="leaderboard-title">// TOP 3 RECORD</div>
                 <div id="ninja-leaderboard"></div>
             </div>
 
-            <button class="btn" onclick="startNinjaGame()">再玩一次</button>
-            <button class="btn" style="background:#333;" onclick="goHome()">返回主頁</button>
+            <button class="btn" onclick="startNinjaGame()">AGAIN</button>
+            <button class="btn" style="background:#222; color:#fff;" onclick="goHome()">MENU</button>
         </div>
     </div>
 
     <!-- ================= 3. GAME 2: 分類大師 ================= -->
     <div id="drag-screen" class="screen">
-        <button class="back-btn" onclick="goHome()">‹ 返回主頁</button>
+        <button class="back-btn" onclick="goHome()">< BACK</button>
 
         <div class="model-display">
             <div class="phone-mock-container">
-                <div class="mock-pro-real">
-                    <div class="screen-inner">
-                        <div class="island"></div>
-                    </div>
-                </div>
-                <strong style="font-size:0.9rem;">iPhone 18 Pro Max</strong>
+                <div class="mock-pro-real"></div>
+                <strong style="font-size:0.8rem;">18 PRO MAX</strong>
             </div>
-
-            <div style="font-size: 1.4rem; color: var(--text-secondary); font-weight:bold;">VS</div>
-
+            <div style="font-family:var(--font-mono); color: var(--text-secondary);">VS</div>
             <div class="phone-mock-container">
                 <div class="mock-duo-real">
                     <div class="duo-screen-left"></div>
                     <div class="duo-hinge"></div>
                     <div class="duo-screen-right"></div>
-                    <div class="duo-touchid"></div>
                 </div>
-                <strong style="font-size:0.9rem;">iPhone Duo (摺疊屏)</strong>
+                <strong style="font-size:0.8rem;">IPHONE DUO</strong>
             </div>
         </div>
 
         <div class="drop-container">
             <div class="drop-zone" id="zone-same" onclick="placeSelectedItem('same')">
-                <h3 style="color:#42a5f5;">✅ 相同規格</h3>
+                <h3>[ SAME SPEC ]</h3>
             </div>
-            <div class="drop-zone different" id="zone-diff" onclick="placeSelectedItem('diff')">
-                <h3 style="color:#ff9f0a;">⚡️ 不相同規格</h3>
+            <div class="drop-zone" id="zone-diff" onclick="placeSelectedItem('diff')">
+                <h3 style="color:var(--accent-red)">[ DIFF SPEC ]</h3>
             </div>
         </div>
 
         <div class="items-pool" id="items-pool"></div>
-        <button class="submit-btn" onclick="submitClassification()">確認遞交答案 (Submit)</button>
+        <button class="submit-btn" onclick="submitClassification()">SUBMIT ANSWERS</button>
 
-        <div id="drag-win-modal" class="modal win">
-            <h1 id="drag-win-title">🎉 分類結算</h1>
-            <p id="drag-win-desc">結算完成！</p>
+        <div id="drag-win-modal" class="modal">
+            <h1 id="drag-win-title">[ EVALUATION COMPLETE ]</h1>
+            <p id="drag-win-desc" style="white-space: pre-wrap; margin-bottom:20px;"></p>
 
             <div class="leaderboard-box">
-                <div class="leaderboard-title">🏆 分類大師 Top 3 排行榜</div>
+                <div class="leaderboard-title">// TOP 3 RECORD</div>
                 <div id="drag-leaderboard"></div>
             </div>
 
-            <!-- 官方規格 Benefits 詳解參考 -->
-            <div class="reference-answers">
-                <h3> 官方規格 Benefits 詳解參考</h3>
-                <div class="ref-item">
-                    <strong>1. 晶片效能與 AI (相同)：</strong><br>
-                    • 均搭載強大 A20 Pro (2nm) 晶片，能流暢驅動全新 Siri AI 與 Apple Intelligence 靈活處理日常生活（如 Summarize 智能摘要、Writing Tools 文章校對）。<br>
-                    • 晶片具備極致能源效率，帶來顯著提升的電池續航力。
-                </div>
-                <div class="ref-item">
-                    <strong>2. 機身材質工藝 (不相同)：</strong><br>
-                    • Duo 採用 Grade 5 航天級鈦金屬，帶來極致輕盈且堅固美觀的質感。<br>
-                    • Pro Max 採用鋁金屬/鈦金屬組合，能提供更佳強大的散熱效果與穩定的極限效能輸出。
-                </div>
-                <div class="ref-item">
-                    <strong>3. 鏡頭系統與攝影風格 (不相同)：</strong><br>
-                    • Pro Max 配備獨立 48MP 8x 光學裁切長焦鏡頭；Duo 採用主鏡頭 2x 裁切。<br>
-                    • 兩者均支援全新世代攝影風格（Photographic Styles 3），輕鬆打造個人化風格相片。
-                </div>
-                <div class="ref-item">
-                    <strong>4. 形態、解鎖與配件 (不相同)：</strong><br>
-                    • Pro Max 為 6.9" 直板，採 Dynamic Island Face ID 解鎖與 18MP Center Stage 鏡頭。<br>
-                    • Duo 為 5.4"/7.6" 摺疊屏，採側鍵 Touch ID 指紋解鎖、屏下鏡頭，並支援 Apple Pencil (USB-C) 書寫。
-                </div>
+            <button class="btn" onclick="startDragGame()">RETRY</button>
+            <button class="btn" style="background:#222; color:#fff;" onclick="goHome()">MENU</button>
+        </div>
+    </div>
+
+    <!-- ================= 4. GAME 3: 百萬富翁 QUIZ ================= -->
+    <div id="quiz-screen" class="screen">
+        <button class="back-btn" onclick="goHome()">< BACK</button>
+        
+        <div class="quiz-container">
+            <div class="quiz-hud-bar">
+                <span id="quiz-progress">QUESTION 1/8</span>
+                <span id="quiz-score">SCORE: 0</span>
             </div>
 
-            <button class="btn" onclick="startDragGame()">再玩一次</button>
-            <button class="btn" style="background:#333;" onclick="goHome()">返回主頁</button>
+            <div class="quiz-card">
+                <div class="quiz-q-num" id="quiz-topic">TOPIC: HARDWARE</div>
+                <div class="quiz-q-text" id="quiz-question-text">載入中...</div>
+                <div class="quiz-opts" id="quiz-opts-container"></div>
+                <div class="quiz-fb" id="quiz-feedback" style="display:none;"></div>
+            </div>
+
+            <div style="display:flex; justify-between; width:100%;">
+                <button class="btn" id="quiz-lock-btn" onclick="lockQuizAnswer()" disabled>LOCK ANSWER</button>
+                <button class="btn" id="quiz-next-btn" onclick="nextQuizQuestion()" style="display:none; background:var(--accent-red); color:#fff;">NEXT ></button>
+            </div>
+        </div>
+
+        <div id="quiz-win-modal" class="modal" style="justify-content: center;">
+            <h1>[ QUIZ COMPLETE ]</h1>
+            <p id="quiz-final-score" style="margin-bottom:20px;"></p>
+            
+            <div class="leaderboard-box">
+                <div class="leaderboard-title">// TOP 3 QUIZ RECORD</div>
+                <div id="quiz-leaderboard"></div>
+            </div>
+
+            <button class="btn" onclick="startQuizGame()">RETRY</button>
+            <button class="btn" style="background:#222; color:#fff;" onclick="goHome()">MENU</button>
         </div>
     </div>
 
@@ -582,28 +520,38 @@
             } else if (targetGameAfterPrompt === 'drag') {
                 switchScreen('drag-screen');
                 startDragGame();
+            } else if (targetGameAfterPrompt === 'quiz') {
+                switchScreen('quiz-screen');
+                startQuizGame();
             }
         }
 
-        function saveScore(gameKey, timeUsed) {
+        function saveScore(gameKey, scoreVal) {
             let records = JSON.parse(localStorage.getItem(gameKey) || "[]");
-            records.push({ name: currentPlayerName, time: timeUsed, date: new Date().toLocaleDateString() });
-            records.sort((a, b) => a.time - b.time);
+            records.push({ name: currentPlayerName, val: scoreVal, date: new Date().toLocaleDateString() });
+            
+            // 如果是時間則升序，分數則降序
+            if (gameKey.includes('quiz')) {
+                records.sort((a, b) => b.val - a.val);
+            } else {
+                records.sort((a, b) => a.val - b.val);
+            }
+            
             records = records.slice(0, 3);
             localStorage.setItem(gameKey, JSON.stringify(records));
             return records;
         }
 
-        function renderLeaderboard(elementId, records) {
+        function renderLeaderboard(elementId, records, unit = "SEC") {
             const container = document.getElementById(elementId);
             if (!records || records.length === 0) {
-                container.innerHTML = "<div style='color:#86868b;'>暫無紀錄</div>";
+                container.innerHTML = "<div style='color:var(--text-secondary);'>NO RECORD</div>";
                 return;
             }
             container.innerHTML = records.map((r, i) => `
                 <div class="leaderboard-item">
-                    <span>${i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉"} ${r.name}</span>
-                    <span style="color:var(--apple-green); font-weight:bold;">${r.time} 秒</span>
+                    <span>#0${i+1} ${r.name}</span>
+                    <span style="font-weight:bold;">${r.val} ${unit}</span>
                 </div>
             `).join('');
         }
@@ -617,13 +565,13 @@
 
         const questionPool = [
             { q: "客人處理大量文書與長文章，你會推薦邊個 Apple Intelligence 功能？", correct: ["Summarize 智能摘要", "Writing Tools 書寫工具"], wrong: ["飛行模式當航拍機", "代寫功課功能"] },
-            { q: "蘋果智能（Visual Intelligence）視覺功能可以幫客人做到咩？", correct: ["辨識餐廳營業時間", "海報活動加到日曆"], wrong: ["透視隔壁房間", "睇穿朋友銀行餘額"] },
-            { q: "全新 Siri AI 嘅跨 App 操作（App Actions）可以幫客人做到邊樣？", correct: ["尋找幾年前在西班牙的照片", "語音儲存到備忘錄"], wrong: ["排隊買 iPhone", "自動駁通 CEO 電話"] },
+            { q: "蘋果智能（Visual Intelligence）視覺功能可以幫客人做到咩？", correct: ["辨識餐廳營業時間", "海報活動加到日曆"], wrong: ["透視隔壁房間", "睇穿銀行餘額"] },
+            { q: "全新 Siri AI 嘅跨 App 操作（App Actions）可以幫客人做到邊樣？", correct: ["尋找幾年前照片", "語音儲存到備忘錄"], wrong: ["排隊買 iPhone", "自動駁通 CEO 電話"] },
             { q: "AirPods 嘅即時同聲傳譯 / 翻譯功能，需要搭配邊個系統？", correct: ["iOS 18 或以上", "支持 Apple Intelligence 裝置"], wrong: ["5G 衛星天線", "Windows 11 插件"] },
             { q: "Apple Watch 有邊啲極具實用價值嘅智能健康與安全功能？", correct: ["跌倒與車禍偵測", "心率過高過低通知"], wrong: ["邊度痛貼邊度", "預測六合彩頭獎"] },
-            { q: "介紹保護殼時，可以順勢介紹邊啲 MagSafe 智能生態功能？", correct: ["MagSafe 磁吸無線充電", "StandBy 待機模式立架"], wrong: ["保護殼自動發熱", "跌落彈出降落傘"] },
-            { q: "喺 Safari 瀏覽器入面，Apple Intelligence 提供咗咩功能？", correct: ["Highlights 網頁重點摘要", "網頁文字即時翻譯"], wrong: ["填寫信用卡密碼", "自動幫網頁文章點讚"] },
-            { q: "客人想喺照片入面移除無關嘅行人，應該推薦邊個功能？", correct: ["Clean Up 清除工具", "Object Removal 物件消除"], wrong: ["把人變成外星人", "換成馬爾代夫海灘"] }
+            { q: "介紹保護殼時，可以順勢介紹邊啲 MagSafe 智能生態功能？", correct: ["MagSafe 無線充電", "StandBy 待機模式立架"], wrong: ["保護殼自動發熱", "跌落彈出降落傘"] },
+            { q: "喺 Safari 瀏覽器入面，Apple Intelligence 提供咗咩功能？", correct: ["Highlights 網頁重點摘要", "網頁文字即時翻譯"], wrong: ["填寫信用卡密碼", "自動幫網頁點讚"] },
+            { q: "客人想喺照片入面移除無關嘅行人，應該推薦邊個功能？", correct: ["Clean Up 清除工具", "Object Removal 物件消除"], wrong: ["把人變成外星人", "換成海灘背景"] }
         ];
 
         let currentQIndex = 0, score = 0, targets = [], bladePath = [], isGameOver = true, spawnTimer = null, animFrameId = null;
@@ -633,9 +581,10 @@
                 this.x = Math.random() * (canvas.width - 240) + 120;
                 this.y = canvas.height + 90;
                 this.vx = (Math.random() - 0.5) * 3;
-                this.radius = 75;
+                this.radius = 80; // 稍放大
                 this.gravity = 0.12;
-                this.vy = -Math.sqrt(2 * this.gravity * (canvas.height * (0.2 + Math.random() * 0.15)));
+                // 增加初速度 (vy)，使果實拋得更高，停留更久
+                this.vy = -Math.sqrt(2 * this.gravity * (canvas.height * (0.35 + Math.random() * 0.15)));
                 this.text = text; this.isCorrect = isCorrect; this.isBomb = isBomb;
                 this.icon = isBomb ? "💣" : "🍎"; this.sliced = false; this.rotation = 0; this.vRot = 0.02;
             }
@@ -643,20 +592,28 @@
             draw() {
                 ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.rotation);
                 ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.isBomb ? "rgba(255, 69, 58, 0.3)" : "rgba(28, 28, 30, 0.85)";
-                ctx.strokeStyle = this.isBomb ? "#ff453a" : "rgba(255, 255, 255, 0.4)";
-                ctx.lineWidth = 3.5; ctx.fill(); ctx.stroke();
-                ctx.font = "40px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                ctx.fillText(this.icon, 0, -20);
-                ctx.font = "bold 15px sans-serif"; ctx.fillStyle = "#fff";
-                ctx.fillText(this.text.length > 8 ? this.text.substring(0,7)+"..." : this.text, 0, 30);
+                ctx.fillStyle = this.isBomb ? "rgba(215, 25, 33, 0.4)" : "#111111";
+                ctx.strokeStyle = this.isBomb ? "#d71921" : "#ffffff";
+                ctx.lineWidth = 2; ctx.fill(); ctx.stroke();
+                
+                ctx.font = "36px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                ctx.fillText(this.icon, 0, -22);
+                
+                // 加大字體並加入描邊提高清晰度
+                ctx.font = "bold 17px monospace";
+                ctx.strokeStyle = "#000000";
+                ctx.lineWidth = 4;
+                const displayText = this.text.length > 8 ? this.text.substring(0,7)+"..." : this.text;
+                ctx.strokeText(displayText, 0, 28);
+                ctx.fillStyle = "#ffffff";
+                ctx.fillText(displayText, 0, 28);
                 ctx.restore();
             }
         }
 
         function loadQuestion() {
             const qData = questionPool[currentQIndex];
-            document.getElementById('question-title').innerText = `關卡 ${currentQIndex + 1} / 8`;
+            document.getElementById('question-title').innerText = `STAGE ${currentQIndex + 1} / 8`;
             document.getElementById('question-text').innerText = qData.q;
             document.getElementById('progress-bar').style.width = `${(score / 8) * 100}%`;
         }
@@ -682,7 +639,7 @@
                         score++;
                         if (score >= 8) triggerNinjaVictory();
                         else { currentQIndex++; targets = []; loadQuestion(); }
-                    } else triggerGameOver(`切錯答案！「${target.text}」唔係 Apple 功能！`);
+                    } else triggerGameOver(`切錯答案！「${target.text}」非正確選項！`);
                 }
             });
         }
@@ -700,7 +657,7 @@
             if (bladePath.length > 1) {
                 ctx.beginPath(); ctx.moveTo(bladePath[0].x, bladePath[0].y);
                 for (let i = 1; i < bladePath.length; i++) ctx.lineTo(bladePath[i].x, bladePath[i].y);
-                ctx.strokeStyle = "#2997ff"; ctx.lineWidth = 8; ctx.lineCap = "round"; ctx.stroke();
+                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 4; ctx.lineCap = "square"; ctx.stroke();
             }
             if (!isGameOver) animFrameId = requestAnimationFrame(gameLoop);
         }
@@ -711,7 +668,7 @@
             document.getElementById('game-over-modal').style.display = "none";
             document.getElementById('victory-modal').style.display = "none";
             loadQuestion();
-            if (spawnTimer) clearInterval(spawnTimer); spawnTimer = setInterval(spawnTargets, 2200);
+            if (spawnTimer) clearInterval(spawnTimer); spawnTimer = setInterval(spawnTargets, 2000);
             if (animFrameId) cancelAnimationFrame(animFrameId); gameLoop();
         }
 
@@ -796,20 +753,20 @@
             const zSame = document.getElementById('zone-same');
             const zDiff = document.getElementById('zone-diff');
 
-            zSame.innerHTML = '<h3 style="color:#42a5f5;">✅ 相同規格 (' + placedSame.length + ')</h3>';
+            zSame.innerHTML = '<h3>[ SAME SPEC ] (' + placedSame.length + ')</h3>';
             placedSame.forEach(item => {
-                zSame.innerHTML += `<div class="drag-item" style="margin:3px; background:#1c3d5a; font-size:0.85rem;">${item.text}</div>`;
+                zSame.innerHTML += `<div class="drag-item" style="margin:2px; font-size:0.75rem;">${item.text}</div>`;
             });
 
-            zDiff.innerHTML = '<h3 style="color:#ff9f0a;">⚡️ 不相同規格 (' + placedDiff.length + ')</h3>';
+            zDiff.innerHTML = '<h3 style="color:var(--accent-red)">[ DIFF SPEC ] (' + placedDiff.length + ')</h3>';
             placedDiff.forEach(item => {
-                zDiff.innerHTML += `<div class="drag-item" style="margin:3px; background:#5a3d1c; font-size:0.85rem;">${item.text}</div>`;
+                zDiff.innerHTML += `<div class="drag-item" style="margin:2px; font-size:0.75rem;">${item.text}</div>`;
             });
         }
 
         function submitClassification() {
             if (remainingItems.length > 0) {
-                alert(`仲有 ${remainingItems.length} 個規格未歸類，請先全部放置完成！`);
+                alert(`尚有 ${remainingItems.length} 項規格未歸類！`);
                 return;
             }
 
@@ -819,17 +776,208 @@
 
             const timeUsed = Math.round((Date.now() - startTime) / 1000);
             
-            document.getElementById('drag-win-title').innerText = correctCount === 14 ? "🎉 完美全對！" : "📊 分類結算";
-            document.getElementById('drag-win-desc').innerText = `玩家：${currentPlayerName}\n正確率：${correctCount} / 14 條\n總耗時：${timeUsed} 秒`;
+            document.getElementById('drag-win-title').innerText = correctCount === 14 ? "[ PERFECT MATCH ]" : "[ EVALUATION COMPLETE ]";
+            document.getElementById('drag-win-desc').innerText = `PLAYER: ${currentPlayerName}\nACCURACY: ${correctCount} / 14\nTIME: ${timeUsed} SEC`;
 
             if (correctCount === 14) {
                 const top3 = saveScore('drag_arcade_scores', timeUsed);
                 renderLeaderboard('drag-leaderboard', top3);
             } else {
-                document.getElementById('drag-leaderboard').innerHTML = "<div style='color:var(--apple-red);'>未達到全對條件，未能登上 Top 3 排行榜</div>";
+                document.getElementById('drag-leaderboard').innerHTML = "<div style='color:var(--accent-red);'>未達 100% 正確率，無法上榜</div>";
             }
 
             document.getElementById('drag-win-modal').style.display = 'flex';
+        }
+
+        // ================= GAME 3 (百萬富翁 QUIZ) LOGIC =================
+        const quizQuestions = [
+            {
+                topic: "HARDWARE // SCREEN",
+                q: "一位用 iPhone 18 Pro Max 的顧客問：「Duo 的螢幕跟我現在的比怎樣？」哪一句說法正確？",
+                opts: [
+                    "內螢幕比 iPhone 18 Pro 大 50%；外螢幕相當於 iPhone 18 Pro Max 的 90%",
+                    "內螢幕比 iPhone 18 Pro Max 大 50%；外螢幕相當於 iPhone 18 Pro 的 90%",
+                    "內螢幕比 iPhone 18 Pro Max 大 90%；外螢幕相當於 iPhone 18 Pro 的 50%",
+                    "內螢幕比 iPhone 18 Pro Max 大一倍；外螢幕和 iPhone 18 Pro 一樣大"
+                ],
+                a: 1,
+                why: "7.6 吋內螢幕比 Pro Max 大 50%；5.4 吋外螢幕相當於 Pro 的 90% 螢幕空間。"
+            },
+            {
+                topic: "HARDWARE // BATTERY",
+                q: "顧客問電池可以用多久。以下哪一組官方規格說法正確？",
+                opts: [
+                    "影片播放：內螢幕 44 小時、外螢幕 31 小時；一般使用 24 小時",
+                    "影片播放：內螢幕 31 小時、外螢幕 44 小時；一般使用 24 小時",
+                    "影片播放：內螢幕 31 小時、外螢幕 44 小時；內外螢幕平均使用時影片播放 24 小時",
+                    "影片播放：內螢幕 24 小時、外螢幕 44 小時；一般使用 31 小時"
+                ],
+                a: 1,
+                why: "影片播放最長：內螢幕 31 小時，外螢幕 44 小時；24 小時為「一般使用」以平均使用內外螢幕為基礎。"
+            },
+            {
+                topic: "HARDWARE // AUTH",
+                q: "顧客一直用 Face ID，拿起 Duo 問：「這部怎樣解鎖？」最準確的回答是？",
+                opts: [
+                    "外螢幕上方有 Face ID，用法跟以前一樣",
+                    "Touch ID 整合在側邊按鈕，打開或合上都用同一方式認證",
+                    "內螢幕有屏下指紋感應器",
+                    "打開時用 Face ID，合上時用 Touch ID"
+                ],
+                a: 1,
+                why: "iPhone Duo 採用 Touch ID，整合在側邊按鈕，無論打開或摺合都用一致的方式認證。"
+            },
+            {
+                topic: "HARDWARE // CAMERA",
+                q: "比較 iPhone Duo 和 iPhone 18 Pro 的相機，哪一句正確？",
+                opts: [
+                    "Duo 和 18 Pro 一樣支援 8 倍光學級變焦",
+                    "Duo 支援多達 2 倍光學級變焦；18 Pro 支援多達 8 倍光學級變焦和可變光圈",
+                    "Duo 的超廣角相機規格比 18 Pro 低",
+                    "Duo 的前置相機是 1800 萬像素，比 18 Pro 高"
+                ],
+                a: 1,
+                why: "Duo 有 48MP 融合主相機和超廣角，支援 2 倍變焦；18 Pro 具備融合長焦支援 8 倍變焦及可變光圈。"
+            },
+            {
+                topic: "SOFTWARE // MULTI-TASKING",
+                q: "打開後用分割顯示，兩個 App 平分內螢幕。左邊那個 App 的控制項會在哪裏？",
+                opts: [
+                    "左邊 App 的控制項在左邊，即外側邊緣",
+                    "兩個 App 的控制項都集中在右邊",
+                    "兩個 App 的控制項都在中間摺位旁邊",
+                    "左邊 App 改用上下橫向列"
+                ],
+                a: 0,
+                why: "Apple HIG：兩個 App 分割顯示時，各自把控制項放在外側邊緣，方便左右手操作。"
+            },
+            {
+                topic: "SOFTWARE // APP CONTINUITY",
+                q: "顧客在外螢幕用「郵件」看著郵件列表，然後打開機身。內螢幕會怎樣顯示？",
+                opts: [
+                    "只是把郵件列表放大",
+                    "郵件列表和郵件並排顯示",
+                    "自動關閉郵件，回到主畫面",
+                    "要重新開啟「郵件」才會顯示"
+                ],
+                a: 1,
+                why: "合上時顯示列表或單封郵件；打開後兩者並排顯示，多層資訊但狀態保持一致。"
+            },
+            {
+                topic: "SOFTWARE // AI & LANGUAGE",
+                q: "關於 Apple Intelligence 與 Siri AI 的語言支援，哪項說明正確？",
+                opts: [
+                    "Apple Intelligence 支援繁體中文；Siri AI Beta 版首先以英文推出",
+                    "Apple Intelligence 及 Siri AI 目前均只支援英文",
+                    "Siri AI Beta 支援廣東話，Apple Intelligence 僅限英文",
+                    "兩者均已完全支援繁體中文與廣東話"
+                ],
+                a: 0,
+                why: "Apple Intelligence 適用於繁體中文；全新 Siri AI Beta 版首先以英文推出。"
+            },
+            {
+                topic: "HARDWARE // SIM & ECOSYSTEM",
+                q: "關於 iPhone Duo 的 SIM 卡配置，下列何者正確？",
+                opts: [
+                    "支援 1 張實體 Nano-SIM + 1 張 eSIM",
+                    "只支援 eSIM（雙 eSIM），不兼容實體 SIM 卡",
+                    "支援雙實體 Nano-SIM 卡",
+                    "需使用專用 Micro-SIM 卡"
+                ],
+                a: 1,
+                why: "iPhone Duo 全球一致只支援 eSIM，不兼容實體 SIM 卡，為電池騰出更多內部空間。"
+            }
+        ];
+
+        let quizCurrentIndex = 0;
+        let quizScore = 0;
+        let quizSelectedOpt = null;
+
+        function startQuizGame() {
+            quizCurrentIndex = 0;
+            quizScore = 0;
+            quizSelectedOpt = null;
+            document.getElementById('quiz-win-modal').style.display = 'none';
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            const q = quizQuestions[quizCurrentIndex];
+            document.getElementById('quiz-progress').innerText = `QUESTION ${quizCurrentIndex + 1}/${quizQuestions.length}`;
+            document.getElementById('quiz-score').innerText = `SCORE: ${quizScore}`;
+            document.getElementById('quiz-topic').innerText = `TOPIC: ${q.topic}`;
+            document.getElementById('quiz-question-text').innerText = q.q;
+
+            const optsContainer = document.getElementById('quiz-opts-container');
+            optsContainer.innerHTML = '';
+            
+            const labels = ["A", "B", "C", "D"];
+            q.opts.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-opt-btn';
+                btn.innerText = `[${labels[idx]}] ${optText}`;
+                btn.onclick = () => selectQuizOpt(idx, btn);
+                optsContainer.appendChild(btn);
+            });
+
+            document.getElementById('quiz-feedback').style.display = 'none';
+            document.getElementById('quiz-lock-btn').style.display = 'block';
+            document.getElementById('quiz-lock-btn').disabled = true;
+            document.getElementById('quiz-next-btn').style.display = 'none';
+            quizSelectedOpt = null;
+        }
+
+        function selectQuizOpt(index, btnElement) {
+            document.querySelectorAll('.quiz-opt-btn').forEach(b => b.classList.remove('selected'));
+            btnElement.classList.add('selected');
+            quizSelectedOpt = index;
+            document.getElementById('quiz-lock-btn').disabled = false;
+        }
+
+        function lockQuizAnswer() {
+            if (quizSelectedOpt === null) return;
+
+            const q = quizQuestions[quizCurrentIndex];
+            const btns = document.querySelectorAll('.quiz-opt-btn');
+            btns.forEach(b => b.onclick = null); // 禁用點擊
+
+            const fb = document.getElementById('quiz-feedback');
+            fb.style.display = 'block';
+
+            if (quizSelectedOpt === q.a) {
+                quizScore += 100;
+                btns[quizSelectedOpt].classList.remove('selected');
+                btns[quizSelectedOpt].classList.add('correct');
+                fb.innerHTML = `<strong style="color:#30d158;">[ CORRECT ] +100 PTS</strong><br>${q.why}`;
+            } else {
+                btns[quizSelectedOpt].classList.remove('selected');
+                btns[quizSelectedOpt].classList.add('wrong');
+                btns[q.a].classList.add('correct');
+                fb.innerHTML = `<strong style="color:#ff453a;">[ INCORRECT ]</strong><br>${q.why}`;
+            }
+
+            document.getElementById('quiz-score').innerText = `SCORE: ${quizScore}`;
+            document.getElementById('quiz-lock-btn').style.display = 'none';
+            
+            const nextBtn = document.getElementById('quiz-next-btn');
+            nextBtn.style.display = 'block';
+            nextBtn.innerText = (quizCurrentIndex === quizQuestions.length - 1) ? "FINISH >" : "NEXT >";
+        }
+
+        function nextQuizQuestion() {
+            quizCurrentIndex++;
+            if (quizCurrentIndex < quizQuestions.length) {
+                renderQuizQuestion();
+            } else {
+                finishQuizGame();
+            }
+        }
+
+        function finishQuizGame() {
+            document.getElementById('quiz-final-score').innerText = `PLAYER: ${currentPlayerName}\nFINAL SCORE: ${quizScore} / 800 PTS`;
+            const top3 = saveScore('quiz_arcade_scores', quizScore);
+            renderLeaderboard('quiz-leaderboard', top3, "PTS");
+            document.getElementById('quiz-win-modal').style.display = 'flex';
         }
 
         switchScreen('main-menu');
