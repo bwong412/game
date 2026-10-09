@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Apple Cotai Strip Arcade</title>
+    <title> Cotai Arcade</title>
     <style>
         :root {
             --bg-color: #000000;
@@ -77,19 +77,26 @@
             margin: 0 auto;
         }
 
+        /* 官網風格螢光霓虹標題 */
         .header h1 {
-            font-size: 2.8rem;
-            font-weight: 700;
-            margin: 0 0 8px 0;
-            background: linear-gradient(135deg, #0071e3, #42a5f5, #ab47bc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 0 0 10px 0;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            text-shadow: 
+                0 0 5px #ffffff,
+                0 0 10px #ffffff,
+                0 0 20px rgba(41, 151, 255, 0.8),
+                0 0 30px rgba(41, 151, 255, 0.6),
+                0 0 40px rgba(41, 151, 255, 0.4);
         }
 
         .header p {
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             color: var(--text-secondary);
-            margin: 0 0 30px 0;
+            margin: 0 0 35px 0;
+            font-weight: 500;
         }
 
         .grid-container {
@@ -156,7 +163,6 @@
             box-sizing: border-box;
         }
 
-        /* 正確設計的 iPhone 18 Pro Max 正面螢幕模型 */
         .model-display {
             display: flex;
             justify-content: space-around;
@@ -177,7 +183,7 @@
             width: 110px; height: 190px;
             background: #2c2c2e;
             border-radius: 24px;
-            border: 2.5 solid #636366;
+            border: 2.5px solid #636366;
             box-shadow: 0 8px 20px rgba(0,0,0,0.8);
             position: relative;
             margin: 0 auto 10px auto;
@@ -202,7 +208,6 @@
             top: 6px; left: 35px;
         }
 
-        /* iPhone Duo 擬真雙屏模型 */
         .mock-duo-real {
             width: 170px; height: 170px;
             background: #222224;
@@ -310,7 +315,7 @@
 
         .submit-btn:active { transform: scale(0.95); }
 
-        /* 彈窗、排行榜與官方參考解答列表 */
+        /* 彈窗、排行榜與解答列表 */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.94); backdrop-filter: blur(25px);
@@ -336,13 +341,12 @@
         .leaderboard-item { display: flex; justify-content: space-between; font-size: 1rem; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .leaderboard-item:last-child { border-bottom: none; }
 
-        /* 官方對比與 Benefits 解說表 */
         .reference-answers {
             background: #1c1c1e;
             border-radius: 20px;
-            padding: 20px;
+            padding: 22px;
             width: 100%;
-            max-width: 600px;
+            max-width: 620px;
             text-align: left;
             margin-bottom: 25px;
             border: 1px solid rgba(255,255,255,0.15);
@@ -351,15 +355,15 @@
         .reference-answers h3 {
             color: var(--accent-blue);
             margin-top: 0;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 8px;
+            padding-bottom: 10px;
         }
 
         .ref-item {
-            margin-bottom: 12px;
-            font-size: 0.92rem;
-            line-height: 1.45;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+            line-height: 1.5;
             color: #d1d1d6;
         }
 
@@ -378,11 +382,11 @@
 </head>
 <body>
 
-    <!-- ================= 1. 主頁選單 (預設顯示) ================= -->
+    <!-- ================= 1. 主頁選單 ================= -->
     <div id="main-menu" class="screen active">
         <div class="menu-container">
             <div class="header">
-                <h1> Cotai Strip Arcade</h1>
+                <h1> Cotai Arcade</h1>
                 <p>Resting Room Exclusive • AI & Hardware Mini Games</p>
             </div>
 
@@ -398,7 +402,7 @@
 
                 <div class="game-card" onclick="promptPlayerName('drag')">
                     <div class="card-image card-2">
-                        <div class="card-title">🧩 02. 分類大師 (7同7唔同)</div>
+                        <div class="card-title">🧩 02. 分類大師 (Classify Master)</div>
                     </div>
                     <div class="card-body">
                         <p><strong>思考後遞交：</strong> 歸類 iPhone 18 Pro Max 與 Duo 規格，點擊提交驗證腦力！</p>
@@ -417,12 +421,15 @@
         </div>
     </div>
 
-    <!-- 玩家登記彈窗 -->
+    <!-- 玩家登記彈窗 (新增取消返回主頁按鈕) -->
     <div id="player-modal" class="modal" style="justify-content: center;">
         <h1 style="color:#fff;"> 歡迎挑戰</h1>
         <p style="color:var(--text-secondary);">請輸入你嘅名字 (重複名字自動接續紀錄)：</p>
         <input type="text" id="player-name-input" class="input-box" placeholder="例如: Alex / Specialist Wong" maxlength="15">
-        <button class="btn" onclick="confirmStartGame()">開始遊戲</button>
+        <div>
+            <button class="btn" onclick="confirmStartGame()">開始遊戲</button>
+            <button class="btn" style="background:#333;" onclick="cancelPlayerPrompt()">取消返回</button>
+        </div>
     </div>
 
     <!-- ================= 2. GAME 1: 忍者刀 ================= -->
@@ -462,7 +469,6 @@
     <div id="drag-screen" class="screen">
         <button class="back-btn" onclick="goHome()">‹ 返回主頁</button>
 
-        <!-- 擬真模型展示圖 (修正正面螢幕) -->
         <div class="model-display">
             <div class="phone-mock-container">
                 <div class="mock-pro-real">
@@ -486,21 +492,18 @@
             </div>
         </div>
 
-        <!-- 分類放置區 -->
         <div class="drop-container">
             <div class="drop-zone" id="zone-same" onclick="placeSelectedItem('same')">
-                <h3 style="color:#42a5f5;">✅ 7 個相同規格</h3>
+                <h3 style="color:#42a5f5;">✅ 相同規格</h3>
             </div>
             <div class="drop-zone different" id="zone-diff" onclick="placeSelectedItem('diff')">
-                <h3 style="color:#ff9f0a;">⚡️ 7 個唔同規格</h3>
+                <h3 style="color:#ff9f0a;">⚡️ 不相同規格</h3>
             </div>
         </div>
 
-        <!-- 卡片池與提交按鈕 -->
         <div class="items-pool" id="items-pool"></div>
         <button class="submit-btn" onclick="submitClassification()">確認遞交答案 (Submit)</button>
 
-        <!-- 結算彈窗 (帶解答與 Benefits 列表) -->
         <div id="drag-win-modal" class="modal win">
             <h1 id="drag-win-title">🎉 分類結算</h1>
             <p id="drag-win-desc">結算完成！</p>
@@ -512,26 +515,26 @@
 
             <!-- 官方規格 Benefits 詳解參考 -->
             <div class="reference-answers">
-                <h3> 官方規格對比與 Benefits 參考</h3>
+                <h3> 官方規格 Benefits 詳解參考</h3>
                 <div class="ref-item">
-                    <strong>1. 機身材質工藝：</strong><br>
-                    • Duo 採用 Grade 5 航天級鈦金屬，擁有極致輕盈且極高強度之優點。<br>
-                    • Pro Max 採用鋁金屬/鈦金屬組合，能帶來更佳強大的散熱效果與穩定的極限效能輸出。
+                    <strong>1. 晶片效能與 AI (相同)：</strong><br>
+                    • 均搭載強大 A20 Pro (2nm) 晶片，能流暢驅動全新 Siri AI 與 Apple Intelligence 靈活處理日常生活（如 Summarize 智能摘要、Writing Tools 文章校對）。<br>
+                    • 晶片具備極致能源效率，帶來顯著提升的電池續航力。
                 </div>
                 <div class="ref-item">
-                    <strong>2. 鏡頭系統與攝影風格：</strong><br>
-                    • Pro Max 配備獨立 48MP 8x 光學長焦鏡頭；Duo 採用主鏡頭 2x 裁切。<br>
-                    • 兩者均支援最新世代攝影風格（Photographic Styles），輕鬆打造個人化影相質感。
+                    <strong>2. 機身材質工藝 (不相同)：</strong><br>
+                    • Duo 採用 Grade 5 航天級鈦金屬，帶來極致輕盈且堅固美觀的質感。<br>
+                    • Pro Max 採用鋁金屬/鈦金屬組合，能提供更佳強大的散熱效果與穩定的極限效能輸出。
                 </div>
                 <div class="ref-item">
-                    <strong>3. 解鎖方式與前置鏡頭：</strong><br>
-                    • Pro Max 採用 Dynamic Island Face ID 臉部辨識與 18MP Center Stage 鏡頭。<br>
-                    • Duo 採用側鍵 Touch ID 電源鍵指紋解鎖，內屏具備屏下鏡頭技術。
+                    <strong>3. 鏡頭系統與攝影風格 (不相同)：</strong><br>
+                    • Pro Max 配備獨立 48MP 8x 光學裁切長焦鏡頭；Duo 採用主鏡頭 2x 裁切。<br>
+                    • 兩者均支援全新世代攝影風格（Photographic Styles 3），輕鬆打造個人化風格相片。
                 </div>
                 <div class="ref-item">
-                    <strong>4. 形態與配件支援：</strong><br>
-                    • Duo 為 5.4"/7.6" 摺疊螢幕，支援 Apple Pencil (USB-C) 書寫。<br>
-                    • 兩者均配備 A20 Pro 2nm 晶片、USB-C (USB 3)、IP68 防水及 MagSafe 25W 充電。
+                    <strong>4. 形態、解鎖與配件 (不相同)：</strong><br>
+                    • Pro Max 為 6.9" 直板，採 Dynamic Island Face ID 解鎖與 18MP Center Stage 鏡頭。<br>
+                    • Duo 為 5.4"/7.6" 摺疊屏，採側鍵 Touch ID 指紋解鎖、屏下鏡頭，並支援 Apple Pencil (USB-C) 書寫。
                 </div>
             </div>
 
@@ -550,7 +553,6 @@
             document.getElementById(screenId).classList.add('active');
         }
 
-        // 徹底修復 Bug 1：強制關閉所有 Modal，確保返回主頁乾淨俐落
         function goHome() {
             isGameOver = true;
             if (spawnTimer) clearInterval(spawnTimer);
@@ -563,6 +565,10 @@
         function promptPlayerName(gameType) {
             targetGameAfterPrompt = gameType;
             document.getElementById('player-modal').style.display = 'flex';
+        }
+
+        function cancelPlayerPrompt() {
+            document.getElementById('player-modal').style.display = 'none';
         }
 
         function confirmStartGame() {
@@ -720,9 +726,8 @@
             document.getElementById('victory-modal').style.display = "flex";
         }
 
-        // ================= GAME 2 (分類大師 - 去除暗示性選項) LOGIC =================
+        // ================= GAME 2 (分類大師) LOGIC =================
         const specItems = [
-            // 7 個相同 (抽象分類卡片)
             { id: "s1", type: "same", text: "A20 Pro 處理晶片" },
             { id: "s2", type: "same", text: "儲存容量規格" },
             { id: "s3", type: "same", text: "48MP 主鏡頭與超廣角" },
@@ -731,7 +736,6 @@
             { id: "s6", type: "same", text: "Wi-Fi 7 / 5G 無線連接" },
             { id: "s7", type: "same", text: "IP68 防塵防水等級" },
 
-            // 7 個唔同 (抽象分類卡片，無直接給答案)
             { id: "d1", type: "diff", text: "機身形態與螢幕尺寸" },
             { id: "d2", type: "diff", text: "長焦鏡頭配置" },
             { id: "d3", type: "diff", text: "主鏡頭光圈機制" },
@@ -792,12 +796,12 @@
             const zSame = document.getElementById('zone-same');
             const zDiff = document.getElementById('zone-diff');
 
-            zSame.innerHTML = '<h3 style="color:#42a5f5;">✅ 7 個相同規格 (' + placedSame.length + '/7)</h3>';
+            zSame.innerHTML = '<h3 style="color:#42a5f5;">✅ 相同規格 (' + placedSame.length + ')</h3>';
             placedSame.forEach(item => {
                 zSame.innerHTML += `<div class="drag-item" style="margin:3px; background:#1c3d5a; font-size:0.85rem;">${item.text}</div>`;
             });
 
-            zDiff.innerHTML = '<h3 style="color:#ff9f0a;">⚡️ 7 個唔同規格 (' + placedDiff.length + '/7)</h3>';
+            zDiff.innerHTML = '<h3 style="color:#ff9f0a;">⚡️ 不相同規格 (' + placedDiff.length + ')</h3>';
             placedDiff.forEach(item => {
                 zDiff.innerHTML += `<div class="drag-item" style="margin:3px; background:#5a3d1c; font-size:0.85rem;">${item.text}</div>`;
             });
@@ -828,7 +832,6 @@
             document.getElementById('drag-win-modal').style.display = 'flex';
         }
 
-        // 初始化：預設停留在 Arcade 主頁
         switchScreen('main-menu');
     </script>
 </body>
