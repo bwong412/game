@@ -37,6 +37,7 @@
             box-sizing: border-box;
             overflow-y: auto;
             z-index: 1;
+            background-color: var(--bg-color);
         }
 
         .screen.active {
@@ -49,7 +50,7 @@
             position: fixed;
             top: 15px; left: 15px;
             z-index: 9999;
-            background: rgba(40, 40, 45, 0.85);
+            background: rgba(40, 40, 45, 0.88);
             color: #ffffff;
             padding: 10px 22px;
             border-radius: 20px;
@@ -155,7 +156,7 @@
             box-sizing: border-box;
         }
 
-        /* 擬真 CSS 模型機展示 */
+        /* 正確設計的 iPhone 18 Pro Max 正面螢幕模型 */
         .model-display {
             display: flex;
             justify-content: space-around;
@@ -172,18 +173,17 @@
 
         .phone-mock-container { text-align: center; }
 
-        /* iPhone 18 Pro Max 擬真外觀 */
         .mock-pro-real {
             width: 110px; height: 190px;
-            background: #1a1a1c;
+            background: #2c2c2e;
             border-radius: 24px;
-            border: 2px solid #545458;
-            box-shadow: inset 0 0 10px rgba(255,255,255,0.1), 0 8px 20px rgba(0,0,0,0.8);
+            border: 2.5 solid #636366;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.8);
             position: relative;
             margin: 0 auto 10px auto;
             overflow: hidden;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
         }
 
@@ -191,7 +191,6 @@
             width: 102px; height: 182px;
             background: #000;
             border-radius: 20px;
-            margin-top: 2px;
             position: relative;
         }
 
@@ -203,27 +202,12 @@
             top: 6px; left: 35px;
         }
 
-        .mock-pro-real .cam-lens {
-            position: absolute;
-            bottom: 12px; right: 10px;
-            width: 36px; height: 36px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.15);
-            display: flex;
-            flex-wrap: wrap;
-            padding: 3px;
-            gap: 2px;
-        }
-
-        .cam-dot { width: 12px; height: 12px; background: #2c2c2e; border-radius: 50%; border: 1px solid #636366; }
-
-        /* iPhone Duo 擬真摺疊屏外觀 */
+        /* iPhone Duo 擬真雙屏模型 */
         .mock-duo-real {
             width: 170px; height: 170px;
             background: #222224;
             border-radius: 18px;
-            border: 2px solid #636366;
+            border: 2.5px solid #636366;
             box-shadow: 0 8px 20px rgba(0,0,0,0.8);
             position: relative;
             margin: 0 auto 10px auto;
@@ -233,7 +217,7 @@
 
         .duo-hinge {
             width: 4px; height: 100%;
-            background: linear-gradient(90deg, #111, #444, #111);
+            background: linear-gradient(90deg, #111, #555, #111);
             position: absolute; left: 83px; z-index: 5;
         }
 
@@ -326,15 +310,16 @@
 
         .submit-btn:active { transform: scale(0.95); }
 
-        /* 彈窗與排行榜 */
+        /* 彈窗、排行榜與官方參考解答列表 */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.92); backdrop-filter: blur(25px);
-            display: none; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 10000; text-align: center; padding: 20px; box-sizing: border-box;
+            background: rgba(0, 0, 0, 0.94); backdrop-filter: blur(25px);
+            display: none; flex-direction: column; justify-content: flex-start; align-items: center;
+            z-index: 10000; text-align: center; padding: 40px 20px; box-sizing: border-box;
+            overflow-y: auto;
         }
 
-        .modal h1 { font-size: 2.6rem; margin-bottom: 10px; }
+        .modal h1 { font-size: 2.5rem; margin-bottom: 8px; margin-top: 20px; }
         .modal.over h1 { color: var(--apple-red); }
         .modal.win h1 { color: var(--apple-green); }
 
@@ -342,14 +327,45 @@
             background: rgba(255,255,255,0.08);
             border-radius: 18px;
             padding: 15px 25px;
-            width: 100%; max-width: 400px;
-            margin: 15px 0 25px 0;
+            width: 100%; max-width: 500px;
+            margin: 15px 0;
             border: 1px solid rgba(255,255,255,0.15);
         }
 
         .leaderboard-title { font-size: 1.1rem; color: var(--apple-gold); font-weight: bold; margin-bottom: 10px; }
         .leaderboard-item { display: flex; justify-content: space-between; font-size: 1rem; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
         .leaderboard-item:last-child { border-bottom: none; }
+
+        /* 官方對比與 Benefits 解說表 */
+        .reference-answers {
+            background: #1c1c1e;
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            text-align: left;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .reference-answers h3 {
+            color: var(--accent-blue);
+            margin-top: 0;
+            font-size: 1.2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+        }
+
+        .ref-item {
+            margin-bottom: 12px;
+            font-size: 0.92rem;
+            line-height: 1.45;
+            color: #d1d1d6;
+        }
+
+        .ref-item strong {
+            color: #fff;
+        }
 
         .input-box {
             background: #2c2c2e; border: 1px solid #48484a; color: #fff;
@@ -362,7 +378,7 @@
 </head>
 <body>
 
-    <!-- ================= 1. 主頁選單 ================= -->
+    <!-- ================= 1. 主頁選單 (預設顯示) ================= -->
     <div id="main-menu" class="screen active">
         <div class="menu-container">
             <div class="header">
@@ -402,7 +418,7 @@
     </div>
 
     <!-- 玩家登記彈窗 -->
-    <div id="player-modal" class="modal">
+    <div id="player-modal" class="modal" style="justify-content: center;">
         <h1 style="color:#fff;"> 歡迎挑戰</h1>
         <p style="color:var(--text-secondary);">請輸入你嘅名字 (重複名字自動接續紀錄)：</p>
         <input type="text" id="player-name-input" class="input-box" placeholder="例如: Alex / Specialist Wong" maxlength="15">
@@ -421,14 +437,14 @@
         </div>
         <canvas id="gameCanvas"></canvas>
 
-        <div id="game-over-modal" class="modal over">
+        <div id="game-over-modal" class="modal over" style="justify-content: center;">
             <h1>BOOM! 💥</h1>
             <p id="over-reason">切錯咗答案！</p>
             <button class="btn" onclick="startNinjaGame()">重新挑戰</button>
             <button class="btn" style="background:#333;" onclick="goHome()">返回主頁</button>
         </div>
 
-        <div id="victory-modal" class="modal win">
+        <div id="victory-modal" class="modal win" style="justify-content: center;">
             <h1>🎉 通關成功！</h1>
             <p>耗時：<span id="ninja-time-val" style="color:#fff; font-weight:bold;">0</span> 秒</p>
             
@@ -446,16 +462,12 @@
     <div id="drag-screen" class="screen">
         <button class="back-btn" onclick="goHome()">‹ 返回主頁</button>
 
-        <!-- 擬真模型展示圖 -->
+        <!-- 擬真模型展示圖 (修正正面螢幕) -->
         <div class="model-display">
             <div class="phone-mock-container">
                 <div class="mock-pro-real">
                     <div class="screen-inner">
                         <div class="island"></div>
-                        <div class="cam-lens">
-                            <div class="cam-dot"></div><div class="cam-dot"></div>
-                            <div class="cam-dot" style="width:14px; height:14px; border-color:#2997ff;"></div>
-                        </div>
                     </div>
                 </div>
                 <strong style="font-size:0.9rem;">iPhone 18 Pro Max</strong>
@@ -488,6 +500,7 @@
         <div class="items-pool" id="items-pool"></div>
         <button class="submit-btn" onclick="submitClassification()">確認遞交答案 (Submit)</button>
 
+        <!-- 結算彈窗 (帶解答與 Benefits 列表) -->
         <div id="drag-win-modal" class="modal win">
             <h1 id="drag-win-title">🎉 分類結算</h1>
             <p id="drag-win-desc">結算完成！</p>
@@ -495,6 +508,31 @@
             <div class="leaderboard-box">
                 <div class="leaderboard-title">🏆 分類大師 Top 3 排行榜</div>
                 <div id="drag-leaderboard"></div>
+            </div>
+
+            <!-- 官方規格 Benefits 詳解參考 -->
+            <div class="reference-answers">
+                <h3> 官方規格對比與 Benefits 參考</h3>
+                <div class="ref-item">
+                    <strong>1. 機身材質工藝：</strong><br>
+                    • Duo 採用 Grade 5 航天級鈦金屬，擁有極致輕盈且極高強度之優點。<br>
+                    • Pro Max 採用鋁金屬/鈦金屬組合，能帶來更佳強大的散熱效果與穩定的極限效能輸出。
+                </div>
+                <div class="ref-item">
+                    <strong>2. 鏡頭系統與攝影風格：</strong><br>
+                    • Pro Max 配備獨立 48MP 8x 光學長焦鏡頭；Duo 採用主鏡頭 2x 裁切。<br>
+                    • 兩者均支援最新世代攝影風格（Photographic Styles），輕鬆打造個人化影相質感。
+                </div>
+                <div class="ref-item">
+                    <strong>3. 解鎖方式與前置鏡頭：</strong><br>
+                    • Pro Max 採用 Dynamic Island Face ID 臉部辨識與 18MP Center Stage 鏡頭。<br>
+                    • Duo 採用側鍵 Touch ID 電源鍵指紋解鎖，內屏具備屏下鏡頭技術。
+                </div>
+                <div class="ref-item">
+                    <strong>4. 形態與配件支援：</strong><br>
+                    • Duo 為 5.4"/7.6" 摺疊螢幕，支援 Apple Pencil (USB-C) 書寫。<br>
+                    • 兩者均配備 A20 Pro 2nm 晶片、USB-C (USB 3)、IP68 防水及 MagSafe 25W 充電。
+                </div>
             </div>
 
             <button class="btn" onclick="startDragGame()">再玩一次</button>
@@ -512,10 +550,13 @@
             document.getElementById(screenId).classList.add('active');
         }
 
+        // 徹底修復 Bug 1：強制關閉所有 Modal，確保返回主頁乾淨俐落
         function goHome() {
             isGameOver = true;
             if (spawnTimer) clearInterval(spawnTimer);
             if (animFrameId) cancelAnimationFrame(animFrameId);
+            
+            document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
             switchScreen('main-menu');
         }
 
@@ -538,12 +579,11 @@
             }
         }
 
-        // 排行榜儲存邏輯 (localStorage)
         function saveScore(gameKey, timeUsed) {
             let records = JSON.parse(localStorage.getItem(gameKey) || "[]");
             records.push({ name: currentPlayerName, time: timeUsed, date: new Date().toLocaleDateString() });
-            records.sort((a, b) => a.time - b.time); // 最快者排前面
-            records = records.slice(0, 3); // 取 Top 3
+            records.sort((a, b) => a.time - b.time);
+            records = records.slice(0, 3);
             localStorage.setItem(gameKey, JSON.stringify(records));
             return records;
         }
@@ -680,23 +720,25 @@
             document.getElementById('victory-modal').style.display = "flex";
         }
 
-        // ================= GAME 2 (分類大師) LOGIC =================
+        // ================= GAME 2 (分類大師 - 去除暗示性選項) LOGIC =================
         const specItems = [
-            { id: "s1", type: "same", text: "A20 Pro 晶片 (2nm)" },
-            { id: "s2", type: "same", text: "儲存容量 256GB - 2TB" },
+            // 7 個相同 (抽象分類卡片)
+            { id: "s1", type: "same", text: "A20 Pro 處理晶片" },
+            { id: "s2", type: "same", text: "儲存容量規格" },
             { id: "s3", type: "same", text: "48MP 主鏡頭與超廣角" },
-            { id: "s4", type: "same", text: "USB-C (USB 3 速度)" },
-            { id: "s5", type: "same", text: "25W MagSafe / Qi2" },
-            { id: "s6", type: "same", text: "Wi-Fi 7 / Bluetooth 6 / 5G" },
-            { id: "s7", type: "same", text: "IP68 防塵防水" },
+            { id: "s4", type: "same", text: "USB-C 連接介面" },
+            { id: "s5", type: "same", text: "25W MagSafe 無線充電" },
+            { id: "s6", type: "same", text: "Wi-Fi 7 / 5G 無線連接" },
+            { id: "s7", type: "same", text: "IP68 防塵防水等級" },
 
-            { id: "d1", type: "diff", text: "機身形態 (直板 vs 摺疊)" },
-            { id: "d2", type: "diff", text: "長焦鏡頭 (48MP 8x vs 2x裁切)" },
-            { id: "d3", type: "diff", text: "主鏡頭光圈 (可變光圈 vs f/1.6)" },
-            { id: "d4", type: "diff", text: "解鎖方式 (Face ID vs Touch ID)" },
-            { id: "d5", type: "diff", text: "機身物料 (鋁合金 vs Grade 5鈦)" },
-            { id: "d6", type: "diff", text: "前置鏡頭 (Center Stage vs 屏下)" },
-            { id: "d7", type: "diff", text: "Apple Pencil 觸控筆支援" }
+            // 7 個唔同 (抽象分類卡片，無直接給答案)
+            { id: "d1", type: "diff", text: "機身形態與螢幕尺寸" },
+            { id: "d2", type: "diff", text: "長焦鏡頭配置" },
+            { id: "d3", type: "diff", text: "主鏡頭光圈機制" },
+            { id: "d4", type: "diff", text: "解鎖驗證方式" },
+            { id: "d5", type: "diff", text: "機身材質與工藝" },
+            { id: "d6", type: "diff", text: "前置鏡頭類型" },
+            { id: "d7", type: "diff", text: "觸控筆支援" }
         ];
 
         let remainingItems = [];
@@ -761,7 +803,6 @@
             });
         }
 
-        // 遞交並結算驗證
         function submitClassification() {
             if (remainingItems.length > 0) {
                 alert(`仲有 ${remainingItems.length} 個規格未歸類，請先全部放置完成！`);
@@ -787,6 +828,7 @@
             document.getElementById('drag-win-modal').style.display = 'flex';
         }
 
+        // 初始化：預設停留在 Arcade 主頁
         switchScreen('main-menu');
     </script>
 </body>
