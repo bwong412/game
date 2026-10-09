@@ -283,13 +283,13 @@
             border-radius: 14px; border: 2px solid #002b49; font-size: 1.05rem; line-height: 1.5; color: #000;
         }
 
-        /* 煙花 Canvas，層級放在 Modal 背後，保證按鈕在前 */
+        /* 煙花 Canvas，層級放在 Modal 背後 */
         #fireworksCanvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 9999; display: none;
+            pointer-events: none; z-index: 999; display: none;
         }
 
-        /* 彈窗與排行榜 */
+        /* 彈窗與排行榜 (Modal 層級高於煙花，確保按鈕可點擊) */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.96);
@@ -332,7 +332,7 @@
         <div class="menu-container">
             <div class="header">
                 <h1> Cotai Arcade</h1>
-                <p>Resting Room Exclusive • AI & Hardware Mini Games</p>
+                <p>Break Room Exclusive - Mini Game</p>
             </div>
 
             <div class="grid-container">
@@ -597,6 +597,9 @@
             { q: "客人想喺照片入面移除無關嘅行人，應該推薦邊個功能？", correct: ["Clean Up 清除工具", "Object Removal 物件消除"], wrong: ["把人變成外星人", "換成馬爾代夫海灘"] }
         ];
 
+        // 豐富的水果圖示庫
+        const fruitIcons = ["🍎", "🍊", "🍉", "🍌", "🍓", "🍑", "🍐"];
+
         let currentQIndex = 0, score = 0, targets = [], bladePath = [], isGameOver = true, spawnTimer = null, animFrameId = null;
 
         class TargetItem {
@@ -606,9 +609,13 @@
                 this.vx = (Math.random() - 0.5) * 3;
                 this.radius = 110;
                 this.gravity = 0.12;
-                this.vy = -Math.sqrt(2 * this.gravity * (canvas.height * (0.35 + Math.random() * 0.15)));
+                
+                // 大幅提升拋起高度（讓水果上升得更高，停留更久）
+                this.vy = -Math.sqrt(2 * this.gravity * (canvas.height * (0.65 + Math.random() * 0.15)));
+                
                 this.text = text; this.isCorrect = isCorrect; this.isBomb = isBomb;
-                this.icon = isBomb ? "💣" : "🍎"; this.sliced = false;
+                this.icon = isBomb ? "💣" : fruitIcons[Math.floor(Math.random() * fruitIcons.length)]; 
+                this.sliced = false;
             }
             update() { this.x += this.vx; this.y += this.vy; this.vy += this.gravity; }
             draw() {
@@ -716,7 +723,7 @@
             document.getElementById('victory-modal').style.display = "flex";
         }
 
-        // ================= GAME 2 (分類大師) LOGIC =================
+        // ================= GAME 2 (分類大師) LOGIC (支援退回重新排序) =================
         const specItems = [
             { id: "s1", type: "same", text: "A20 Pro 處理晶片" },
             { id: "s2", type: "same", text: "儲存容量規格" },
@@ -782,18 +789,35 @@
             renderZones();
         }
 
+        // 點擊已放置卡片可直接退回底層選擇池
+        function removePlacedItem(id, fromZone) {
+            let item;
+            if (fromZone === 'same') {
+                item = placedSame.find(i => i.id === id);
+                placedSame = placedSame.filter(i => i.id !== id);
+            } else {
+                item = placedDiff.find(i => i.id === id);
+                placedDiff = placedDiff.filter(i => i.id !== id);
+            }
+            if (item) {
+                remainingItems.push(item);
+                renderPool();
+                renderZones();
+            }
+        }
+
         function renderZones() {
             const zSame = document.getElementById('zone-same');
             const zDiff = document.getElementById('zone-diff');
 
             zSame.innerHTML = '<h3 style="color:var(--accent-blue);">✅ 相同規格 (' + placedSame.length + ')</h3>';
             placedSame.forEach(item => {
-                zSame.innerHTML += `<div class="drag-item" style="margin:3px; background:#e0f2fe; color:#0369a1; border-color:#0284c7; font-size:0.85rem;">${item.text}</div>`;
+                zSame.innerHTML += `<div class="drag-item" onclick="event.stopPropagation(); removePlacedItem('${item.id}', 'same')" style="margin:3px; background:#e0f2fe; color:#0369a1; border-color:#0284c7; font-size:0.85rem;" title="點擊退回選擇池">${item.text} ✕</div>`;
             });
 
             zDiff.innerHTML = '<h3 style="color:#d97706;">⚡️ 不相同規格 (' + placedDiff.length + ')</h3>';
             placedDiff.forEach(item => {
-                zDiff.innerHTML += `<div class="drag-item" style="margin:3px; background:#fef3c7; color:#b45309; border-color:#d97706; font-size:0.85rem;">${item.text}</div>`;
+                zDiff.innerHTML += `<div class="drag-item" onclick="event.stopPropagation(); removePlacedItem('${item.id}', 'diff')" style="margin:3px; background:#fef3c7; color:#b45309; border-color:#d97706; font-size:0.85rem;" title="點擊退回選擇池">${item.text} ✕</div>`;
             });
         }
 
@@ -822,7 +846,7 @@
             document.getElementById('drag-win-modal').style.display = 'flex';
         }
 
-        // ================= GAME 3 (百萬富翁 QUIZ 10題$梯級) LOGIC =================
+        // ================= GAME 3 (百萬富翁 QUIZ) LOGIC =================
         const moneyLadder = [100, 1000, 2500, 5000, 10000, 25000, 50000, 100000, 500000, 1000000];
 
         const quizQuestions = [
@@ -1066,7 +1090,7 @@
             fwCanvas.height = window.innerHeight;
             particles = [];
             
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 6; i++) {
                 createFirework();
             }
             animateFireworks();
@@ -1092,7 +1116,7 @@
         }
 
         function animateFireworks() {
-            fwCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+            fwCtx.fillStyle = 'rgba(255, 255, 255, 0.18)';
             fwCtx.fillRect(0, 0, fwCanvas.width, fwCanvas.height);
 
             if (Math.random() < 0.1) createFirework();
@@ -1146,13 +1170,13 @@
 
             const groundY = mCanvas.height - 25;
 
-            // 1. 繪製綠色草地與土地
+            // 1. 綠色草地與土地
             mCtx.fillStyle = '#5c940d';
             mCtx.fillRect(0, groundY - 10, mCanvas.width, 10);
             mCtx.fillStyle = '#d77b36';
             mCtx.fillRect(0, groundY, mCanvas.width, 25);
 
-            // 2. 繪製問號磚塊 (Question Blocks)
+            // 2. 問號磚塊 (Question Blocks)
             const blockPositions = [200, 450, 700, 950];
             blockPositions.forEach(bx => {
                 mCtx.fillStyle = '#fcb040';
@@ -1165,7 +1189,7 @@
                 mCtx.fillText('?', bx + 10, groundY - 48);
             });
 
-            // 3. 移動邏輯與碰撞起跳
+            // 3. 移動與起跳
             marioX += 2.5;
             if (marioX > mCanvas.width + 30) marioX = -30;
 
@@ -1187,7 +1211,7 @@
                 marioY = groundY - 35;
             }
 
-            // 4. 繪製 Apple 藍衫小人 (Mario Style)
+            // 4. Apple 藍衫 Mario 風格小人
             mCtx.save();
             mCtx.translate(marioX, marioY);
 
@@ -1199,11 +1223,11 @@
             mCtx.fillStyle = '#fccc96';
             mCtx.fillRect(4, 6, 14, 10);
 
-            // Apple 藍色工作服 (Blue Overalls)
+            // Apple 藍色工作服
             mCtx.fillStyle = '#0066cc';
             mCtx.fillRect(2, 16, 18, 14);
 
-            // Apple Logo  標誌 (黃/白)
+            // Apple Logo 
             mCtx.fillStyle = '#ffffff';
             mCtx.font = '10px sans-serif';
             mCtx.fillText('', 8, 26);
