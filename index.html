@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Apple Cotai Strip Arcade</title>
+    <title>8x Telephoto 找不同 - Apple Cotai Strip Arcade</title>
     <style>
         :root {
             --bg-color: #000000;
             --card-bg: #1c1c1e;
             --text-primary: #f5f5f7;
-            --text-secondary: #86868b;
             --accent-blue: #2997ff;
             --apple-green: #30d158;
             --apple-red: #ff453a;
@@ -22,179 +21,63 @@
             height: 100%;
             overflow: hidden;
             background-color: var(--bg-color);
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
             color: var(--text-primary);
             user-select: none;
             -webkit-user-select: none;
         }
 
-        /* 畫面切換控制 */
-        .screen {
-            display: none;
-            width: 100%;
-            height: 100%;
+        /* 頂部 UI */
+        #game-header {
             position: absolute;
-            top: 0;
-            left: 0;
-            box-sizing: border-box;
-        }
-
-        .screen.active {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* ================= 主選單樣式 ================= */
-        #main-menu {
-            overflow-y: auto;
-            padding: 40px 20px;
-            align-items: center;
-        }
-
-        .menu-container {
-            max-width: 900px;
-            width: 100%;
-            margin: 0 auto;
-        }
-
-        .header h1 {
-            font-size: 2.8rem;
-            font-weight: 700;
-            letter-spacing: -0.015em;
-            margin: 0 0 8px 0;
-            background: linear-gradient(135deg, #0071e3, #42a5f5, #ab47bc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header p {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            margin: 0 0 30px 0;
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .game-card {
-            background-color: var(--card-bg);
-            border-radius: 24px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .game-card:hover {
-            transform: translateY(-4px) scale(1.01);
-            box-shadow: 0 12px 30px rgba(0, 102, 204, 0.3);
-        }
-
-        .card-image {
-            height: 180px;
-            display: flex;
-            align-items: flex-end;
-            padding: 20px;
-            box-sizing: border-box;
-            background-size: cover;
-            background-position: center;
-        }
-
-        .card-1 { background: linear-gradient(135deg, #1e3c72, #2a5298); }
-        .card-2 { background: linear-gradient(135deg, #0d253f, #01b4e4); }
-        .card-3 { background: linear-gradient(135deg, #41295a, #2f0743); }
-
-        .card-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #fff;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
-
-        .card-body {
-            padding: 20px;
-        }
-
-        .card-body p {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            margin: 0;
-            line-height: 1.4;
-        }
-
-        /* ================= 遊戲 1 (忍者刀) 樣式 ================= */
-        #ninja-screen {
-            background: #000;
-        }
-
-        #game-ui {
-            position: absolute;
-            top: 20px;
+            top: 15px;
             left: 50%;
             transform: translateX(-50%);
-            width: 92%;
-            max-width: 700px;
+            width: 90%;
+            max-width: 800px;
             z-index: 10;
-            pointer-events: none;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-        }
-
-        .question-box {
-            background: rgba(28, 28, 30, 0.92);
+            background: rgba(28, 28, 30, 0.85);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 12px 24px;
             border-radius: 20px;
-            padding: 16px 24px;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-            width: 100%;
-            box-sizing: border-box;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
         }
 
-        .question-title {
-            font-size: 1.1rem;
+        .title-box h2 {
+            margin: 0;
+            font-size: 1.2rem;
             color: var(--accent-blue);
+        }
+
+        .title-box p {
+            margin: 2px 0 0 0;
+            font-size: 0.85rem;
+            color: #86868b;
+        }
+
+        .counter {
+            font-size: 1.2rem;
             font-weight: 700;
-            letter-spacing: 1px;
-            margin-bottom: 6px;
-            text-transform: uppercase;
+            color: var(--apple-green);
         }
 
-        .question-text {
-            font-size: 1.35rem; /* 大幅放大題目文字 */
-            font-weight: 600;
-            color: #fff;
-            line-height: 1.4;
-        }
-
-        .progress-bar-container {
-            width: 100%;
-            height: 8px;
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 20;
             background: rgba(255, 255, 255, 0.15);
-            border-radius: 4px;
-            margin-top: 12px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, var(--accent-blue), var(--apple-green));
-            transition: width 0.3s ease;
-        }
-
-        .score-board {
-            margin-top: 10px;
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: var(--text-secondary);
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         canvas {
@@ -203,159 +86,96 @@
             height: 100%;
         }
 
-        .back-btn {
+        /* 找到了說明彈窗 */
+        #info-toast {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 20;
-            background: rgba(255, 255, 255, 0.2);
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(48, 209, 88, 0.2);
+            border: 1px solid var(--apple-green);
             color: #fff;
-            padding: 10px 22px;
-            border-radius: 20px;
-            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 25px;
+            backdrop-filter: blur(15px);
             font-size: 1rem;
-            backdrop-filter: blur(10px);
-            cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.2);
             font-weight: 600;
+            display: none;
+            z-index: 30;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
 
-        /* 彈窗 (Game Over & Victory) */
+        /* 成功通關彈窗 */
         .modal {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.88);
             backdrop-filter: blur(20px);
             display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 100;
+            text-align: center;
             padding: 20px;
             box-sizing: border-box;
-            text-align: center;
         }
 
         .modal h1 {
-            font-size: 3rem;
-            margin-bottom: 12px;
+            font-size: 2.8rem;
+            color: var(--apple-green);
+            margin-bottom: 10px;
         }
 
-        .modal.over h1 { color: var(--apple-red); }
-        .modal.win h1 { color: var(--apple-green); }
-
         .modal p {
-            font-size: 1.3rem;
-            color: #a1a1a6;
-            margin-bottom: 30px;
-            max-width: 550px;
+            font-size: 1.1rem;
+            color: #86868b;
+            margin-bottom: 25px;
+            max-width: 500px;
             line-height: 1.5;
         }
 
         .btn {
             background: var(--accent-blue);
             color: #fff;
-            padding: 14px 36px;
+            padding: 12px 32px;
             border-radius: 25px;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             border: none;
             cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
-            margin: 6px;
+            text-decoration: none;
         }
-
-        .btn:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
 
-    <!-- ================= 畫面 1：主頁面選單 ================= -->
-    <div id="main-menu" class="screen active">
-        <div class="menu-container">
-            <div class="header">
-                <h1> Cotai Strip Arcade</h1>
-                <p>Resting Room Exclusive • AI & Hardware Mini Games</p>
-            </div>
+    <a href="index.html" class="back-btn">‹ 返回主頁</a>
 
-            <div class="grid-container">
-                <!-- Game 1 -->
-                <div class="game-card" onclick="switchScreen('ninja-screen'); startNinjaGame();">
-                    <div class="card-image card-1">
-                        <div class="card-title">🥷 01. Siri Slash 忍者刀</div>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>連答 8 題通關：</strong> 慢速飄浮生果！仔細閱讀文字，切開正確 Apple 功能，避開搞笑假功能！</p>
-                    </div>
-                </div>
-
-                <!-- Game 2 -->
-                <div class="game-card" onclick="alert('Game 2: 8x 鏡找不同 正在開發中，請先體驗 Game 1！')">
-                    <div class="card-image card-2">
-                        <div class="card-title">🔍 02. 8x Telephoto 找不同</div>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>iPhone 18 Pro & Duo：</strong> 透過 8x 超遠攝鏡頭微距觀察，找出兩幅新機細節相片嘅異同。</p>
-                    </div>
-                </div>
-
-                <!-- Game 3 -->
-                <div class="game-card" onclick="alert('Game 3: 百萬富翁 Quiz 正在開發中，請先體驗 Game 1！')">
-                    <div class="card-image card-3">
-                        <div class="card-title">💰 03. Who Wants to be a Genius?</div>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>百萬富翁問答：</strong> 挑戰 Siri AI 與旗艦產品知識，衝擊百萬大獎！</p>
-                    </div>
-                </div>
-            </div>
+    <div id="game-header">
+        <div class="title-box">
+            <h2>🔍 8x Telephoto 找不同</h2>
+            <p>移動 8x 光學裁切鏡頭，找出 iPhone 18 Pro Max 與 Duo 嘅 5 個不同之處</p>
         </div>
+        <div class="counter">已找出：<span id="found-count">0</span> / 5</div>
     </div>
 
-    <!-- ================= 畫面 2：遊戲 1 (忍者刀) ================= -->
-    <div id="ninja-screen" class="screen">
-        <button class="back-btn" onclick="exitNinjaGame()">‹ 返回主頁</button>
+    <div id="info-toast">已找到！</div>
 
-        <div id="game-ui">
-            <div class="question-box">
-                <div id="question-title" class="question-title">關卡 1 / 8</div>
-                <div id="question-text" class="question-text">載入中...</div>
-                <div class="progress-bar-container">
-                    <div id="progress-bar" class="progress-bar"></div>
-                </div>
-            </div>
-            <div class="score-board">成功答對：<span id="score-val" style="color:#fff; font-weight:bold; font-size:1.3rem;">0</span> / 8</div>
-        </div>
+    <canvas id="zoomCanvas"></canvas>
 
-        <canvas id="gameCanvas"></canvas>
-
-        <!-- 遊戲結束彈窗 -->
-        <div id="game-over-modal" class="modal over">
-            <h1 id="over-title">BOOM! 💥</h1>
-            <p id="over-reason">切錯咗答案！</p>
-            <button class="btn" onclick="startNinjaGame()">重新挑戰</button>
-            <button class="btn" style="background:#333;" onclick="exitNinjaGame()">返回主頁</button>
-        </div>
-
-        <!-- 成功通關彈窗 -->
-        <div id="victory-modal" class="modal win">
-            <h1>🎉 通關成功！</h1>
-            <p>恭喜你成功連續答對 8 條 Apple Intelligence 及新產品問題！你已經完全掌握 Apple 創新知識！</p>
-            <button class="btn" onclick="startNinjaGame()">再玩一次</button>
-            <button class="btn" style="background:#333;" onclick="exitNinjaGame()">返回主頁</button>
-        </div>
+    <div id="victory-modal" class="modal">
+        <h1>🎉 全數找出！</h1>
+        <p>太強了！你透過 8x 超遠攝鏡頭完美掌握咗 iPhone 18 Pro Max 與 iPhone Duo 嘅所有硬體差異！</p>
+        <button class="btn" onclick="location.reload()">再玩一次</button>
     </div>
 
     <script>
-        function switchScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-        }
-
-        const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('zoomCanvas');
         const ctx = canvas.getContext('2d');
 
         function resizeCanvas() {
@@ -365,276 +185,285 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        const questionPool = [
+        let mouseX = canvas.width / 2;
+        let mouseY = canvas.height / 2;
+        let foundCount = 0;
+
+        // 5 個異同點區域數據 (基於資料圖)
+        const diffs = [
             {
-                q: "客人處理大量文書與長文章，你會推薦邊個 Apple Intelligence 功能？",
-                correct: ["Summarize 智能摘要", "Writing Tools 書寫工具", "Proofread 文章校對"],
-                wrong: ["開啟飛行模式當航拍機", "Auto-Typing 幫手代寫功課", "一鍵自動刪除老細郵件", "貼喺額頭提高智商"]
+                id: 1,
+                name: "長焦鏡頭：Pro Max 有獨立 48MP 8x 長焦；Duo 沒有獨立長焦鏡頭",
+                xRatio: 0.3, yRatio: 0.35, radius: 45, found: false
             },
             {
-                q: "蘋果智能（Visual Intelligence）視覺功能可以幫客人做到咩？",
-                correct: ["即時辨識餐廳名稱與營業時間", "掃瞄海報將活動加到日曆", "辨識狗狗品種與植物名稱"],
-                wrong: ["透過牆壁透視隔壁房", "掃瞄食物自動計算吸收卡路里", "睇穿朋友銀行戶口餘額", "即時將普通話變做西班牙唱腔"]
+                id: 2,
+                name: "解鎖方式：Pro Max 使用 Face ID；Duo 使用側鍵 Touch ID",
+                xRatio: 0.3, yRatio: 0.18, radius: 40, found: false
             },
             {
-                q: "全新 Siri AI 嘅跨 App 操作（App Actions）可以幫客人做到邊樣？",
-                correct: ["尋找幾年前在西班牙拍的照片", "將這段語音文字儲存到備忘錄", "把訊息內的地址直接開啟導航"],
-                wrong: ["自動幫客人排隊買 iPhone", "強制幫朋友刪除舊相片", "自動駁通 CEO 電話", "幫手機自動換螢幕貼膜"]
+                id: 3,
+                name: "機身形態：Pro Max 為 6.9 吋直板機；Duo 為 7.6 吋雙屏摺疊形態",
+                xRatio: 0.72, yRatio: 0.5, radius: 70, found: false
             },
             {
-                q: "AirPods 嘅即時同聲傳譯 / 翻譯功能，需要搭配邊個系統版本或設備？",
-                correct: ["iOS 18 或以上系統", "支持 Apple Intelligence 裝置", "最新版 AirPods 韌體"],
-                wrong: ["需要加裝 5G 衛星天線", "需要安裝 Windows 11 插件", "需要配合 Android 15 運作", "必須佩戴金屬安全帽"]
+                id: 4,
+                name: "前置鏡頭：Pro Max 為 18MP Center Stage；Duo 內屏為 Under-display 螢幕下鏡頭",
+                xRatio: 0.65, yRatio: 0.18, radius: 35, found: false
             },
             {
-                q: "Apple Watch 有邊啲極具實用價值嘅智能健康與安全功能？",
-                correct: ["跌倒偵測與車禍偵測", "心率過高過低通知", "睡眠窒息症徵兆偵測"],
-                wrong: ["邊度痛貼邊度治百病", "自動開鎖屋企門鎖防賊人", "伸出機械手幫手拎嘢", "預測聽日六合彩頭獎號碼"]
-            },
-            {
-                q: "向客人介紹 iPhone 保護殼配件時，可以順勢介紹邊啲 MagSafe 智能生態功能？",
-                correct: ["MagSafe 磁吸精準無線充電", "MagSafe 外置卡套隨身配件", "StandBy 待機模式立架展示"],
-                wrong: ["保護殼自動發熱當暖手寶", "保護殼跌落時會彈出降落傘", "保護殼帶有防彈盾牌功能", "保護殼可以增強手機 6G 訊號"]
-            },
-            {
-                q: "喺 Safari 瀏覽器入面，Apple Intelligence 提供咗咩智能功能？",
-                correct: ["Highlights 網頁重點摘要", "智能閱讀器排除廣告干擾", "網頁文字即時翻譯"],
-                wrong: ["自動幫客人填寫所有信用卡密碼", "幫你自動給網頁所有文章點讚", "自動下載所有網頁影片", "阻擋所有老闆發來的訊息"]
-            },
-            {
-                q: "客人想喺照片入面移除無關嘅行人或雜物，應該推薦邊個功能？",
-                correct: ["Clean Up 清除工具", "Object Removal 物件消除", "Smart Eraser 橡皮擦"],
-                wrong: ["把無關的人變成外星人", "把背景直接換成馬爾代夫海灘", "隱形遮罩把所有人隱形", "自動幫路人加上墨鏡特效"]
+                id: 5,
+                name: "觸控筆支援：Duo 支援 Apple Pencil (USB-C)；Pro Max 不支援",
+                xRatio: 0.85, yRatio: 0.6, radius: 50, found: false
             }
         ];
 
-        const fruitIcons = ["🍎", "🍊", "🍋", "🍉", "🍇", "🍓", "🍑", "🍍", "🥭"];
-
-        let currentQIndex = 0;
-        let score = 0;
-        let targets = [];
-        let bladePath = [];
-        let isGameOver = false;
-        let spawnTimer = null;
-        let animFrameId = null;
-
-        class TargetItem {
-            constructor(text, isCorrect, isBomb = false) {
-                this.x = Math.random() * (canvas.width - 240) + 120;
-                this.y = canvas.height + 90;
-                this.vx = (Math.random() - 0.5) * 3;
-                
-                // 體積全面放大：半徑 75px
-                this.radius = 75; 
-
-                // 極慢速重力與上升力，讓生果慢慢飄浮在空中
-                const targetHeight = canvas.height * (0.2 + Math.random() * 0.15);
-                this.gravity = 0.12; 
-                this.vy = -Math.sqrt(2 * this.gravity * (canvas.height - targetHeight));
-
-                this.text = text;
-                this.isCorrect = isCorrect;
-                this.isBomb = isBomb;
-                this.icon = isBomb ? "💣" : fruitIcons[Math.floor(Math.random() * fruitIcons.length)];
-                this.sliced = false;
-                this.rotation = 0;
-                this.vRot = (Math.random() - 0.5) * 0.03;
-            }
-
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vy += this.gravity;
-                this.rotation += this.vRot;
-            }
-
-            draw() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.rotation);
-
-                // 背景大圓圈
-                ctx.beginPath();
-                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.isBomb ? "rgba(255, 69, 58, 0.3)" : "rgba(28, 28, 30, 0.85)";
-                ctx.strokeStyle = this.isBomb ? "#ff453a" : "rgba(255, 255, 255, 0.4)";
-                ctx.lineWidth = 3.5;
-                ctx.fill();
-                ctx.stroke();
-
-                // 放大 Emoji 圖示
-                ctx.font = "46px sans-serif";
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                ctx.fillText(this.icon, 0, -22);
-
-                // 放大文字 (15px 粗體)
-                ctx.font = "bold 15px -apple-system, BlinkMacSystemFont, sans-serif";
-                ctx.fillStyle = "#ffffff";
-                
-                // 文字過長自動折行顯示
-                let displayTxt = this.text;
-                if (displayTxt.length > 8) {
-                    let line1 = displayTxt.substring(0, 7);
-                    let line2 = displayTxt.substring(7);
-                    ctx.fillText(line1, 0, 22);
-                    ctx.fillText(line2.length > 7 ? line2.substring(0, 6) + "..." : line2, 0, 42);
-                } else {
-                    ctx.fillText(displayTxt, 0, 30);
-                }
-
-                ctx.restore();
-            }
-        }
-
-        function loadQuestion() {
-            const qData = questionPool[currentQIndex];
-            document.getElementById('question-title').innerText = `關卡 ${currentQIndex + 1} / 8`;
-            document.getElementById('question-text').innerText = qData.q;
-            document.getElementById('score-val').innerText = score;
-            document.getElementById('progress-bar').style.width = `${(score / 8) * 100}%`;
-        }
-
-        function spawnTargets() {
-            if (isGameOver) return;
-
-            const qData = questionPool[currentQIndex];
-            
-            if (Math.random() < 0.12) {
-                targets.push(new TargetItem("DANGER", false, true));
+        // 監聽滑鼠與觸控
+        function updatePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            if (e.touches && e.touches[0]) {
+                mouseX = e.touches[0].clientX - rect.left;
+                mouseY = e.touches[0].clientY - rect.top;
             } else {
-                const isCorrect = Math.random() < 0.65;
-                const pool = isCorrect ? qData.correct : qData.wrong;
-                const text = pool[Math.floor(Math.random() * pool.length)];
-                targets.push(new TargetItem(text, isCorrect, false));
+                mouseX = e.clientX - rect.left;
+                mouseY = e.clientY - rect.top;
             }
         }
 
-        function addBladePoint(x, y) {
-            bladePath.push({ x, y, time: Date.now() });
-            checkCut(x, y);
-        }
+        window.addEventListener('mousemove', updatePos);
+        window.addEventListener('touchmove', updatePos);
+        window.addEventListener('click', checkClick);
 
-        window.addEventListener('mousemove', (e) => {
-            if (e.buttons === 1 && document.getElementById('ninja-screen').classList.contains('active')) {
-                addBladePoint(e.clientX, e.clientY);
-            }
-        });
+        function checkClick(e) {
+            diffs.forEach(d => {
+                if (!d.found) {
+                    const targetX = canvas.width * d.xRatio;
+                    const targetY = canvas.height * d.yRatio;
+                    const dist = Math.hypot(mouseX - targetX, mouseY - targetY);
+                    
+                    if (dist < d.radius + 30) {
+                        d.found = true;
+                        foundCount++;
+                        document.getElementById('found-count').innerText = foundCount;
+                        showToast(d.name);
 
-        window.addEventListener('touchmove', (e) => {
-            if (document.getElementById('ninja-screen').classList.contains('active')) {
-                for (let touch of e.touches) {
-                    addBladePoint(touch.clientX, touch.clientY);
-                }
-            }
-        });
-
-        function checkCut(x, y) {
-            if (isGameOver) return;
-
-            targets.forEach(target => {
-                if (!target.sliced) {
-                    const dist = Math.hypot(target.x - x, target.y - y);
-                    if (dist < target.radius) {
-                        target.sliced = true;
-                        
-                        if (target.isBomb) {
-                            triggerGameOver("切中咗爆炸彈 💣");
-                        } else if (target.isCorrect) {
-                            score++;
-                            if (score >= 8) {
-                                triggerVictory();
-                            } else {
-                                currentQIndex++;
-                                targets = [];
-                                loadQuestion();
-                            }
-                        } else {
-                            triggerGameOver(`切錯答案！「${target.text}」唔係 Apple 提供嘅正確功能！`);
+                        if (foundCount === 5) {
+                            setTimeout(() => {
+                                document.getElementById('victory-modal').style.display = 'flex';
+                            }, 1200);
                         }
                     }
                 }
             });
         }
 
-        function drawBlade() {
-            const now = Date.now();
-            bladePath = bladePath.filter(p => now - p.time < 160);
+        function showToast(text) {
+            const toast = document.getElementById('info-toast');
+            toast.innerText = "✓ " + text;
+            toast.style.display = "block";
+            setTimeout(() => { toast.style.display = "none"; }, 3000);
+        }
 
-            if (bladePath.length > 1) {
-                ctx.beginPath();
-                ctx.moveTo(bladePath[0].x, bladePath[0].y);
-                for (let i = 1; i < bladePath.length; i++) {
-                    ctx.lineTo(bladePath[i].x, bladePath[i].y);
+        // 繪製背景模型 (iPhone 18 Pro Max vs iPhone Duo)
+        function drawDevices() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 背景深色底
+            ctx.fillStyle = "#0a0a0c";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // ================= 1. 左側：iPhone 18 Pro Max (直板) =================
+            const pX = w * 0.3;
+            const pY = h * 0.5;
+            const pWidth = 180;
+            const pHeight = 360;
+
+            ctx.save();
+            ctx.translate(pX, pY);
+
+            // 機身輪廓 (鈦金屬邊框)
+            ctx.beginPath();
+            ctx.roundRect(-pWidth/2, -pHeight/2, pWidth, pHeight, 32);
+            ctx.fillStyle = "#1c1c1e";
+            ctx.strokeStyle = "#48484a";
+            ctx.lineWidth = 4;
+            ctx.fill();
+            ctx.stroke();
+
+            // 螢幕 (Super Retina XDR 6.9")
+            ctx.beginPath();
+            ctx.roundRect(-pWidth/2 + 6, -pHeight/2 + 6, pWidth - 12, pHeight - 12, 28);
+            ctx.fillStyle = "#000000";
+            ctx.fill();
+
+            // 頂部 Dynamic Island (Face ID)
+            ctx.beginPath();
+            ctx.roundRect(-25, -pHeight/2 + 18, 50, 14, 8);
+            ctx.fillStyle = "#121212";
+            ctx.fill();
+
+            // 背面三鏡頭模組 (帶獨立 8x 48MP 長焦)
+            ctx.beginPath();
+            ctx.roundRect(-pWidth/2 + 15, -pHeight/2 + 40, 65, 75, 16);
+            ctx.fillStyle = "rgba(255,255,255,0.05)";
+            ctx.fill();
+
+            // 3 個鏡頭
+            ctx.beginPath();
+            ctx.arc(-pWidth/2 + 32, -pHeight/2 + 58, 12, 0, Math.PI*2); // 主鏡
+            ctx.arc(-pWidth/2 + 58, -pHeight/2 + 58, 12, 0, Math.PI*2); // 超廣角
+            ctx.arc(-pWidth/2 + 32, -pHeight/2 + 90, 14, 0, Math.PI*2); // 48MP 獨立 8x 長焦!
+            ctx.fillStyle = "#2c2c2e";
+            ctx.strokeStyle = "#636366";
+            ctx.lineWidth = 2;
+            ctx.fill();
+            ctx.stroke();
+
+            // 標籤
+            ctx.font = "bold 16px -apple-system, sans-serif";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.fillText("iPhone 18 Pro Max", 0, pHeight/2 + 35);
+            ctx.font = "12px sans-serif";
+            ctx.fillStyle = "#86868b";
+            ctx.fillText("6.9\" 直板 • Face ID • 8x 獨立長焦", 0, pHeight/2 + 55);
+
+            ctx.restore();
+
+
+            // ================= 2. 右側：iPhone Duo (摺疊雙屏) =================
+            const dX = w * 0.72;
+            const dY = h * 0.5;
+            const dWidth = 300;
+            const dHeight = 340;
+
+            ctx.save();
+            ctx.translate(dX, dY);
+
+            // 雙屏摺疊機身 (Grade 5 鈦金屬)
+            ctx.beginPath();
+            ctx.roundRect(-dWidth/2, -dHeight/2, dWidth, dHeight, 20);
+            ctx.fillStyle = "#2c2c2e";
+            ctx.strokeStyle = "#545456";
+            ctx.lineWidth = 4;
+            ctx.fill();
+            ctx.stroke();
+
+            // 中間摺痕軸心 (Hinge)
+            ctx.beginPath();
+            ctx.moveTo(0, -dHeight/2);
+            ctx.lineTo(0, dHeight/2);
+            ctx.strokeStyle = "#1c1c1e";
+            ctx.lineWidth = 6;
+            ctx.stroke();
+
+            // 左屏 (5.4") 與 右屏 (7.6" 打開總和)
+            ctx.beginPath();
+            ctx.roundRect(-dWidth/2 + 6, -dHeight/2 + 6, dWidth/2 - 9, dHeight - 12, 14);
+            ctx.roundRect(3, -dHeight/2 + 6, dWidth/2 - 9, dHeight - 12, 14);
+            ctx.fillStyle = "#050505";
+            ctx.fill();
+
+            // 側邊 Touch ID 解鎖鈕
+            ctx.fillStyle = "#3a3a3c";
+            ctx.fillRect(dWidth/2, -30, 5, 60);
+
+            // 右內屏 Under-Display 螢幕下鏡頭 (隱形點)
+            ctx.beginPath();
+            ctx.arc(dWidth/4, -dHeight/2 + 25, 4, 0, Math.PI*2);
+            ctx.fillStyle = "rgba(255,255,255,0.2)";
+            ctx.fill();
+
+            // 旁邊擺放 Apple Pencil (USB-C) 支援
+            ctx.beginPath();
+            ctx.roundRect(dWidth/2 + 25, -dHeight/2 + 30, 8, dHeight - 60, 4);
+            ctx.fillStyle = "#e5e5ea";
+            ctx.fill();
+
+            // 標籤
+            ctx.font = "bold 16px -apple-system, sans-serif";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.fillText("iPhone Duo", 0, dHeight/2 + 35);
+            ctx.font = "12px sans-serif";
+            ctx.fillStyle = "#86868b";
+            ctx.fillText("5.4\"+7.6\" 摺疊屏 • 側邊 Touch ID • 支援 Apple Pencil", 0, dHeight/2 + 55);
+
+            ctx.restore();
+
+            // 畫出已找到的綠色圈圈標記
+            diffs.forEach(d => {
+                if (d.found) {
+                    const targetX = canvas.width * d.xRatio;
+                    const targetY = canvas.height * d.yRatio;
+                    ctx.beginPath();
+                    ctx.arc(targetX, targetY, d.radius, 0, Math.PI * 2);
+                    ctx.strokeStyle = "#30d158";
+                    ctx.lineWidth = 4;
+                    ctx.fillStyle = "rgba(48, 209, 88, 0.25)";
+                    ctx.fill();
+                    ctx.stroke();
                 }
-                ctx.strokeStyle = "#2997ff";
-                ctx.lineWidth = 8;
-                ctx.lineCap = "round";
-                ctx.shadowColor = "#0066cc";
-                ctx.shadowBlur = 15;
-                ctx.stroke();
-                ctx.shadowBlur = 0;
-            }
+            });
+        }
+
+        // 繪製 8x 光學放大鏡
+        function drawZoomLens() {
+            const lensRadius = 90; // 放大鏡大小
+
+            ctx.save();
+
+            // 剪裁出圓形 8x 鏡頭區域
+            ctx.beginPath();
+            ctx.arc(mouseX, mouseY, lensRadius, 0, Math.PI * 2);
+            ctx.clip();
+
+            // 喺放大鏡內部以 1.8 倍放大渲染局部畫面
+            ctx.save();
+            ctx.translate(mouseX, mouseY);
+            ctx.scale(1.8, 1.8);
+            ctx.translate(-mouseX, -mouseY);
+            drawDevices();
+            ctx.restore();
+
+            ctx.restore();
+
+            // 畫放大鏡金屬邊框與 8x 標誌
+            ctx.beginPath();
+            ctx.arc(mouseX, mouseY, lensRadius, 0, Math.PI * 2);
+            ctx.strokeStyle = "rgba(41, 151, 255, 0.9)";
+            ctx.lineWidth = 5;
+            ctx.stroke();
+
+            // 十字準星線
+            ctx.beginPath();
+            ctx.moveTo(mouseX - 15, mouseY); ctx.lineTo(mouseX + 15, mouseY);
+            ctx.moveTo(mouseX, mouseY - 15); ctx.lineTo(mouseX, mouseY + 15);
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+
+            // 8x 標籤角標
+            ctx.fillStyle = "#2997ff";
+            ctx.beginPath();
+            ctx.roundRect(mouseX + lensRadius - 35, mouseY + lensRadius - 25, 42, 20, 10);
+            ctx.fill();
+            ctx.font = "bold 11px sans-serif";
+            ctx.fillStyle = "#ffffff";
+            ctx.textAlign = "center";
+            ctx.fillText("8x", mouseX + lensRadius - 14, mouseY + lensRadius - 11);
         }
 
         function gameLoop() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            for (let i = targets.length - 1; i >= 0; i--) {
-                const target = targets[i];
-                target.update();
-                target.draw();
-
-                if (target.y > canvas.height + 120 || target.sliced) {
-                    targets.splice(i, 1);
-                }
-            }
-
-            drawBlade();
-
-            if (!isGameOver) {
-                animFrameId = requestAnimationFrame(gameLoop);
-            }
+            drawDevices();
+            drawZoomLens();
+            requestAnimationFrame(gameLoop);
         }
 
-        function startNinjaGame() {
-            score = 0;
-            currentQIndex = 0;
-            targets = [];
-            bladePath = [];
-            isGameOver = false;
-
-            document.getElementById('game-over-modal').style.display = "none";
-            document.getElementById('victory-modal').style.display = "none";
-
-            loadQuestion();
-
-            if (spawnTimer) clearInterval(spawnTimer);
-            spawnTimer = setInterval(spawnTargets, 2200); // 延長間隔至 2.2 秒，節奏更清晰
-
-            if (animFrameId) cancelAnimationFrame(animFrameId);
-            gameLoop();
-        }
-
-        function triggerGameOver(reason) {
-            isGameOver = true;
-            clearInterval(spawnTimer);
-            document.getElementById('over-reason').innerText = reason;
-            document.getElementById('game-over-modal').style.display = "flex";
-        }
-
-        function triggerVictory() {
-            isGameOver = true;
-            clearInterval(spawnTimer);
-            document.getElementById('victory-modal').style.display = "flex";
-        }
-
-        function exitNinjaGame() {
-            isGameOver = true;
-            clearInterval(spawnTimer);
-            if (animFrameId) cancelAnimationFrame(animFrameId);
-            switchScreen('main-menu');
-        }
+        gameLoop();
     </script>
 </body>
 </html>
