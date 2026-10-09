@@ -2,213 +2,402 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apple Cotai Strip Arcade</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Siri Slash 忍者刀 - Apple Cotai Strip Arcade</title>
     <style>
-        /* Apple 簡約風格字型與基本設定 */
         :root {
-            --bg-color: #f5f5f7;
-            --card-bg: #ffffff;
-            --text-primary: #1d1d1f;
-            --text-secondary: #86868b;
-            --accent-blue: #0066cc;
+            --bg-color: #000000;
+            --card-bg: #1c1c1e;
+            --text-primary: #f5f5f7;
+            --accent-blue: #2997ff;
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-color: #000000;
-                --card-bg: #1c1c1e;
-                --text-primary: #f5f5f7;
-                --text-secondary: #86868b;
-                --accent-blue: #2997ff;
-            }
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
+        body, html {
             margin: 0;
-            padding: 40px 20px;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", sans-serif;
+            color: var(--text-primary);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* 頂部題目與得分顯示區 */
+        #game-ui {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            z-index: 10;
+            pointer-events: none;
             display: flex;
             flex-direction: column;
             align-items: center;
-            -webkit-font-smoothing: antialiased;
         }
 
-        .container {
-            max-width: 1080px;
-            width: 100%;
-        }
-
-        /* 頂部 Apple Style 標題區塊 */
-        .header {
-            margin-bottom: 40px;
-        }
-
-        .header h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            letter-spacing: -0.015em;
-            margin: 0 0 10px 0;
-            line-height: 1.1;
-            background: linear-gradient(135deg, #0071e3, #42a5f5, #ab47bc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header p {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            margin: 0 0 12px 0;
-            font-weight: 400;
-        }
-
-        .header a {
-            color: var(--accent-blue);
-            text-decoration: none;
-            font-size: 1.05rem;
-            font-weight: 400;
-        }
-
-        .header a:hover {
-            text-decoration: underline;
-        }
-
-        /* 3 個 Bento Grid 遊戲大卡片排版 */
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 22px;
-        }
-
-        .game-card {
-            background-color: var(--card-bg);
-            border-radius: 24px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        }
-
-        .game-card:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-        }
-
-        /* 遊戲封面圖片預留位置 */
-        .card-image {
-            width: 100%;
-            height: 280px;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-        }
-
-        /* 示意背景色，之後可直接用 background-image 替換 */
-        .card-1 .card-image { background: linear-gradient(135deg, #141e30, #243b55); }
-        .card-2 .card-image { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); }
-        .card-3 .card-image { background: linear-gradient(135deg, #3a1c71, #d76d77, #ffaf7b); }
-
-        .card-image-content {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            color: #fff;
-        }
-
-        .overlay-badge {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            padding: 6px 14px;
+        .question-box {
+            background: rgba(28, 28, 30, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 20px;
+            padding: 16px 20px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .question-title {
             font-size: 0.85rem;
-            display: inline-block;
-            margin-bottom: 8px;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
         }
 
-        /* 下方文字說明 */
-        .card-body {
-            padding: 24px;
-        }
-
-        .card-body p {
-            font-size: 0.95rem;
-            line-height: 1.5;
-            color: var(--text-secondary);
-            margin: 0;
-        }
-
-        .card-body p strong {
-            color: var(--text-primary);
+        .question-text {
+            font-size: 1.15rem;
             font-weight: 600;
+            color: #fff;
+            line-height: 1.3;
+        }
+
+        .score-board {
+            margin-top: 10px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--accent-blue);
+        }
+
+        /* Canvas 畫布 */
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 遊戲結束彈窗 */
+        #game-over-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        #game-over-modal h1 {
+            font-size: 2.5rem;
+            color: #ff453a;
+            margin-bottom: 10px;
+        }
+
+        #game-over-modal p {
+            font-size: 1.2rem;
+            color: #86868b;
+            margin-bottom: 25px;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .btn {
+            background: var(--accent-blue);
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 返回主頁按鈕 */
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 20;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- 頂部 Apple Style 標題區塊 -->
-        <div class="header">
-            <h1> Apple Cotai Strip Arcade</h1>
-            <p>Siri AI & iPhone 18 Series Resting Room Experience.</p>
-            <a href="#">Learn more about Apple Intelligence &rsaquo;</a>
+    <a href="index.html" class="back-btn">‹ 主頁</a>
+
+    <div id="game-ui">
+        <div class="question-box">
+            <div class="question-title">Apple Intelligence 題目</div>
+            <div id="question-text" class="question-text">載入中...</div>
         </div>
+        <div class="score-board">Score: <span id="score-val">0</span></div>
+    </div>
 
-        <!-- 3 個 Mini Game 入口大圖卡片 -->
-        <div class="grid-container">
+    <canvas id="gameCanvas"></canvas>
 
-            <!-- 第一個 Game：忍者刀 -->
-            <div class="game-card card-1" onclick="openGame('ninja')">
-                <div class="card-image">
-                    <div class="card-image-content">
-                        <span class="overlay-badge">Game 01</span>
-                        <h2 style="margin:0; font-size:1.5rem;">Siri Slash 忍者刀</h2>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <p><strong>Apple Intelligence 關鍵字：</strong> 考驗極速反應，精準切開所有 Siri AI 相關技術關鍵字！</p>
-                </div>
-            </div>
-
-            <!-- 第二個 Game：8x 鏡 找不同 -->
-            <div class="game-card card-2" onclick="openGame('zoom')">
-                <div class="card-image">
-                    <div class="card-image-content">
-                        <span class="overlay-badge">Game 02</span>
-                        <h2 style="margin:0; font-size:1.5rem;">8x Telephoto 找不同</h2>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <p><strong>iPhone 18 Pro & Duo：</strong> 透過 8x 超遠攝鏡頭微距觀察，找出兩幅新機展示圖中嘅細節差異。</p>
-                </div>
-            </div>
-
-            <!-- 第三個 Game：百萬富翁 -->
-            <div class="game-card card-3" onclick="openGame('quiz')">
-                <div class="card-image">
-                    <div class="card-image-content">
-                        <span class="overlay-badge">Game 03</span>
-                        <h2 style="margin:0; font-size:1.5rem;">Who Wants to be a Genius?</h2>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <p><strong>百萬富翁問答：</strong> 挑戰 Siri AI、iPhone 18 Pro 及 iPhone Duo 終極題目，贏取最高榮譽！</p>
-                </div>
-            </div>
-
-        </div>
+    <div id="game-over-modal">
+        <h1 id="over-title">BOOM! 💥</h1>
+        <p id="over-reason">你切錯咗答案 / 切中咗爆炸彈！</p>
+        <p>最終得分：<span id="final-score">0</span></p>
+        <button class="btn" onclick="restartGame()">再試一次</button>
     </div>
 
     <script>
-        function openGame(gameType) {
-            console.log("Entering game:", gameType);
-            alert("即將進入： " + gameType);
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // 題目庫：包含正確答案生果與錯誤答案干擾項
+        const questionPool = [
+            {
+                q: "客人想在 iPhone 上快速處理大量長文章與會議摘要，你會推薦哪項 Apple Intelligence 功能？",
+                correct: ["Summarize (摘要)", "Priority Notifications", "Smart Reply"],
+                wrong: ["Genmoji", "Clean Up (清除)", "Image Playground"]
+            },
+            {
+                q: "客人需要快速修改郵件語氣（例如修飾得更專業），應該建議使用什麼功能？",
+                correct: ["Writing Tools (書寫工具)", "Proofread (校對)", "Rewrite (重寫)"],
+                wrong: ["Visual Intelligence", "Siri Cutouts", "Live Translation"]
+            },
+            {
+                q: "客人想移除相片背景中的無關行人，最適合使用哪種 Apple Intelligence 工具？",
+                correct: ["Clean Up (照片消除)", "Object Erase"],
+                wrong: ["Image Wand", "Create Memory Movie", "Reduce Interruptions"]
+            },
+            {
+                q: "Siri AI 在全新架構下，能如何幫客人跨 App 執行操作（App Actions）？",
+                correct: ["尋找幾年前在西班牙拍的照片", "將這段語音文字儲存到備忘錄", "將訊息內地址輸入地圖導航"],
+                wrong: ["自動幫客人開機", "強制升級 macOS", "跳過 iCloud 驗證"]
+            }
+        ];
+
+        const fruitIcons = ["🍎", "🍊", "🍋", "🍉", "🍇", "🍓", "🍑", "🍍"];
+
+        let score = 0;
+        let currentQIndex = 0;
+        let targets = [];
+        let bladePath = [];
+        let isGameOver = false;
+
+        class TargetItem {
+            constructor(text, isCorrect, isBomb = false) {
+                this.x = Math.random() * (canvas.width - 120) + 60;
+                this.y = canvas.height + 50;
+                this.vx = (Math.random() - 0.5) * 4;
+                this.vy = -(Math.random() * 4 + 13); // 向上拋力量
+                this.gravity = 0.35;
+                this.radius = 45;
+                this.text = text;
+                this.isCorrect = isCorrect;
+                this.isBomb = isBomb;
+                this.icon = isBomb ? "💣" : fruitIcons[Math.floor(Math.random() * fruitIcons.length)];
+                this.sliced = false;
+                this.rotation = 0;
+                this.vRot = (Math.random() - 0.5) * 0.1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.rotation += this.vRot;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+
+                // 畫生果/炸彈背景圓圈
+                ctx.beginPath();
+                ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.isBomb ? "rgba(255, 69, 58, 0.2)" : "rgba(255, 255, 255, 0.12)";
+                ctx.strokeStyle = this.isBomb ? "#ff453a" : "rgba(255, 255, 255, 0.3)";
+                ctx.lineWidth = 2;
+                ctx.fill();
+                ctx.stroke();
+
+                // 畫 Emoji 圖標
+                ctx.font = "32px sans-serif";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(this.icon, 0, -10);
+
+                // 畫文字標籤
+                ctx.font = "12px -apple-system, BlinkMacSystemFont, sans-serif";
+                ctx.fillStyle = "#ffffff";
+                ctx.fillText(this.text, 0, 22);
+
+                ctx.restore();
+            }
+        }
+
+        // 載入題目
+        function loadQuestion() {
+            const qData = questionPool[currentQIndex];
+            document.getElementById('question-text').innerText = qData.q;
+        }
+
+        // 隨機生成飛出的生果或炸彈
+        function spawnTargets() {
+            if (isGameOver) return;
+
+            const qData = questionPool[currentQIndex];
+            
+            // 20% 機率生成炸彈
+            if (Math.random() < 0.2) {
+                targets.push(new TargetItem("DANGER", false, true));
+            } else {
+                const isCorrect = Math.random() > 0.4;
+                const pool = isCorrect ? qData.correct : qData.wrong;
+                const text = pool[Math.floor(Math.random() * pool.length)];
+                targets.push(new TargetItem(text, isCorrect, false));
+            }
+        }
+
+        setInterval(spawnTargets, 1800);
+
+        // 觸控 / 滑鼠劃刀軌跡記錄
+        function addBladePoint(x, y) {
+            bladePath.push({ x, y, time: Date.now() });
+            checkCut(x, y);
+        }
+
+        window.addEventListener('mousemove', (e) => {
+            if (e.buttons === 1) addBladePoint(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            for (let touch of e.touches) {
+                addBladePoint(touch.clientX, touch.clientY);
+            }
+        });
+
+        // 檢查刀痕是否切中目標
+        function checkCut(x, y) {
+            if (isGameOver) return;
+
+            targets.forEach(target => {
+                if (!target.sliced) {
+                    const dist = Math.hypot(target.x - x, target.y - y);
+                    if (dist < target.radius) {
+                        target.sliced = true;
+                        
+                        if (target.isBomb) {
+                            gameOver("切中咗爆炸彈 💣");
+                        } else if (target.isCorrect) {
+                            score += 10;
+                            document.getElementById('score-val').innerText = score;
+                            
+                            // 每得 30 分換下一條題目
+                            if (score % 30 === 0) {
+                                currentQIndex = (currentQIndex + 1) % questionPool.length;
+                                loadQuestion();
+                            }
+                        } else {
+                            gameOver(`切錯答案！「${target.text}」唔符合題目要求！`);
+                        }
+                    }
+                }
+            });
+        }
+
+        // 畫刀痕效果
+        function drawBlade() {
+            const now = Date.now();
+            bladePath = bladePath.filter(p => now - p.time < 150);
+
+            if (bladePath.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(bladePath[0].x, bladePath[0].y);
+                for (let i = 1; i < bladePath.length; i++) {
+                    ctx.lineTo(bladePath[i].x, bladePath[i].y);
+                }
+                ctx.strokeStyle = "#2997ff";
+                ctx.lineWidth = 5;
+                ctx.lineCap = "round";
+                ctx.shadowColor = "#0066cc";
+                ctx.shadowBlur = 10;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        // 遊戲主迴圈
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 更新並繪製所有飛出的物件
+            for (let i = targets.length - 1; i >= 0; i--) {
+                const target = targets[i];
+                target.update();
+                target.draw();
+
+                // 移除落出螢幕外或已切開的物件
+                if (target.y > canvas.height + 100 || target.sliced) {
+                    targets.splice(i, 1);
+                }
+            }
+
+            drawBlade();
+
+            if (!isGameOver) {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function gameOver(reason) {
+            isGameOver = true;
+            document.getElementById('over-reason').innerText = reason;
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('game-over-modal').style.display = "flex";
+        }
+
+        function restartGame() {
+            score = 0;
+            currentQIndex = 0;
+            targets = [];
+            bladePath = [];
+            isGameOver = false;
+            document.getElementById('score-val').innerText = "0";
+            document.getElementById('game-over-modal').style.display = "none";
+            loadQuestion();
+            gameLoop();
+        }
+
+        // 啟動遊戲
+        loadQuestion();
+        gameLoop();
     </script>
 </body>
 </html>
