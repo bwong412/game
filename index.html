@@ -6,7 +6,6 @@
     <title> Cotai Arcade</title>
     <style>
         :root {
-            /* 明亮 Positive 天藍配色 */
             --bg-color: #70c5ce;
             --card-bg: rgba(255, 255, 255, 0.92);
             --text-primary: #1d1d1f;
@@ -60,9 +59,24 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        .back-btn:active { transform: scale(0.95); }
+        .admin-btn {
+            position: fixed;
+            top: 20px; right: 20px;
+            z-index: 9999;
+            background: #002b49;
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 2px solid #ffffff;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
 
-        /* ================= 1. 明亮主頁選單 ================= */
+        .back-btn:active, .admin-btn:active { transform: scale(0.95); }
+
+        /* ================= 1. 主頁選單 ================= */
         #main-menu {
             padding: 40px 20px 0 20px;
             align-items: center;
@@ -113,8 +127,6 @@
             box-shadow: 0 14px 28px rgba(0,0,0,0.18);
         }
 
-        .game-card:active { transform: scale(0.98); }
-
         .card-image {
             height: 150px;
             display: flex;
@@ -131,7 +143,6 @@
         .card-body { padding: 22px; }
         .card-body p { font-size: 1.05rem; color: var(--text-primary); margin: 0; line-height: 1.5; font-weight: 500; }
 
-        /* 底部 Mario 跑道 Canvas */
         #marioCanvas {
             width: 100%;
             height: 140px;
@@ -161,6 +172,15 @@
         .progress-bar-container { width: 100%; height: 10px; background: #e0e0e0; border-radius: 5px; margin-top: 12px; overflow: hidden; }
         .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #0083b0, #30d158); transition: width 0.3s; }
         canvas { display: block; width: 100%; height: 100%; }
+
+        .review-container {
+            text-align: left; background: #f8fafc; border: 2px solid #002b49;
+            border-radius: 16px; padding: 20px; max-width: 650px; width: 100%;
+            margin: 15px 0; max-height: 280px; overflow-y: auto; box-sizing: border-box;
+        }
+        .review-item { margin-bottom: 14px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px; }
+        .review-item h4 { margin: 0 0 4px 0; color: #0066cc; font-size: 1.05rem; }
+        .review-item p { margin: 0; font-size: 0.95rem; color: #334155; line-height: 1.5; }
 
         /* ================= GAME 2: 分類大師 ================= */
         #drag-screen {
@@ -230,9 +250,7 @@
             border: 2px solid #002b49; transition: all 0.2s ease;
         }
 
-        .drag-item.selected {
-            background: var(--accent-blue); color: #fff; transform: scale(1.06);
-        }
+        .drag-item.selected { background: var(--accent-blue); color: #fff; transform: scale(1.06); }
 
         .submit-btn {
             background: #248a3d; color: #fff;
@@ -283,13 +301,13 @@
             border-radius: 14px; border: 2px solid #002b49; font-size: 1.05rem; line-height: 1.5; color: #000;
         }
 
-        /* 煙花 Canvas，層級放在 Modal 背後 */
+        /* 煙花 Canvas，層級較低 */
         #fireworksCanvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 999; display: none;
+            pointer-events: none; z-index: 50; display: none;
         }
 
-        /* 彈窗與排行榜 (Modal 層級高於煙花，確保按鈕可點擊) */
+        /* 彈窗與排行榜 */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.96);
@@ -320,12 +338,27 @@
             border-radius: 25px; font-size: 1.15rem; font-weight: 700;
             border: 2px solid #000; cursor: pointer; margin: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
+
+        /* Admin 編輯介面樣式 */
+        .admin-editor {
+            width: 100%; max-width: 800px; text-align: left;
+            background: #fff; border: 2px solid #002b49; border-radius: 16px;
+            padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .admin-editor label { font-weight: bold; display: block; margin-top: 10px; color: #002b49; }
+        .admin-editor input, .admin-editor textarea {
+            width: 100%; padding: 8px 12px; margin-top: 4px; border-radius: 8px;
+            border: 1px solid #cbd5e1; box-sizing: border-box; font-size: 0.95rem;
+        }
     </style>
 </head>
 <body>
 
     <!-- 煙花特效 Canvas -->
     <canvas id="fireworksCanvas"></canvas>
+
+    <!-- 右上角 Admin 管理按鈕 -->
+    <button class="admin-btn" onclick="openAdminModal()">⚙️ Admin</button>
 
     <!-- ================= 1. 主頁選單 ================= -->
     <div id="main-menu" class="screen active">
@@ -365,7 +398,6 @@
             </div>
         </div>
 
-        <!-- 主頁底部 Mario 跑道動畫 Canvas -->
         <canvas id="marioCanvas"></canvas>
     </div>
 
@@ -377,6 +409,26 @@
         <div>
             <button class="btn" onclick="confirmStartGame()">開始遊戲</button>
             <button class="btn" style="background:#e2e8f0; color:#000;" onclick="cancelPlayerPrompt()">取消返回</button>
+        </div>
+    </div>
+
+    <!-- ================= ADMIN 管理彈窗 ================= -->
+    <div id="admin-modal" class="modal">
+        <h1 style="color:#002b49;">⚙️ Admin 後台題目管理</h1>
+        <p style="color:var(--text-secondary);">請輸入管理員帳號與密碼：</p>
+        
+        <div id="admin-login-box">
+            <input type="text" id="admin-user" class="input-box" placeholder="帳號 (Apple)" style="margin-bottom:10px;"><br>
+            <input type="password" id="admin-pass" class="input-box" placeholder="密碼 (Apple)"><br>
+            <button class="btn" onclick="loginAdmin()">登入管理</button>
+            <button class="btn" style="background:#e2e8f0; color:#000;" onclick="closeAdminModal()">關閉</button>
+        </div>
+
+        <div id="admin-content-box" style="display:none; width:100%; max-width:800px;">
+            <p style="color:var(--apple-green); font-weight:bold;">✅ 已成功登入！修改後點擊「儲存全部變更」即可生效。</p>
+            <div id="admin-questions-list"></div>
+            <button class="btn" style="background:var(--apple-green);" onclick="saveAdminChanges()">💾 儲存全部變更</button>
+            <button class="btn" style="background:#e2e8f0; color:#000;" onclick="closeAdminModal()">關閉</button>
         </div>
     </div>
 
@@ -403,6 +455,9 @@
             <h1 style="color:var(--apple-green)">🎉 通關成功！</h1>
             <p style="font-size:1.2rem;">耗時：<span id="ninja-time-val" style="font-weight:bold;">0</span> 秒</p>
             
+            <!-- 8 題完整 Review -->
+            <div class="review-container" id="ninja-review-list"></div>
+
             <div class="leaderboard-box">
                 <div class="leaderboard-title">🏆 忍者刀 Top 3 排行榜</div>
                 <div id="ninja-leaderboard"></div>
@@ -482,7 +537,7 @@
                 <div class="quiz-fb" id="quiz-feedback" style="display:none;"></div>
             </div>
 
-            <div style="display:flex; justify-between; width:100%;">
+            <div style="display:flex; justify-content:space-between; width:100%;">
                 <button class="btn" id="quiz-lock-btn" onclick="lockQuizAnswer()" disabled>🔒 鎖定答案</button>
                 <button class="btn" id="quiz-next-btn" onclick="nextQuizQuestion()" style="display:none; background:var(--apple-green);">下一題 ▶</button>
             </div>
@@ -579,6 +634,62 @@
             `).join('');
         }
 
+        // ================= ADMIN 後台管理邏輯 =================
+        function openAdminModal() {
+            document.getElementById('admin-modal').style.display = 'flex';
+            document.getElementById('admin-login-box').style.display = 'block';
+            document.getElementById('admin-content-box').style.display = 'none';
+        }
+
+        function closeAdminModal() {
+            document.getElementById('admin-modal').style.display = 'none';
+        }
+
+        function loginAdmin() {
+            const u = document.getElementById('admin-user').value.trim();
+            const p = document.getElementById('admin-pass').value.trim();
+            if (u === "Apple" && p === "Apple") {
+                document.getElementById('admin-login-box').style.display = 'none';
+                document.getElementById('admin-content-box').style.display = 'block';
+                renderAdminQuestions();
+            } else {
+                alert("帳號或密碼不正確！");
+            }
+        }
+
+        function renderAdminQuestions() {
+            const list = document.getElementById('admin-questions-list');
+            list.innerHTML = '<h3>Game 1 忍者刀題目編輯</h3>';
+            
+            questionPool.forEach((q, idx) => {
+                list.innerHTML += `
+                    <div class="admin-editor">
+                        <strong style="color:var(--accent-blue);">第 ${idx+1} 題：</strong>
+                        <label>問題描述：</label>
+                        <textarea id="g1-q-${idx}">${q.q}</textarea>
+                        <label>正確答案（以逗號分隔）：</label>
+                        <input type="text" id="g1-c-${idx}" value="${q.correct.join(', ')}">
+                        <label>錯誤干擾項（以逗號分隔）：</label>
+                        <input type="text" id="g1-w-${idx}" value="${q.wrong.join(', ')}">
+                        <label>通關 Review 溫習內容：</label>
+                        <textarea id="g1-r-${idx}">${q.review}</textarea>
+                    </div>
+                `;
+            });
+        }
+
+        function saveAdminChanges() {
+            questionPool.forEach((q, idx) => {
+                q.q = document.getElementById(`g1-q-${idx}`).value;
+                q.correct = document.getElementById(`g1-c-${idx}`).value.split(',').map(s => s.trim());
+                q.wrong = document.getElementById(`g1-w-${idx}`).value.split(',').map(s => s.trim());
+                q.review = document.getElementById(`g1-r-${idx}`).value;
+            });
+            localStorage.setItem('custom_question_pool', JSON.stringify(questionPool));
+            alert("✅ 所有題目修改已成功儲存！");
+            closeAdminModal();
+        }
+
         // ================= GAME 1 (忍者刀) LOGIC =================
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -586,20 +697,60 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        const questionPool = [
-            { q: "客人處理大量文書與長文章，你會推薦邊個 Apple Intelligence 功能？", correct: ["Summarize 智能摘要", "Writing Tools 書寫工具"], wrong: ["飛行模式當航拍機", "代寫功課功能"] },
-            { q: "蘋果智能（Visual Intelligence）視覺功能可以幫客人做到咩？", correct: ["辨識餐廳營業時間", "海報活動加到日曆"], wrong: ["透視隔壁房間", "睇穿朋友銀行餘額"] },
-            { q: "全新 Siri AI 嘅跨 App 操作（App Actions）可以幫客人做到邊樣？", correct: ["尋找幾年前照片", "語音儲存到備忘錄"], wrong: ["排隊買 iPhone", "自動駁通 CEO 電話"] },
-            { q: "AirPods 嘅即時同聲傳譯 / 翻譯功能，需要搭配邊個系統？", correct: ["iOS 18 或以上", "支持 Apple Intelligence 裝置"], wrong: ["5G 衛星天線", "Windows 11 插件"] },
-            { q: "Apple Watch 有邊啲極具實用價值嘅智能健康與安全功能？", correct: ["跌倒與車禍偵測", "心率過高過低通知"], wrong: ["邊度痛貼邊度", "預測六合彩頭獎"] },
-            { q: "介紹保護殼時，可以順勢介紹邊啲 MagSafe 智能生態功能？", correct: ["MagSafe 磁吸無線充電", "StandBy 待機模式立架"], wrong: ["保護殼自動發熱", "跌落彈出降落傘"] },
-            { q: "喺 Safari 瀏覽器入面，Apple Intelligence 提供咗咩功能？", correct: ["Highlights 網頁重點摘要", "網頁文字即時翻譯"], wrong: ["填寫信用卡密碼", "自動幫網頁文章點讚"] },
-            { q: "客人想喺照片入面移除無關嘅行人，應該推薦邊個功能？", correct: ["Clean Up 清除工具", "Object Removal 物件消除"], wrong: ["把人變成外星人", "換成馬爾代夫海灘"] }
+        let defaultQuestionPool = [
+            { 
+                q: "客人處理大量文書與長文章，你會推薦邊個 Apple Intelligence 功能？", 
+                correct: ["Writing Tools", "Summarize 智能摘要"], 
+                wrong: ["Visual Intelligence", "飛行模式當航拍機", "代寫功課功能"],
+                review: "客人處理大量文書和長文章時，我們可以介紹 Writing Tools / Siri AI。幾乎任何打字的地方，都可叫 Siri 幫手寫。Siri AI 現可由零開始生成草稿，或就你所寫的內容給予意見。在訊息和郵件 App，Siri AI 更可配合你一貫的寫作風格、標點和語氣運用。（暫時適用於英文）"
+            },
+            { 
+                q: "蘋果智能（Visual Intelligence）視覺功能可以幫客人做到咩？", 
+                correct: ["辨識餐廳營業時間", "海報活動加到日曆"], 
+                wrong: ["透視隔壁房間", "睇穿朋友銀行餘額"],
+                review: "就眼前所見、螢幕所看，直接探索查問。視覺智能隨時好用，更幫得手，現已加入相機內，並即將登陸 Mac 和 iPad；相機的 Siri 模式配合視覺智能，讓你只需輕點一下，即可根據身邊的事物進行搜尋、提問，並執行相關操作。"
+            },
+            { 
+                q: "全新 Siri AI 嘅跨 App 操作（App Actions）可以幫客人做到邊樣？", 
+                correct: ["尋找幾年前照片", "語音儲存到備忘錄"], 
+                wrong: ["排隊買 iPhone", "自動駁通 CEO 電話"],
+                review: "跨 App 嶄新亮相，真正幫得手的 AI，與各個 App 深度整合，理解你的個人情境。Siri AI 可根據你當下進行的事項，在訊息、音樂和提醒事項等 App 中執行操作，並可參考網上資料給你詳盡最新情報。"
+            },
+            { 
+                q: "AirPods 嘅即時同聲傳譯 / 翻譯功能，需要搭配邊個系統裝置？", 
+                correct: ["iPhone 15 Pro 或更新型號（iOS 18 或以上）", "支援 Apple Intelligence 裝置"], 
+                wrong: ["所有舊款 iPhone 均可", "Android 5G 裝置"],
+                review: "AirPods 搭配支援 Apple Intelligence 的 iPhone（iPhone 15 Pro 系列或更新型號，運行 iOS 18 或更高版本），即可實現同聲傳譯與即時翻譯功能。"
+            },
+            { 
+                q: "Apple Watch 有邊啲極具實用價值嘅智能健康與安全功能？", 
+                correct: ["跌倒與車禍偵測", "心率過高過低通知"], 
+                wrong: ["邊度痛貼邊度", "預測六合彩頭獎"],
+                review: "Apple Watch 提供全天候健康守護，包括心率過高/過低通知、心律不國警告，以及關鍵時刻的跌倒偵測與車禍偵測自動求救功能。"
+            },
+            { 
+                q: "介紹 iPhone Case 保護殼時，側邊新增咗邊個專用按鈕介面？", 
+                correct: ["Camera Control 按鈕", "Visual Intelligence 快捷鍵"], 
+                wrong: ["自動發熱按鈕", "降落傘彈出鍵"],
+                review: "全新 iPhone Case 完美匹配側邊的相機控制（Camera Control）與 Visual Intelligence 按鈕，讓使用者一按即可快速啟動視覺智能搜尋與拍攝。"
+            },
+            { 
+                q: "喺 Safari 瀏覽器入面，Apple Intelligence 提供咗咩功能？", 
+                correct: ["Highlights 網頁重點摘要", "網頁文字即時翻譯"], 
+                wrong: ["自動幫網頁文章點讚", "填寫信用卡密碼"],
+                review: "Safari 結合 Apple Intelligence 提供 Highlights 功能，能自動提取長篇文章與網頁的關鍵重點，讓閱讀與吸收資訊更加高效。"
+            },
+            { 
+                q: "客人想喺照片入面移除無關嘅行人，應該推薦邊個功能？", 
+                correct: ["Clean Up 清除工具", "Object Removal 物件消除"], 
+                wrong: ["一鍵美顏", "一鍵磨皮", "AI 生成背景"],
+                review: "Clean Up（清除工具）是 Apple Intelligence 照片 App 的核心功能，能精準識別並一鍵消除背景中無關的雜物或行人，同時保持背景自然填補。"
+            }
         ];
 
-        // 豐富的水果圖示庫
-        const fruitIcons = ["🍎", "🍊", "🍉", "🍌", "🍓", "🍑", "🍐"];
+        let questionPool = JSON.parse(localStorage.getItem('custom_question_pool')) || defaultQuestionPool;
 
+        const fruitIcons = ["🍎", "🍊", "🍉", "🍌", "🍓", "🍑", "🍐"];
         let currentQIndex = 0, score = 0, targets = [], bladePath = [], isGameOver = true, spawnTimer = null, animFrameId = null;
 
         class TargetItem {
@@ -609,10 +760,7 @@
                 this.vx = (Math.random() - 0.5) * 3;
                 this.radius = 110;
                 this.gravity = 0.12;
-                
-                // 大幅提升拋起高度（讓水果上升得更高，停留更久）
                 this.vy = -Math.sqrt(2 * this.gravity * (canvas.height * (0.65 + Math.random() * 0.15)));
-                
                 this.text = text; this.isCorrect = isCorrect; this.isBomb = isBomb;
                 this.icon = isBomb ? "💣" : fruitIcons[Math.floor(Math.random() * fruitIcons.length)]; 
                 this.sliced = false;
@@ -632,11 +780,11 @@
                 ctx.font = "bold 16px -apple-system, sans-serif";
                 ctx.fillStyle = this.isBomb ? "#ffffff" : "#002b49";
                 
-                if (this.text.length > 7) {
-                    const l1 = this.text.substring(0, Math.ceil(this.text.length / 2));
-                    const l2 = this.text.substring(Math.ceil(this.text.length / 2));
-                    ctx.fillText(l1, 0, 10);
-                    ctx.fillText(l2, 0, 32);
+                // 英文單字不斷行排版修正
+                const words = this.text.split(" ");
+                if (words.length > 1) {
+                    ctx.fillText(words[0], 0, 10);
+                    ctx.fillText(words.slice(1).join(" "), 0, 32);
                 } else {
                     ctx.fillText(this.text, 0, 20);
                 }
@@ -718,12 +866,25 @@
             isGameOver = true; clearInterval(spawnTimer);
             const timeUsed = Math.round((Date.now() - startTime) / 1000);
             document.getElementById('ninja-time-val').innerText = timeUsed;
+            
+            // 渲染 8 關 Review 溫習
+            const reviewContainer = document.getElementById('ninja-review-list');
+            reviewContainer.innerHTML = '<h3> 關卡重點溫習 (Review)</h3>';
+            questionPool.forEach((q, i) => {
+                reviewContainer.innerHTML += `
+                    <div class="review-item">
+                        <h4>第 ${i+1} 關：${q.q}</h4>
+                        <p>${q.review}</p>
+                    </div>
+                `;
+            });
+
             const top3 = saveScore('ninja_arcade_scores', timeUsed);
             renderLeaderboard('ninja-leaderboard', top3);
             document.getElementById('victory-modal').style.display = "flex";
         }
 
-        // ================= GAME 2 (分類大師) LOGIC (支援退回重新排序) =================
+        // ================= GAME 2 (分類大師) LOGIC =================
         const specItems = [
             { id: "s1", type: "same", text: "A20 Pro 處理晶片" },
             { id: "s2", type: "same", text: "儲存容量規格" },
@@ -789,7 +950,6 @@
             renderZones();
         }
 
-        // 點擊已放置卡片可直接退回底層選擇池
         function removePlacedItem(id, fromZone) {
             let item;
             if (fromZone === 'same') {
@@ -1066,7 +1226,12 @@
                 winTitle.innerText = "Congratulations! You are the Genius! ";
                 winTitle.style.color = "#002b49";
                 winScore.innerHTML = `🎉 太強喇！玩家 <strong>${currentPlayerName}</strong> 10 題全對，贏取最高 <strong>$1,000,000</strong> 獎金！`;
+                
+                // 觸發煙花並設定 3 秒定時關閉
                 startFireworks();
+                setTimeout(() => {
+                    stopFireworks();
+                }, 3000);
             } else {
                 winTitle.innerText = "🏆 挑戰完成！";
                 winTitle.style.color = "#002b49";
@@ -1078,7 +1243,7 @@
             document.getElementById('quiz-win-modal').style.display = 'flex';
         }
 
-        // ================= 煙花動畫邏輯 =================
+        // ================= 煙花動畫邏輯 (3秒限制) =================
         let fwCanvas = document.getElementById('fireworksCanvas');
         let fwCtx = fwCanvas.getContext('2d');
         let fwAnimId = null;
@@ -1147,7 +1312,7 @@
             fwCanvas.style.display = 'none';
         }
 
-        // ================= 底部 MARIO 跑道動畫 (CANVAS) =================
+        // ================= 底部 MARIO 跑道動畫 =================
         const mCanvas = document.getElementById('marioCanvas');
         const mCtx = mCanvas.getContext('2d');
         let marioX = 50;
@@ -1170,13 +1335,11 @@
 
             const groundY = mCanvas.height - 25;
 
-            // 1. 綠色草地與土地
             mCtx.fillStyle = '#5c940d';
             mCtx.fillRect(0, groundY - 10, mCanvas.width, 10);
             mCtx.fillStyle = '#d77b36';
             mCtx.fillRect(0, groundY, mCanvas.width, 25);
 
-            // 2. 問號磚塊 (Question Blocks)
             const blockPositions = [200, 450, 700, 950];
             blockPositions.forEach(bx => {
                 mCtx.fillStyle = '#fcb040';
@@ -1189,7 +1352,6 @@
                 mCtx.fillText('?', bx + 10, groundY - 48);
             });
 
-            // 3. 移動與起跳
             marioX += 2.5;
             if (marioX > mCanvas.width + 30) marioX = -30;
 
@@ -1211,28 +1373,22 @@
                 marioY = groundY - 35;
             }
 
-            // 4. Apple 藍衫 Mario 風格小人
             mCtx.save();
             mCtx.translate(marioX, marioY);
 
-            // 帽子 (紅色)
             mCtx.fillStyle = '#e52521';
             mCtx.fillRect(4, 0, 16, 6);
 
-            // 頭部 (膚色)
             mCtx.fillStyle = '#fccc96';
             mCtx.fillRect(4, 6, 14, 10);
 
-            // Apple 藍色工作服
             mCtx.fillStyle = '#0066cc';
             mCtx.fillRect(2, 16, 18, 14);
 
-            // Apple Logo 
             mCtx.fillStyle = '#ffffff';
             mCtx.font = '10px sans-serif';
             mCtx.fillText('', 8, 26);
 
-            // 鞋子 (褐色)
             mCtx.fillStyle = '#795548';
             if (Math.floor(frame / 6) % 2 === 0 || isJumping) {
                 mCtx.fillRect(0, 30, 8, 6);
