@@ -301,13 +301,11 @@
             border-radius: 14px; border: 2px solid #002b49; font-size: 1.05rem; line-height: 1.5; color: #000;
         }
 
-        /* 煙花 Canvas，層級較低 */
         #fireworksCanvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 50; display: none;
         }
 
-        /* 彈窗與排行榜 */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(255, 255, 255, 0.96);
@@ -339,7 +337,6 @@
             border: 2px solid #000; cursor: pointer; margin: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);
         }
 
-        /* Admin 編輯介面樣式 */
         .admin-editor {
             width: 100%; max-width: 800px; text-align: left;
             background: #fff; border: 2px solid #002b49; border-radius: 16px;
@@ -354,7 +351,6 @@
 </head>
 <body>
 
-    <!-- 煙花特效 Canvas -->
     <canvas id="fireworksCanvas"></canvas>
 
     <!-- 右上角 Admin 管理按鈕 -->
@@ -412,20 +408,20 @@
         </div>
     </div>
 
-    <!-- ================= ADMIN 管理彈窗 ================= -->
+    <!-- ================= ADMIN 管理彈窗 (隱藏提示) ================= -->
     <div id="admin-modal" class="modal">
         <h1 style="color:#002b49;">⚙️ Admin 後台題目管理</h1>
         <p style="color:var(--text-secondary);">請輸入管理員帳號與密碼：</p>
         
         <div id="admin-login-box">
-            <input type="text" id="admin-user" class="input-box" placeholder="帳號 (Apple)" style="margin-bottom:10px;"><br>
-            <input type="password" id="admin-pass" class="input-box" placeholder="密碼 (Apple)"><br>
+            <input type="text" id="admin-user" class="input-box" placeholder="帳號" style="margin-bottom:10px;"><br>
+            <input type="password" id="admin-pass" class="input-box" placeholder="密碼"><br>
             <button class="btn" onclick="loginAdmin()">登入管理</button>
             <button class="btn" style="background:#e2e8f0; color:#000;" onclick="closeAdminModal()">關閉</button>
         </div>
 
         <div id="admin-content-box" style="display:none; width:100%; max-width:800px;">
-            <p style="color:var(--apple-green); font-weight:bold;">✅ 已成功登入！修改後點擊「儲存全部變更」即可生效。</p>
+            <p style="color:var(--apple-green); font-weight:bold;">✅ 已成功登入！可直接修訂 Game 1 與 Game 2 題目與答案。</p>
             <div id="admin-questions-list"></div>
             <button class="btn" style="background:var(--apple-green);" onclick="saveAdminChanges()">💾 儲存全部變更</button>
             <button class="btn" style="background:#e2e8f0; color:#000;" onclick="closeAdminModal()">關閉</button>
@@ -444,9 +440,18 @@
         </div>
         <canvas id="gameCanvas"></canvas>
 
+        <!-- 答錯時彈出的 Recap & Review Modal -->
         <div id="game-over-modal" class="modal" style="justify-content: center;">
-            <h1 style="color:var(--apple-red)">BOOM! 💥</h1>
-            <p id="over-reason">切錯咗答案！</p>
+            <h1 style="color:var(--apple-red)">BOOM! 💥 答錯了！</h1>
+            <p id="over-reason" style="font-size:1.2rem; font-weight:bold; margin-bottom:15px;"></p>
+            
+            <div class="review-container">
+                <h4 style="color:var(--accent-blue); margin-top:0;">💡 觀念重溫 (Recap & Review)</h4>
+                <p id="over-q-title" style="font-weight:bold; color:#000; margin-bottom:6px;"></p>
+                <p id="over-q-correct" style="color:var(--apple-green); font-weight:bold; margin-bottom:8px;"></p>
+                <p id="over-q-review" style="color:#334155; line-height:1.5;"></p>
+            </div>
+
             <button class="btn" onclick="startNinjaGame()">重新挑戰</button>
             <button class="btn" style="background:#e2e8f0; color:#000;" onclick="goHome()">返回主頁</button>
         </div>
@@ -455,7 +460,6 @@
             <h1 style="color:var(--apple-green)">🎉 通關成功！</h1>
             <p style="font-size:1.2rem;">耗時：<span id="ninja-time-val" style="font-weight:bold;">0</span> 秒</p>
             
-            <!-- 8 題完整 Review -->
             <div class="review-container" id="ninja-review-list"></div>
 
             <div class="leaderboard-box">
@@ -676,6 +680,16 @@
                     </div>
                 `;
             });
+
+            list.innerHTML += '<h3>Game 2 分類大師答案清單總覽</h3>';
+            list.innerHTML += `
+                <div class="admin-editor">
+                    <label>相同規格 (Same Spec)：</label>
+                    <textarea readonly style="background:#f1f5f9;">${specItems.filter(i=>i.type==='same').map(i=>'• '+i.text).join('\n')}</textarea>
+                    <label>不相同規格 (Different Spec)：</label>
+                    <textarea readonly style="background:#f1f5f9;">${specItems.filter(i=>i.type==='diff').map(i=>'• '+i.text).join('\n')}</textarea>
+                </div>
+            `;
         }
 
         function saveAdminChanges() {
@@ -690,7 +704,7 @@
             closeAdminModal();
         }
 
-        // ================= GAME 1 (忍者刀) LOGIC =================
+        // ================= GAME 1 (忍者刀 + 水果切破效果) LOGIC =================
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
@@ -702,56 +716,56 @@
                 q: "客人處理大量文書與長文章，你會推薦邊個 Apple Intelligence 功能？", 
                 correct: ["Writing Tools", "Summarize 智能摘要"], 
                 wrong: ["Visual Intelligence", "飛行模式當航拍機", "代寫功課功能"],
-                review: "客人處理大量文書和長文章時，我們可以介紹 Writing Tools / Siri AI。幾乎任何打字的地方，都可叫 Siri 幫手寫。Siri AI 現可由零開始生成草稿，或就你所寫的內容給予意見。在訊息和郵件 App，Siri AI 更可配合你一貫的寫作風格、標點和語氣運用。（暫時適用於英文）"
+                review: "客人處理大量文書和長文章時，我們可以介紹 Writing Tools 與 Summarize 智能摘要。幾乎任何打字的地方都可以呼叫 Siri / Apple Intelligence 幫忙撰寫草稿或修訂風格。"
             },
             { 
                 q: "蘋果智能（Visual Intelligence）視覺功能可以幫客人做到咩？", 
-                correct: ["辨識餐廳營業時間", "海報活動加到日曆"], 
-                wrong: ["透視隔壁房間", "睇穿朋友銀行餘額"],
-                review: "就眼前所見、螢幕所看，直接探索查問。視覺智能隨時好用，更幫得手，現已加入相機內，並即將登陸 Mac 和 iPad；相機的 Siri 模式配合視覺智能，讓你只需輕點一下，即可根據身邊的事物進行搜尋、提問，並執行相關操作。"
+                correct: ["辨識餐廳營業時間", "海報活動加到日曆", "辨識動植物"], 
+                wrong: ["透視隔壁房間", "睇穿朋友銀行餘額", "部手機透明隱身"],
+                review: "視覺智能（Visual Intelligence）讓顧客點擊相機控制按鈕，即可辨識眼前餐廳營業時間、活動海報加入日曆、辨識動植物與景點資訊。"
             },
             { 
                 q: "全新 Siri AI 嘅跨 App 操作（App Actions）可以幫客人做到邊樣？", 
                 correct: ["尋找幾年前照片", "語音儲存到備忘錄"], 
-                wrong: ["排隊買 iPhone", "自動駁通 CEO 電話"],
-                review: "跨 App 嶄新亮相，真正幫得手的 AI，與各個 App 深度整合，理解你的個人情境。Siri AI 可根據你當下進行的事項，在訊息、音樂和提醒事項等 App 中執行操作，並可參考網上資料給你詳盡最新情報。"
+                wrong: ["繞過私隱與安全認證", "無監督下執行發送重要郵件"],
+                review: "Siri AI 具備跨 App 操作與個人情境理解能力，可以幫顧客找出幾年前的照片或將語音內容歸檔到備忘錄，同時嚴格受私隱權限規範。"
             },
             { 
                 q: "AirPods 嘅即時同聲傳譯 / 翻譯功能，需要搭配邊個系統裝置？", 
                 correct: ["iPhone 15 Pro 或更新型號（iOS 26 或以上）", "支援 Apple Intelligence 裝置"], 
-                wrong: ["所有舊款 iPhone 均可", "Android 5G 裝置"],
-                review: "AirPods 搭配支援 Apple Intelligence 的 iPhone（iPhone 15 Pro 系列或更新型號，運行 iOS 18 或更高版本），即可實現同聲傳譯與即時翻譯功能。"
+                wrong: ["所有舊款 iPhone 均可", "所有國內購買的手機"],
+                review: "AirPods 即時同聲傳譯功能需搭配 iPhone 15 Pro 或更新型號（運行 iOS 26 或以上版本），且必須支援 Apple Intelligence。"
             },
             { 
                 q: "Apple Watch 有邊啲極具實用價值嘅智能健康與安全功能？", 
-                correct: ["跌倒與車禍偵測", "心率過高過低通知"], 
-                wrong: ["邊度痛貼邊度", "預測六合彩頭獎"],
-                review: "Apple Watch 提供全天候健康守護，包括心率過高/過低通知、心律不國警告，以及關鍵時刻的跌倒偵測與車禍偵測自動求救功能。"
+                correct: ["跌倒與車禍偵測", "心率過高過低通知", "緊急求助 SOS"], 
+                wrong: ["邊度痛貼邊度", "預測六合彩頭獎", "血壓當前數值"],
+                review: "Apple Watch 提供全天候健康與安全守護，包含心率過高過低通知、跌倒與車禍偵測，以及緊急求助 SOS 功能。"
             },
             { 
                 q: "介紹 iPhone Case 保護殼時，側邊新增咗邊個專用按鈕介面？", 
                 correct: ["Camera Control 按鈕", "Visual Intelligence 快捷鍵"], 
-                wrong: ["自動發熱按鈕", "降落傘彈出鍵"],
-                review: "全新 iPhone Case 完美匹配側邊的相機控制（Camera Control）與 Visual Intelligence 按鈕，讓使用者一按即可快速啟動視覺智能搜尋與拍攝。"
+                wrong: ["當作Touch ID", "按一下一鍵輸入", "放手指上去知道血糖"],
+                review: "iPhone Case 特設相機控制（Camera Control）按鈕與 Visual Intelligence 快捷體驗，讓相機與視覺搜尋一按即合。"
             },
             { 
                 q: "喺 Safari 瀏覽器入面，Apple Intelligence 提供咗咩功能？", 
                 correct: ["Highlights 網頁重點摘要", "網頁文字即時翻譯"], 
                 wrong: ["自動幫網頁文章點讚", "填寫信用卡密碼"],
-                review: "Safari 結合 Apple Intelligence 提供 Highlights 功能，能自動提取長篇文章與網頁的關鍵重點，讓閱讀與吸收資訊更加高效。"
+                review: "Safari 結合 Apple Intelligence 提供 Highlights 網頁重點摘要與即時翻譯，提升顧客閱讀網頁效率。"
             },
             { 
                 q: "客人想喺照片入面移除無關嘅行人，應該推薦邊個功能？", 
                 correct: ["Clean Up 清除工具", "Object Removal 物件消除"], 
                 wrong: ["一鍵美顏", "一鍵磨皮", "AI 生成背景"],
-                review: "Clean Up（清除工具）是 Apple Intelligence 照片 App 的核心功能，能精準識別並一鍵消除背景中無關的雜物或行人，同時保持背景自然填補。"
+                review: "Clean Up（清除工具）可以精準去除照片背景中的無關行人或雜物，並保持背景極致自然。"
             }
         ];
 
         let questionPool = JSON.parse(localStorage.getItem('custom_question_pool')) || defaultQuestionPool;
 
         const fruitIcons = ["🍎", "🍊", "🍉", "🍌", "🍓", "🍑", "🍐"];
-        let currentQIndex = 0, score = 0, targets = [], bladePath = [], isGameOver = true, spawnTimer = null, animFrameId = null;
+        let currentQIndex = 0, score = 0, targets = [], slicedParts = [], bladePath = [], isGameOver = true, spawnTimer = null, animFrameId = null;
 
         class TargetItem {
             constructor(text, isCorrect, isBomb = false) {
@@ -780,7 +794,6 @@
                 ctx.font = "bold 16px -apple-system, sans-serif";
                 ctx.fillStyle = this.isBomb ? "#ffffff" : "#002b49";
                 
-                // 英文單字不斷行排版修正
                 const words = this.text.split(" ");
                 if (words.length > 1) {
                     ctx.fillText(words[0], 0, 10);
@@ -788,6 +801,36 @@
                 } else {
                     ctx.fillText(this.text, 0, 20);
                 }
+                ctx.restore();
+            }
+        }
+
+        // 水果切開一分為二粒子效果
+        class SlicedPart {
+            constructor(x, y, text, icon, side) {
+                this.x = x; this.y = y;
+                this.vx = (side === 'left' ? -1 : 1) * (Math.random() * 4 + 3);
+                this.vy = -Math.random() * 3 - 2;
+                this.gravity = 0.25;
+                this.rotation = 0;
+                this.vRot = (side === 'left' ? -1 : 1) * 0.1;
+                this.text = text; this.icon = icon; this.side = side;
+                this.radius = 110;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy; this.vy += this.gravity;
+                this.rotation += this.vRot;
+            }
+            draw() {
+                ctx.save(); ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                
+                ctx.beginPath();
+                if (this.side === 'left') ctx.arc(0, 0, this.radius, Math.PI * 0.5, Math.PI * 1.5);
+                else ctx.arc(0, 0, this.radius, Math.PI * 1.5, Math.PI * 0.5);
+                ctx.fillStyle = "#ffffff"; ctx.strokeStyle = "#002b49"; ctx.lineWidth = 4;
+                ctx.fill(); ctx.stroke();
+                
                 ctx.restore();
             }
         }
@@ -802,12 +845,16 @@
         function spawnTargets() {
             if (isGameOver) return;
             const qData = questionPool[currentQIndex];
-            if (Math.random() < 0.12) targets.push(new TargetItem("DANGER", false, true));
-            else {
-                const isCorrect = Math.random() < 0.65;
-                const text = (isCorrect ? qData.correct : qData.wrong)[Math.floor(Math.random() * (isCorrect ? qData.correct : qData.wrong).length)];
-                targets.push(new TargetItem(text, isCorrect, false));
-            }
+            
+            // 洗牌不重複抽取
+            const combined = [
+                ...qData.correct.map(t => ({ text: t, isCorrect: true })),
+                ...qData.wrong.map(t => ({ text: t, isCorrect: false }))
+            ].sort(() => Math.random() - 0.5);
+
+            const chosen = combined[0];
+            if (Math.random() < 0.1) targets.push(new TargetItem("DANGER", false, true));
+            else targets.push(new TargetItem(chosen.text, chosen.isCorrect, false));
         }
 
         function addBladePoint(x, y) {
@@ -815,6 +862,11 @@
             targets.forEach(target => {
                 if (!target.sliced && Math.hypot(target.x - x, target.y - y) < target.radius) {
                     target.sliced = true;
+
+                    // 生成一分為二爆破切片
+                    slicedParts.push(new SlicedPart(target.x, target.y, target.text, target.icon, 'left'));
+                    slicedParts.push(new SlicedPart(target.x, target.y, target.text, target.icon, 'right'));
+
                     if (target.isBomb) triggerGameOver("切中爆炸彈 💣");
                     else if (target.isCorrect) {
                         score++;
@@ -830,9 +882,15 @@
 
         function gameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
             for (let i = targets.length - 1; i >= 0; i--) {
                 targets[i].update(); targets[i].draw();
                 if (targets[i].y > canvas.height + 120 || targets[i].sliced) targets.splice(i, 1);
+            }
+
+            for (let i = slicedParts.length - 1; i >= 0; i--) {
+                slicedParts[i].update(); slicedParts[i].draw();
+                if (slicedParts[i].y > canvas.height + 120) slicedParts.splice(i, 1);
             }
             
             const now = Date.now(); bladePath = bladePath.filter(p => now - p.time < 180);
@@ -851,7 +909,7 @@
         }
 
         function startNinjaGame() {
-            score = 0; currentQIndex = 0; targets = []; bladePath = []; isGameOver = false;
+            score = 0; currentQIndex = 0; targets = []; slicedParts = []; bladePath = []; isGameOver = false;
             startTime = Date.now();
             document.getElementById('game-over-modal').style.display = "none";
             document.getElementById('victory-modal').style.display = "none";
@@ -860,20 +918,31 @@
             if (animFrameId) cancelAnimationFrame(animFrameId); gameLoop();
         }
 
-        function triggerGameOver(reason) { isGameOver = true; clearInterval(spawnTimer); document.getElementById('over-reason').innerText = reason; document.getElementById('game-over-modal').style.display = "flex"; }
+        function triggerGameOver(reason) { 
+            isGameOver = true; 
+            clearInterval(spawnTimer); 
+            const q = questionPool[currentQIndex];
+            
+            document.getElementById('over-reason').innerText = reason; 
+            document.getElementById('over-q-title').innerText = `題目：${q.q}`;
+            document.getElementById('over-q-correct').innerText = `✅ 正確答案為：${q.correct.join(' / ')}`;
+            document.getElementById('over-q-review').innerText = q.review;
+
+            document.getElementById('game-over-modal').style.display = "flex"; 
+        }
         
         function triggerNinjaVictory() {
             isGameOver = true; clearInterval(spawnTimer);
             const timeUsed = Math.round((Date.now() - startTime) / 1000);
             document.getElementById('ninja-time-val').innerText = timeUsed;
             
-            // 渲染 8 關 Review 溫習
             const reviewContainer = document.getElementById('ninja-review-list');
             reviewContainer.innerHTML = '<h3> 關卡重點溫習 (Review)</h3>';
             questionPool.forEach((q, i) => {
                 reviewContainer.innerHTML += `
                     <div class="review-item">
                         <h4>第 ${i+1} 關：${q.q}</h4>
+                        <p style="color:var(--apple-green); font-weight:bold;">正確答案：${q.correct.join(', ')}</p>
                         <p>${q.review}</p>
                     </div>
                 `;
@@ -1227,7 +1296,6 @@
                 winTitle.style.color = "#002b49";
                 winScore.innerHTML = `🎉 太強喇！玩家 <strong>${currentPlayerName}</strong> 10 題全對，贏取最高 <strong>$1,000,000</strong> 獎金！`;
                 
-                // 觸發煙花並設定 3 秒定時關閉
                 startFireworks();
                 setTimeout(() => {
                     stopFireworks();
@@ -1243,7 +1311,7 @@
             document.getElementById('quiz-win-modal').style.display = 'flex';
         }
 
-        // ================= 煙花動畫邏輯 (3秒限制) =================
+        // ================= 煙花動畫邏輯 =================
         let fwCanvas = document.getElementById('fireworksCanvas');
         let fwCtx = fwCanvas.getContext('2d');
         let fwAnimId = null;
