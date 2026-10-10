@@ -179,7 +179,6 @@
             margin: 15px 0; max-height: 280px; overflow-y: auto; box-sizing: border-box;
         }
         .review-item { margin-bottom: 14px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px; }
-        .review-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .review-item h4 { margin: 0 0 4px 0; color: #0066cc; font-size: 1.05rem; }
         .review-item p { margin: 0; font-size: 0.95rem; color: #334155; line-height: 1.5; }
 
@@ -447,18 +446,9 @@
 
         <div id="game-over-modal" class="modal" style="justify-content: center;">
             <h1 style="color:var(--apple-red)">BOOM! 💥</h1>
-            <p id="over-reason" style="font-size:1.2rem; font-weight:bold;">切錯咗答案！</p>
-            
-            <!-- Game Over 專屬溫習區 -->
-            <div class="review-container" style="max-height:none; margin-top:10px;">
-                <h3 style="color:#d70015; margin-top:0;">❌ 錯題溫習 (Review)</h3>
-                <div id="game-over-review-content"></div>
-            </div>
-
-            <div style="margin-top:20px;">
-                <button class="btn" onclick="startNinjaGame()">重新挑戰</button>
-                <button class="btn" style="background:#e2e8f0; color:#000;" onclick="goHome()">返回主頁</button>
-            </div>
+            <p id="over-reason">切錯咗答案！</p>
+            <button class="btn" onclick="startNinjaGame()">重新挑戰</button>
+            <button class="btn" style="background:#e2e8f0; color:#000;" onclick="goHome()">返回主頁</button>
         </div>
 
         <div id="victory-modal" class="modal" style="justify-content: center;">
@@ -473,10 +463,8 @@
                 <div id="ninja-leaderboard"></div>
             </div>
 
-            <div>
-                <button class="btn" onclick="startNinjaGame()">再玩一次</button>
-                <button class="btn" style="background:#e2e8f0; color:#000;" onclick="goHome()">返回主頁</button>
-            </div>
+            <button class="btn" onclick="startNinjaGame()">再玩一次</button>
+            <button class="btn" style="background:#e2e8f0; color:#000;" onclick="goHome()">返回主頁</button>
         </div>
     </div>
 
@@ -718,32 +706,32 @@
             },
             { 
                 q: "蘋果智能（Visual Intelligence）視覺功能可以幫客人做到咩？", 
-                correct: ["辨識餐廳營業時間", "海報活動加到日曆", "辨識動植物"], 
-                wrong: ["透視隔壁房間", "睇穿朋友銀行餘額", "部手機透明隱身"],
+                correct: ["辨識餐廳營業時間", "海報活動加到日曆"], 
+                wrong: ["透視隔壁房間", "睇穿朋友銀行餘額"],
                 review: "就眼前所見、螢幕所看，直接探索查問。視覺智能隨時好用，更幫得手，現已加入相機內，並即將登陸 Mac 和 iPad；相機的 Siri 模式配合視覺智能，讓你只需輕點一下，即可根據身邊的事物進行搜尋、提問，並執行相關操作。"
             },
             { 
                 q: "全新 Siri AI 嘅跨 App 操作（App Actions）可以幫客人做到邊樣？", 
                 correct: ["尋找幾年前照片", "語音儲存到備忘錄"], 
-                wrong: ["繞過私隱與安全認證", "無監督下執行發送重要郵件"],
+                wrong: ["排隊買 iPhone", "自動駁通 CEO 電話"],
                 review: "跨 App 嶄新亮相，真正幫得手的 AI，與各個 App 深度整合，理解你的個人情境。Siri AI 可根據你當下進行的事項，在訊息、音樂和提醒事項等 App 中執行操作，並可參考網上資料給你詳盡最新情報。"
             },
             { 
                 q: "AirPods 嘅即時同聲傳譯 / 翻譯功能，需要搭配邊個系統裝置？", 
                 correct: ["iPhone 15 Pro 或更新型號（iOS 26 或以上）", "支援 Apple Intelligence 裝置"], 
-                wrong: ["所有舊款 iPhone 均可", "所有國內購買的手機"],
+                wrong: ["所有舊款 iPhone 均可", "Android 5G 裝置"],
                 review: "AirPods 搭配支援 Apple Intelligence 的 iPhone（iPhone 15 Pro 系列或更新型號，運行 iOS 18 或更高版本），即可實現同聲傳譯與即時翻譯功能。"
             },
             { 
                 q: "Apple Watch 有邊啲極具實用價值嘅智能健康與安全功能？", 
-                correct: ["跌倒與車禍偵測", "心率過高過低通知", "緊急求助 SOS"], 
-                wrong: ["邊度痛貼邊度", "預測六合彩頭獎", "血壓當前數值"],
-                review: "Apple Watch 提供全天候健康守護，包括心率過高/過低通知、心律不整警告，以及關鍵時刻的跌倒偵測與車禍偵測自動求救功能。"
+                correct: ["跌倒與車禍偵測", "心率過高過低通知"], 
+                wrong: ["邊度痛貼邊度", "預測六合彩頭獎"],
+                review: "Apple Watch 提供全天候健康守護，包括心率過高/過低通知、心律不國警告，以及關鍵時刻的跌倒偵測與車禍偵測自動求救功能。"
             },
             { 
                 q: "介紹 iPhone Case 保護殼時，側邊新增咗邊個專用按鈕介面？", 
                 correct: ["Camera Control 按鈕", "Visual Intelligence 快捷鍵"], 
-                wrong: ["當作Touch ID", "按一下一鍵輸入", "放手指上去知道血糖"],
+                wrong: ["自動發熱按鈕", "降落傘彈出鍵"],
                 review: "全新 iPhone Case 完美匹配側邊的相機控制（Camera Control）與 Visual Intelligence 按鈕，讓使用者一按即可快速啟動視覺智能搜尋與拍攝。"
             },
             { 
@@ -763,21 +751,7 @@
         let questionPool = JSON.parse(localStorage.getItem('custom_question_pool')) || defaultQuestionPool;
 
         const fruitIcons = ["🍎", "🍊", "🍉", "🍌", "🍓", "🍑", "🍐"];
-        let currentQIndex = 0, score = 0, targets = [], slicedTargets = [], bladePath = [];
-        let isGameOver = true, spawnTimer = null, animFrameId = null;
-        
-        // 洗牌機制陣列，用嚟確保答案平均出現唔重複
-        let availableCorrect = [];
-        let availableWrong = [];
-
-        // 洗牌函數
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
+        let currentQIndex = 0, score = 0, targets = [], bladePath = [], isGameOver = true, spawnTimer = null, animFrameId = null;
 
         class TargetItem {
             constructor(text, isCorrect, isBomb = false) {
@@ -792,9 +766,9 @@
                 this.sliced = false;
             }
             update() { this.x += this.vx; this.y += this.vy; this.vy += this.gravity; }
-            
-            // 將繪圖邏輯獨立，方便完整波波同切開一半嘅波波共用
-            drawContent(ctx) {
+            draw() {
+                ctx.save(); ctx.translate(this.x, this.y);
+                
                 ctx.beginPath(); ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
                 ctx.fillStyle = this.isBomb ? "rgba(255, 69, 58, 0.85)" : "#ffffff";
                 ctx.strokeStyle = "#002b49";
@@ -806,6 +780,7 @@
                 ctx.font = "bold 16px -apple-system, sans-serif";
                 ctx.fillStyle = this.isBomb ? "#ffffff" : "#002b49";
                 
+                // 英文單字不斷行排版修正
                 const words = this.text.split(" ");
                 if (words.length > 1) {
                     ctx.fillText(words[0], 0, 10);
@@ -813,54 +788,6 @@
                 } else {
                     ctx.fillText(this.text, 0, 20);
                 }
-            }
-            
-            draw() {
-                ctx.save(); ctx.translate(this.x, this.y);
-                this.drawContent(ctx);
-                ctx.restore();
-            }
-        }
-
-        // 切開一半嘅目標類別
-        class SlicedHalf {
-            constructor(target, isLeft) {
-                this.x = target.x;
-                this.y = target.y;
-                // 左邊向左飛，右邊向右飛
-                this.vx = target.vx + (isLeft ? -3 : 3);
-                this.vy = target.vy - 2; // 稍微向上彈
-                this.radius = target.radius;
-                this.rotation = 0;
-                this.rotSpeed = isLeft ? -0.08 : 0.08;
-                this.targetObj = target;
-                this.isLeft = isLeft;
-                this.gravity = 0.2;
-            }
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.vy += this.gravity;
-                this.rotation += this.rotSpeed;
-            }
-            draw() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.rotate(this.rotation);
-                
-                // 用 clip() 裁切一半
-                ctx.beginPath();
-                if (this.isLeft) {
-                    // 裁切左半邊
-                    ctx.rect(-this.radius - 5, -this.radius - 5, this.radius + 5, this.radius * 2 + 10);
-                } else {
-                    // 裁切右半邊
-                    ctx.rect(0, -this.radius - 5, this.radius + 5, this.radius * 2 + 10);
-                }
-                ctx.clip();
-                
-                // 畫出原本嘅內容
-                this.targetObj.drawContent(ctx);
                 ctx.restore();
             }
         }
@@ -870,31 +797,15 @@
             document.getElementById('question-title').innerText = `關卡 ${currentQIndex + 1} / 8`;
             document.getElementById('question-text').innerText = qData.q;
             document.getElementById('progress-bar').style.width = `${(score / 8) * 100}%`;
-            
-            // 每次載入新題目時，重置並洗牌可用答案陣列
-            availableCorrect = shuffleArray([...qData.correct]);
-            availableWrong = shuffleArray([...qData.wrong]);
         }
 
         function spawnTargets() {
             if (isGameOver) return;
             const qData = questionPool[currentQIndex];
-            
-            if (Math.random() < 0.12) {
-                targets.push(new TargetItem("DANGER", false, true));
-            } else {
+            if (Math.random() < 0.12) targets.push(new TargetItem("DANGER", false, true));
+            else {
                 const isCorrect = Math.random() < 0.65;
-                let text = "";
-                
-                // 確保答案唔會連續重複，抽完就補充再洗牌
-                if (isCorrect) {
-                    if (availableCorrect.length === 0) availableCorrect = shuffleArray([...qData.correct]);
-                    text = availableCorrect.pop();
-                } else {
-                    if (availableWrong.length === 0) availableWrong = shuffleArray([...qData.wrong]);
-                    text = availableWrong.pop();
-                }
-                
+                const text = (isCorrect ? qData.correct : qData.wrong)[Math.floor(Math.random() * (isCorrect ? qData.correct : qData.wrong).length)];
                 targets.push(new TargetItem(text, isCorrect, false));
             }
         }
@@ -904,27 +815,12 @@
             targets.forEach(target => {
                 if (!target.sliced && Math.hypot(target.x - x, target.y - y) < target.radius) {
                     target.sliced = true;
-                    
-                    // 如果唔係炸彈，就產生切開一半嘅特效
-                    if (!target.isBomb) {
-                        slicedTargets.push(new SlicedHalf(target, true));
-                        slicedTargets.push(new SlicedHalf(target, false));
-                    }
-
-                    if (target.isBomb) {
-                        triggerGameOver("切中爆炸彈 💣");
-                    } else if (target.isCorrect) {
+                    if (target.isBomb) triggerGameOver("切中爆炸彈 💣");
+                    else if (target.isCorrect) {
                         score++;
-                        if (score >= 8) {
-                            triggerNinjaVictory();
-                        } else {
-                            currentQIndex++; 
-                            targets = []; 
-                            loadQuestion(); 
-                        }
-                    } else {
-                        triggerGameOver(`切錯答案！「${target.text}」唔係正確功能！`);
-                    }
+                        if (score >= 8) triggerNinjaVictory();
+                        else { currentQIndex++; targets = []; loadQuestion(); }
+                    } else triggerGameOver(`切錯答案！「${target.text}」唔係 Apple 功能！`);
                 }
             });
         }
@@ -934,22 +830,11 @@
 
         function gameLoop() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 更新及繪製完整目標
             for (let i = targets.length - 1; i >= 0; i--) {
-                targets[i].update(); 
-                if (!targets[i].sliced) targets[i].draw(); // 切開咗就唔畫完整版
+                targets[i].update(); targets[i].draw();
                 if (targets[i].y > canvas.height + 120 || targets[i].sliced) targets.splice(i, 1);
             }
             
-            // 更新及繪製切開一半嘅特效
-            for (let i = slicedTargets.length - 1; i >= 0; i--) {
-                slicedTargets[i].update();
-                slicedTargets[i].draw();
-                if (slicedTargets[i].y > canvas.height + 120) slicedTargets.splice(i, 1);
-            }
-            
-            // 繪製刀痕
             const now = Date.now(); bladePath = bladePath.filter(p => now - p.time < 180);
             if (bladePath.length > 1) {
                 const gradient = ctx.createLinearGradient(bladePath[0].x, bladePath[0].y, bladePath[bladePath.length-1].x, bladePath[bladePath.length-1].y);
@@ -966,7 +851,7 @@
         }
 
         function startNinjaGame() {
-            score = 0; currentQIndex = 0; targets = []; slicedTargets = []; bladePath = []; isGameOver = false;
+            score = 0; currentQIndex = 0; targets = []; bladePath = []; isGameOver = false;
             startTime = Date.now();
             document.getElementById('game-over-modal').style.display = "none";
             document.getElementById('victory-modal').style.display = "none";
@@ -975,22 +860,7 @@
             if (animFrameId) cancelAnimationFrame(animFrameId); gameLoop();
         }
 
-        function triggerGameOver(reason) { 
-            isGameOver = true; 
-            clearInterval(spawnTimer); 
-            document.getElementById('over-reason').innerText = reason; 
-            
-            // 顯示當前錯誤關卡嘅 Review
-            const qData = questionPool[currentQIndex];
-            document.getElementById('game-over-review-content').innerHTML = `
-                <div class="review-item" style="border:none; margin:0; padding:0;">
-                    <h4>第 ${currentQIndex + 1} 關：${qData.q}</h4>
-                    <p>${qData.review}</p>
-                </div>
-            `;
-            
-            document.getElementById('game-over-modal').style.display = "flex"; 
-        }
+        function triggerGameOver(reason) { isGameOver = true; clearInterval(spawnTimer); document.getElementById('over-reason').innerText = reason; document.getElementById('game-over-modal').style.display = "flex"; }
         
         function triggerNinjaVictory() {
             isGameOver = true; clearInterval(spawnTimer);
@@ -1142,7 +1012,9 @@
         const quizQuestions = [
             {
                 topic: "螢幕規格",
-                q: "一位用 iPhone 18 Pro Max 的顧客問：「Duo 的螢幕跟我現在的比8 Pro 大 50%；外螢幕相當於 iPhone 18 Pro Max 的 90%",
+                q: "一位用 iPhone 18 Pro Max 的顧客問：「Duo 的螢幕跟我現在的比怎樣？」哪一句說法正確？",
+                opts: [
+                    "內螢幕比 iPhone 18 Pro 大 50%；外螢幕相當於 iPhone 18 Pro Max 的 90%",
                     "內螢幕比 iPhone 18 Pro Max 大 50%；外螢幕相當於 iPhone 18 Pro 的 90%",
                     "內螢幕比 iPhone 18 Pro Max 大 90%；外螢幕相當於 iPhone 18 Pro 的 50%",
                     "內螢幕比 iPhone 18 Pro Max 大一倍；外螢幕和 iPhone 18 Pro 一樣大"
